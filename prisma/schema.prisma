@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  CLIENT
+  TREASURER
+  BOARD
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum MemberStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  EXITED
+}
+
+enum SavingsAccountStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  APPROVE
+  REJECT
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
+  PASSWORD_RESET
+  PASSWORD_CHANGE
+  DISBURSE
+  SIGN
+  EXPORT
+}
+
+enum AuditStatus {
+  SUCCESS
+  FAILURE
+}
+
+enum NotificationType {
+  WELCOME
+  PASSWORD_RESET
+  SECURITY
+  SYSTEM
+}
+
+enum AuthIdentifierType {
+  MEMBER_NUMBER
+  USERNAME
+  EMAIL
+  PHONE
+}
+
+enum PasswordResetChannel {
+  EMAIL
+  SMS
+  ADMIN_ASSISTED
+}
+
+model User {
+  id                   String                 @id @default(cuid())
+  username             String?
+  email                String?
+  phone                String?
+  passwordHash         String
+  role                 UserRole
+  memberId             String?                @unique
+  status               UserStatus             @default(ACTIVE)
+  mustChangePassword   Boolean                @default(true)
+  lastLoginAt          DateTime?
+  tempCredentialIssuedAt DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  member               Member?                @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  auditLogs            AuditLog[]             @relation("AuditActor")
+  notifications        Notification[]
+  passwordResetRequests PasswordResetRequest[]
+
+  @@index([role])
+  @@index([status])
+}
+
+model Member {
+  id               String             @id @default(cuid())
+  memberNumber     String             @unique
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime?
+  nationalIdNumber String
+  address          String
+  phone            String
+  email            String?
+  nextOfKinName    String
+  nextOfKinPhone   String
+  photoUrl         String?
+  enrollmentDate   DateTime           @default(now())
+  status           MemberStatus       @default(PENDING)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  user             User?
+  savingsAccount   SavingsAccount?
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SavingsAccount {
+  id            String               @id @default(cuid())
+  memberId      String               @unique
+  accountNumber String               @unique
+  balance       Decimal              @default(0) @db.Decimal(18, 2)
+  status        SavingsAccountStatus @default(ACTIVE)
+  openedAt      DateTime             @default(now())
+  member        Member               @relation(fields: [memberId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+}
+
+model AuditLog {
+  id            String      @id @default(cuid())
+  actorId       String?
+  actorRole     UserRole?
+  action        AuditAction
+  entityType    String
+  entityId      String?
+  beforeState   Json?
+  afterState    Json?
+  metadata      Json?
+  status        AuditStatus @default(SUCCESS)
+  failureReason String?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime    @default(now())
+  actor         User?       @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action, createdAt])
+  @@index([entityType, entityId])
+  @@index([status, createdAt])
+}
+
+model SystemSetting {
+  key         String   @id
+  value       String
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model PasswordResetRequest {
+  id             String               @id @default(cuid())
+  userId         String
+  identifierType AuthIdentifierType
+  channel        PasswordResetChannel
+  tokenHash      String
+  expiresAt      DateTime
+  consumedAt     DateTime?
+  createdAt      DateTime             @default(now())
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([tokenHash])
+  @@index([expiresAt])
+}

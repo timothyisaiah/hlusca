@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  --background: #edf4f4;
+  --background-deep: #d8e7e6;
+  --foreground: #12232d;
+  --surface: rgba(255, 255, 255, 0.92);
+  --surface-muted: #eef5f3;
+  --surface-border: rgba(18, 35, 45, 0.12);
+  --muted-foreground: #5f7682;
+  --accent: #0f6b78;
+  --accent-strong: #0a5360;
+  --accent-soft: rgba(15, 107, 120, 0.12);
+  --accent-ink: #0c5964;
+}
+
+@theme inline {
+  --color-background: #edf4f4;
+  --color-foreground: #12232d;
+  --font-sans: "Aptos", "Segoe UI Variable", "Segoe UI", sans-serif;
+  --font-mono: "Cascadia Mono", "IBM Plex Mono", "Consolas", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.88), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(15, 107, 120, 0.12), transparent 28%),
+    linear-gradient(180deg, var(--background), var(--background-deep));
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(15, 107, 120, 0.18);
+}
+
+.app-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
+  background-position: center;
+  background-size: 48px 48px;
+}
