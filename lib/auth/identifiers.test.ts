@@ -25,6 +25,7 @@ describe("identifier helpers", () => {
   it("normalizes E.164-style phone input", () => {
     expect(normalizePhone("256700123456")).toBe("+256700123456");
     expect(normalizePhone("+256 700 123 456")).toBe("+256700123456");
+    expect(normalizePhone("+256778576892")).toBe("+256778576892");
   });
 
   it("resolves member number before username, email, or phone", async () => {

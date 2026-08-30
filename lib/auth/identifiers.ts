@@ -52,12 +52,12 @@ export function normalizePhone(value: string) {
   return normalized;
 }
 
-export function assertE164Phone(value: string) {
+export function assertE164Phone(value: string, fieldName = "Phone number") {
   const normalized = normalizePhone(value);
 
   if (!normalized) {
     throw new ApiError(
-      "Phone numbers must be in E.164 format, for example +256700123456.",
+      `${fieldName} must be in E.164 format, for example +256700123456.`,
       400,
       "INVALID_PHONE",
     );

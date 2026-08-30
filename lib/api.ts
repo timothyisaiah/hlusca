@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { ZodError } from "zod";
 
 export class ApiError extends Error {
@@ -33,6 +34,19 @@ export function handleRouteError(error: unknown) {
         details: error.flatten(),
       },
       { status: 400 },
+    );
+  }
+
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2028"
+  ) {
+    return json(
+      {
+        error: "The database is temporarily busy. Please try again in a moment.",
+        code: "DATABASE_BUSY",
+      },
+      { status: 503 },
     );
   }
 

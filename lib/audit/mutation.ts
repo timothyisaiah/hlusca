@@ -56,20 +56,24 @@ export async function runAuditedMutation<T>(
       return outcome.result;
     });
   } catch (error) {
-    await prisma.auditLog.create({
-      data: {
-        actorId: context.actorId ?? undefined,
-        actorRole: context.actorRole ?? undefined,
-        action: context.action,
-        entityType: context.entityType,
-        entityId: context.entityId ?? undefined,
-        metadata: context.metadata ?? undefined,
-        ipAddress: context.ipAddress ?? undefined,
-        userAgent: context.userAgent ?? undefined,
-        status: "FAILURE",
-        failureReason: getErrorMessage(error),
-      },
-    });
+    try {
+      await prisma.auditLog.create({
+        data: {
+          actorId: context.actorId ?? undefined,
+          actorRole: context.actorRole ?? undefined,
+          action: context.action,
+          entityType: context.entityType,
+          entityId: context.entityId ?? undefined,
+          metadata: context.metadata ?? undefined,
+          ipAddress: context.ipAddress ?? undefined,
+          userAgent: context.userAgent ?? undefined,
+          status: "FAILURE",
+          failureReason: getErrorMessage(error),
+        },
+      });
+    } catch (auditError) {
+      console.error("Could not record failed audited mutation.", auditError);
+    }
 
     throw error;
   }

@@ -31,10 +31,12 @@ const usernameField = z
   )
   .transform((value) => normalizeUsername(value));
 
-const phoneField = z
-  .string()
-  .trim()
-  .transform((value) => assertE164Phone(value));
+function phoneField(fieldName: string) {
+  return z
+    .string()
+    .trim()
+    .transform((value) => assertE164Phone(value, fieldName));
+}
 
 const dateField = z
   .string()
@@ -58,12 +60,12 @@ export const memberEnrollmentSchema = z.object({
   firstName: z.string().trim().min(2, "First name is required."),
   lastName: z.string().trim().min(2, "Last name is required."),
   username: usernameField,
-  phone: phoneField,
+  phone: phoneField("Phone number"),
   email: emailField,
-  address: z.string().trim().min(8, "Address is required."),
+  address: z.string().trim().min(2, "Address is required."),
   nationalIdNumber: z.string().trim().min(5, "National ID is required."),
   nextOfKinName: z.string().trim().min(2, "Next of kin name is required."),
-  nextOfKinPhone: phoneField,
+  nextOfKinPhone: phoneField("Next-of-kin phone number"),
   dateOfBirth: dateField,
   photoUrl: optionalTrimmedString,
 });
@@ -72,23 +74,23 @@ export const adminMemberUpdateSchema = z.object({
   firstName: z.string().trim().min(2).optional(),
   lastName: z.string().trim().min(2).optional(),
   username: usernameField.optional(),
-  phone: phoneField.optional(),
+  phone: phoneField("Phone number").optional(),
   email: emailField,
-  address: z.string().trim().min(8).optional(),
+  address: z.string().trim().min(2).optional(),
   nationalIdNumber: z.string().trim().min(5).optional(),
   nextOfKinName: z.string().trim().min(2).optional(),
-  nextOfKinPhone: phoneField.optional(),
+  nextOfKinPhone: phoneField("Next-of-kin phone number").optional(),
   dateOfBirth: dateField.optional(),
   photoUrl: optionalTrimmedString,
   status: z.enum(["PENDING", "ACTIVE", "SUSPENDED", "EXITED"]).optional(),
 });
 
 export const selfMemberUpdateSchema = z.object({
-  address: z.string().trim().min(8).optional(),
-  phone: phoneField.optional(),
+  address: z.string().trim().min(2).optional(),
+  phone: phoneField("Phone number").optional(),
   email: emailField,
   nextOfKinName: z.string().trim().min(2).optional(),
-  nextOfKinPhone: phoneField.optional(),
+  nextOfKinPhone: phoneField("Next-of-kin phone number").optional(),
 });
 
 export const passwordResetRequestSchema = z.object({
