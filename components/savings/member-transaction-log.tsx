@@ -324,7 +324,7 @@ export function MemberTransactionLog({
 
               <div className="grid gap-3 rounded-3xl bg-[var(--surface-muted)] px-4 py-4 text-sm sm:grid-cols-2">
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                     Balance After
                   </p>
                   <p className="mt-1 font-semibold tabular-nums text-[var(--foreground)]">
@@ -332,7 +332,7 @@ export function MemberTransactionLog({
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                     Recorded By
                   </p>
                   <p className="mt-1 font-semibold text-[var(--foreground)]">
@@ -340,7 +340,7 @@ export function MemberTransactionLog({
                   </p>
                 </div>
                 <div className="sm:col-span-2">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                     Date
                   </p>
                   <p className="mt-1 font-semibold text-[var(--foreground)]">

@@ -14,8 +14,8 @@
   --accent-ink: #4250d1;
   --accent-highlight: #ef75bf;
   --radius-card: 1.75rem;
+  --sidebar-width: 280px;
   --touch-target: 2.75rem;
-  --mobile-nav-height: 5.5rem;
 }
 
 @theme inline {

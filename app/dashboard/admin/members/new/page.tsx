@@ -10,7 +10,7 @@ export default async function EnrollMemberPage() {
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           Enrollment
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight text-[var(--foreground)]">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">
           Create a member record
         </h1>
       </div>

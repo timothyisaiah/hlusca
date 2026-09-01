@@ -75,7 +75,7 @@ export function TreasurerSavingsWorkspace({
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
             Treasurer
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] md:text-4xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">
             Savings operations desk
           </h1>
           <p className="max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
@@ -109,7 +109,7 @@ export function TreasurerSavingsWorkspace({
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_340px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
         <Card className="overflow-hidden border-0 bg-[linear-gradient(135deg,#5d6bff,#8fb9ff)] text-white shadow-[0_30px_90px_rgba(93,107,255,0.28)]">
           <CardContent className="relative p-6 md:p-8">
             <div className="absolute right-[-2rem] top-[-2rem] h-32 w-32 rounded-full bg-white/12 blur-sm" />
@@ -126,7 +126,7 @@ export function TreasurerSavingsWorkspace({
                 <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/80">
                   Total savings under management
                 </p>
-                <p className="text-4xl font-semibold tracking-tight tabular-nums md:text-5xl">
+                <p className="text-3xl font-bold tracking-tight tabular-nums md:text-4xl">
                   {formatCurrency(workspace.summary.totalSavings)}
                 </p>
               </div>
@@ -184,7 +184,7 @@ export function TreasurerSavingsWorkspace({
                   </p>
                 </div>
               </div>
-              <p className="mt-4 text-3xl font-semibold tabular-nums text-[var(--foreground)]">
+              <p className="mt-4 text-3xl font-bold tabular-nums text-[var(--foreground)] md:text-4xl">
                 {workspace.summary.activeAccounts}
               </p>
             </div>
@@ -203,7 +203,7 @@ export function TreasurerSavingsWorkspace({
                   </p>
                 </div>
               </div>
-              <p className="mt-4 text-3xl font-semibold tabular-nums text-[var(--foreground)]">
+              <p className="mt-4 text-3xl font-bold tabular-nums text-[var(--foreground)] md:text-4xl">
                 {workspace.summary.pendingActivations}
               </p>
             </div>
@@ -211,13 +211,13 @@ export function TreasurerSavingsWorkspace({
         </Card>
       </div>
 
-      <ResponsiveStatCards className="lg:grid-cols-4">
+      <ResponsiveStatCards>
         <Card>
           <CardHeader>
             <CardTitle>Total savings</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               {formatCurrency(workspace.summary.totalSavings)}
             </p>
           </CardContent>
@@ -227,7 +227,7 @@ export function TreasurerSavingsWorkspace({
             <CardTitle>Deposits this month</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               {formatCurrency(workspace.summary.monthlyDeposits)}
             </p>
           </CardContent>
@@ -237,7 +237,7 @@ export function TreasurerSavingsWorkspace({
             <CardTitle>Withdrawals this month</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               {formatCurrency(workspace.summary.monthlyWithdrawals)}
             </p>
           </CardContent>
@@ -247,14 +247,14 @@ export function TreasurerSavingsWorkspace({
             <CardTitle>Accounts active</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               {workspace.summary.activeAccounts}
             </p>
           </CardContent>
         </Card>
       </ResponsiveStatCards>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_360px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
         <Card>
           <CardHeader>
             <CardTitle>Member ledger search</CardTitle>
@@ -348,7 +348,7 @@ export function TreasurerSavingsWorkspace({
                         <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                           Available savings
                         </p>
-                        <p className="mt-2 text-3xl font-semibold tabular-nums text-[var(--foreground)]">
+                        <p className="mt-2 text-3xl font-bold tabular-nums text-[var(--foreground)] md:text-4xl">
                           {formatCurrency(selectedMember.account.balance)}
                         </p>
                       </div>
@@ -358,7 +358,7 @@ export function TreasurerSavingsWorkspace({
                     </div>
                     <div className="mt-5 grid gap-3 sm:grid-cols-2">
                       <div className="rounded-3xl bg-white px-4 py-4">
-                        <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                        <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                           Transactions
                         </p>
                         <p className="mt-2 text-xl font-semibold text-[var(--foreground)]">
@@ -366,7 +366,7 @@ export function TreasurerSavingsWorkspace({
                         </p>
                       </div>
                       <div className="rounded-3xl bg-white px-4 py-4">
-                        <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                        <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                           Last activity
                         </p>
                         <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
@@ -467,7 +467,7 @@ export function TreasurerSavingsWorkspace({
       </Card>
 
       {selectedMember ? (
-        <div className="fixed inset-x-0 bottom-[calc(var(--mobile-nav-height)+0.75rem)] z-40 px-4 md:hidden">
+        <div className="fixed inset-x-0 bottom-4 z-40 px-4 md:hidden">
           <div className="mx-auto flex max-w-md items-center gap-3 rounded-full border border-white/60 bg-white/95 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.16)] backdrop-blur">
             <Button className="flex-1" onClick={() => setDialogMode("deposit")}>
               Deposit

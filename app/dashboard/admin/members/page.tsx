@@ -13,7 +13,7 @@ export default async function AdminMembersPage() {
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           Membership
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight text-[var(--foreground)]">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">
           Member registry
         </h1>
       </div>

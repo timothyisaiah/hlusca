@@ -531,6 +531,94 @@ progressively enhance for desktop, not the reverse:
   interaction responsiveness as the default performance budget, not an afterthought
   tuned after desktop is done.
 
+### 12.6 App Shell Layout Architecture (fluid, not boxed)
+
+**Problem this section exists to prevent:** wrapping the entire app shell (sidebar +
+content) in a single centered `max-width` container. That produces a "boxed" layout
+with large empty gutters on wide screens and cramped, undersized content in the
+middle — the opposite of the reference dashboards in §12.1, which are full-bleed.
+
+**Required structure — a CSS Grid shell, not a flex-centered wrapper:**
+
+```
+Desktop (≥ lg):
+┌─────────────────────────────────────────────────────────┐
+│ grid-cols-[280px_1fr]  (sidebar column is fixed-width,   │
+│                         content column is fluid/1fr)     │
+│ ┌──────────┬──────────────────────────────────────────┐ │
+│ │ Sidebar  │  Header (sticky, w-full within this col)  │ │
+│ │ (fixed   ├──────────────────────────────────────────┤ │
+│ │  width,  │  <main> — w-full, NO max-w wrapper,       │ │
+│ │  full    │  fluid padding (px-6 lg:px-10), grids     │ │
+│ │  height) │  reflow to fill available width           │ │
+│ └──────────┴──────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+
+Mobile (< md):
+┌───────────────────────┐
+│ Header w-full (hamburger│
+│ opens Sidebar as an     │
+│ off-canvas Sheet, not   │
+│ part of the grid)       │
+├───────────────────────┤
+│ <main> w-full, no       │
+│ max-w, single column,   │
+│ full viewport width     │
+└───────────────────────┘
+```
+
+Root shell (`app/(dashboard)/layout.tsx`), conceptually:
+```tsx
+<div className="grid min-h-screen w-full grid-cols-1 md:grid-cols-[280px_1fr]">
+  <Sidebar className="hidden md:flex md:flex-col md:h-screen md:sticky md:top-0" />
+  <MobileSidebarSheet />  {/* off-canvas, toggled by header hamburger, md:hidden trigger */}
+  <div className="flex min-w-0 flex-col">
+    <Header className="sticky top-0 z-10 w-full" />
+    <main className="w-full flex-1 px-4 py-6 md:px-8 md:py-8 lg:px-10">
+      {children}
+    </main>
+  </div>
+</div>
+```
+
+**Hard rules:**
+- `<main>` and every dashboard page inside it is **`w-full`, never wrapped in
+  `max-w-5xl mx-auto` or similar** — the fluid column IS the constraint, driven by
+  the sidebar width, not an artificial inner box.
+- The only pages allowed a centered `max-w-*` reading-width wrapper are single-column,
+  text/form-only screens with no card grid or table (e.g., a standalone login page
+  before the shell loads, or a long-form contract preview for readability). Any
+  screen showing stat cards, tables, or a dashboard grid is full-width.
+- Card grids inside `<main>` use a responsive column count that expands to fill the
+  fluid width, e.g. `grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
+  gap-4 lg:gap-6` — not a fixed pixel grid centered in space.
+- The "Activity snapshot" / secondary-panel pattern (a wide card + a narrower
+  side card, as in the reference) uses `grid grid-cols-1 lg:grid-cols-[2fr_1fr]
+  gap-6` inside `<main>`, so it also stretches to the fluid column width rather
+  than sitting in a fixed-width island.
+- Sidebar width is a single design token (e.g. `--sidebar-width: 280px`) reused by
+  both the grid template and the mobile sheet's max-width, so it only needs to
+  change in one place.
+
+**Typography scale (font sizes must read as comfortable on a full-width dashboard,
+not shrink to fit a boxed layout):**
+
+| Use | Minimum size (Tailwind) | Notes |
+|---|---|---|
+| Page title ("Welcome back, Timothy") | `text-2xl md:text-3xl font-semibold` | Never smaller than `text-2xl` even on mobile |
+| Section headers ("Transaction log") | `text-lg md:text-xl font-semibold` | |
+| Stat card value ("UGX 0.00") | `text-3xl md:text-4xl font-bold tabular-nums` | This is the number members care most about — it should dominate the card |
+| Stat card label ("TOTAL BALANCE") | `text-xs md:text-sm font-medium tracking-wide uppercase text-muted-foreground` | Small is fine for eyebrow labels, but never below `text-xs` (12px) |
+| Body text / table cells | `text-sm md:text-base` | `text-base` (16px) minimum on mobile for readability and to avoid iOS auto-zoom on form inputs |
+| Badges/pills (role, status) | `text-xs font-medium` | Fine as-is at `text-xs`, these are secondary metadata |
+
+- Never drop below `text-xs` (12px) anywhere in the product.
+- Prefer `tabular-nums` on every monetary figure so columns of numbers align.
+- Re-check computed font sizes at the `lg`/`xl` breakpoints specifically — a common
+  regression is fonts that look right in a boxed layout but read as tiny once the
+  container is allowed to stretch to full width; scale up type at wider breakpoints
+  rather than leaving mobile sizes unchanged.
+
 ---
 
 ## 13. Security & Compliance Notes

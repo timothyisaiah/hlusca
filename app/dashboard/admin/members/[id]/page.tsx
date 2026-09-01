@@ -53,7 +53,7 @@ export default async function AdminMemberDetailPage({
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
             Member profile
           </p>
-          <h1 className="text-4xl font-semibold tracking-tight text-[var(--foreground)]">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">
             {member.firstName} {member.lastName}
           </h1>
           <div className="flex flex-wrap items-center gap-3">

@@ -13,7 +13,7 @@ export default async function AdminDashboardPage() {
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           Administrator
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] md:text-4xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">
           Enrollment, governance, and controls
         </h1>
         <p className="max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
@@ -27,7 +27,7 @@ export default async function AdminDashboardPage() {
             <CardTitle>Total members</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-semibold">{overview.memberCount}</p>
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">{overview.memberCount}</p>
           </CardContent>
         </Card>
         <Card>
@@ -35,7 +35,7 @@ export default async function AdminDashboardPage() {
             <CardTitle>Pending activation</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-semibold">{overview.pendingMemberCount}</p>
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">{overview.pendingMemberCount}</p>
           </CardContent>
         </Card>
         <Card>
@@ -43,7 +43,7 @@ export default async function AdminDashboardPage() {
             <CardTitle>Board approval threshold</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-semibold">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               UGX {overview.boardThreshold.toLocaleString()}
             </p>
           </CardContent>

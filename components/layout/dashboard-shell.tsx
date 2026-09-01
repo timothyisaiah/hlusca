@@ -1,13 +1,12 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState } from "react";
 import type { Session } from "next-auth";
+import { Menu, X } from "lucide-react";
 
-import { MobileNavigation, Sidebar } from "./sidebar";
-import { cn } from "@/lib/utils";
-
-const TABLET_NAV_PREFERENCE_KEY = "hlusca:tablet-nav-expanded";
-const TABLET_NAV_PREFERENCE_EVENT = "hlusca:tablet-nav-preference";
+import { MobileSidebarSheet, Sidebar } from "./sidebar";
+import { Badge } from "@/components/ui/badge";
+import { ROLE_LABELS } from "@/lib/constants";
 
 type DashboardShellProps = {
   user: Session["user"];
@@ -15,47 +14,45 @@ type DashboardShellProps = {
 };
 
 export function DashboardShell({ user, children }: DashboardShellProps) {
-  const tabletNavExpanded = useSyncExternalStore(
-    (onStoreChange) => {
-      window.addEventListener("storage", onStoreChange);
-      window.addEventListener(TABLET_NAV_PREFERENCE_EVENT, onStoreChange);
-      return () => {
-        window.removeEventListener("storage", onStoreChange);
-        window.removeEventListener(TABLET_NAV_PREFERENCE_EVENT, onStoreChange);
-      };
-    },
-    () => window.localStorage.getItem(TABLET_NAV_PREFERENCE_KEY) === "true",
-    () => false,
-  );
-
-  function toggleTabletNavigation() {
-    window.localStorage.setItem(
-      TABLET_NAV_PREFERENCE_KEY,
-      String(!tabletNavExpanded),
-    );
-    window.dispatchEvent(new Event(TABLET_NAV_PREFERENCE_EVENT));
-  }
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen pb-[var(--mobile-nav-height)] md:px-4 md:py-4 md:pb-4 lg:px-6">
-      <div
-        className={cn(
-          "mx-auto grid min-h-[calc(100vh-2rem)] max-w-7xl gap-4 lg:grid-cols-[320px_minmax(0,1fr)]",
-          tabletNavExpanded
-            ? "md:max-lg:grid-cols-[272px_minmax(0,1fr)]"
-            : "md:max-lg:grid-cols-[72px_minmax(0,1fr)]",
-        )}
-      >
-        <Sidebar
-          user={user}
-          tabletExpanded={tabletNavExpanded}
-          onToggleTablet={toggleTabletNavigation}
-        />
-        <main className="min-w-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.9),rgba(249,251,251,0.92))] px-5 py-7 md:rounded-[32px] md:border md:border-white/60 md:p-8 md:shadow-[0_32px_80px_rgba(15,23,42,0.08)]">
+    <div className="grid min-h-screen w-full grid-cols-1 md:grid-cols-[280px_1fr]">
+      <Sidebar user={user} />
+      <MobileSidebarSheet
+        user={user}
+        open={mobileSidebarOpen}
+        onClose={() => setMobileSidebarOpen(false)}
+      />
+      <div className="flex min-w-0 flex-col">
+        <header className="sticky top-0 z-10 flex min-h-16 w-full items-center justify-between border-b border-[var(--surface-border)] bg-white/85 px-4 backdrop-blur md:min-h-20 md:px-8 lg:px-10">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen((open) => !open)}
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl text-[var(--accent-ink)] hover:bg-[var(--accent-soft)] md:hidden"
+              aria-label={mobileSidebarOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={mobileSidebarOpen}
+            >
+              {mobileSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                {ROLE_LABELS[user.role]}
+              </p>
+              <p className="text-sm font-semibold text-[var(--foreground)] md:text-base">
+                HLUSCA dashboard
+              </p>
+            </div>
+          </div>
+          <Badge variant="muted" className="hidden sm:inline-flex">
+            {user.name ?? "Platform User"}
+          </Badge>
+        </header>
+        <main className="w-full flex-1 px-4 py-6 md:px-8 md:py-8 lg:px-10">
           {children}
         </main>
       </div>
-      <MobileNavigation user={user} />
     </div>
   );
 }

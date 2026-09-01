@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HLUSCA
 
-## Getting Started
+HLUSCA is a role-based cooperative management application for member enrollment,
+savings accounts, and auditable financial operations.
 
-First, run the development server:
+## Local Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create `.env.local` with the required application and Neon PostgreSQL variables:
+
+```env
+DATABASE_URL=
+DATABASE_URL_UNPOOLED=
+NEXTAUTH_URL=http://localhost:3000
+AUTH_SECRET=
+```
+
+Generate the Prisma client, then apply all committed migrations **before** starting
+the application. This creates the `hlusca` schema and the savings ledger tables the
+member dashboard depends on.
+
+```bash
+npm run db:generate
+npx prisma migrate deploy
+```
+
+Seed core system settings and create the development administrator when needed:
+
+```bash
+npm run db:seed
+npm run bootstrap:admin
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run this in every environment after pulling new migrations, including production:
 
-## Learn More
+```bash
+npx prisma migrate deploy
+```
 
-To learn more about Next.js, take a look at the following resources:
+Use `npm run db:migrate` only while authoring a new migration locally. Do not use it
+as the production deployment command.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Verification
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run typecheck
+npm run lint
+npm run test
+```
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Set the required environment variables in the deployment environment, then run the
+same migration command before serving the new application build:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npx prisma migrate deploy
+npm run build
+npm run start
+```

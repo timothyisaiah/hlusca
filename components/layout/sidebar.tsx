@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
 import type { Session } from "next-auth";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { X } from "lucide-react";
 
 import { SignOutButton } from "./sign-out-button";
 import { Badge } from "@/components/ui/badge";
@@ -14,35 +14,27 @@ import { cn } from "@/lib/utils";
 
 type SidebarProps = {
   user: Session["user"];
-  tabletExpanded: boolean;
-  onToggleTablet: () => void;
 };
 
-type MobileNavigationProps = {
+type MobileSidebarSheetProps = {
   user: Session["user"];
+  open: boolean;
+  onClose: () => void;
 };
 
 function isCurrentPath(pathname: string, href: string) {
   return pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`));
 }
 
-export function Sidebar({ user, tabletExpanded, onToggleTablet }: SidebarProps) {
+function NavigationContent({ user, onNavigate }: { user: Session["user"]; onNavigate?: () => void }) {
   const pathname = usePathname();
   const links = getNavForRole(user.role);
 
   return (
-    <aside className="hidden h-full flex-col rounded-[32px] border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(247,250,252,0.96))] p-3 shadow-[0_32px_80px_rgba(15,23,42,0.12)] md:flex lg:p-6">
-      <div className="space-y-3 md:max-lg:flex md:max-lg:flex-col md:max-lg:items-center">
+    <>
+      <div className="space-y-3">
         <Badge variant="default">HLUSCA</Badge>
-        <button
-          type="button"
-          onClick={onToggleTablet}
-          className="hidden min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl text-[var(--accent-ink)] hover:bg-[var(--accent-soft)] md:max-lg:flex"
-          aria-label={tabletExpanded ? "Collapse navigation" : "Expand navigation"}
-        >
-          {tabletExpanded ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
-        </button>
-        <div className="md:max-lg:hidden">
+        <div>
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
             {ROLE_LABELS[user.role]}
           </p>
@@ -55,7 +47,7 @@ export function Sidebar({ user, tabletExpanded, onToggleTablet }: SidebarProps) 
         </div>
       </div>
 
-      <nav className="mt-8 flex-1 space-y-2 lg:mt-10" aria-label="Dashboard navigation">
+      <nav className="mt-8 flex-1 space-y-2" aria-label="Dashboard navigation">
         {links.map((item) => {
           const Icon = item.icon;
           const current = isCurrentPath(pathname, item.href);
@@ -66,6 +58,7 @@ export function Sidebar({ user, tabletExpanded, onToggleTablet }: SidebarProps) 
               href={item.href as Route}
               aria-current={current ? "page" : undefined}
               title={item.label}
+              onClick={onNavigate}
               className={cn(
                 "group flex min-h-[44px] items-start gap-3 rounded-3xl border border-transparent px-3 py-3 transition hover:border-[var(--surface-border)] hover:bg-[var(--surface-muted)] lg:px-4 lg:py-4",
                 current && "border-[var(--surface-border)] bg-[var(--accent-soft)]",
@@ -74,16 +67,11 @@ export function Sidebar({ user, tabletExpanded, onToggleTablet }: SidebarProps) 
               <span className="rounded-2xl bg-[var(--accent-soft)] p-2 text-[var(--accent-ink)]">
                 <Icon className="h-4 w-4" />
               </span>
-              <span
-                className={cn(
-                  "hidden space-y-1 lg:block",
-                  tabletExpanded && "md:max-lg:block",
-                )}
-              >
+              <span className="space-y-1">
                 <span className="block text-sm font-semibold text-[var(--foreground)]">
                   {item.label}
                 </span>
-                <span className="hidden text-xs leading-5 text-[var(--muted-foreground)] lg:block">
+                <span className="block text-xs leading-5 text-[var(--muted-foreground)]">
                   {item.description}
                 </span>
               </span>
@@ -92,49 +80,50 @@ export function Sidebar({ user, tabletExpanded, onToggleTablet }: SidebarProps) 
         })}
       </nav>
 
-      <div className="mt-6 rounded-3xl border border-[var(--surface-border)] bg-[var(--surface-muted)] p-3 md:max-lg:p-2 lg:mt-8 lg:p-4">
-        <div className="md:max-lg:hidden">
+      <div className="mt-6 rounded-3xl border border-[var(--surface-border)] bg-[var(--surface-muted)] p-4">
+        <div>
           <p className="text-sm font-semibold text-[var(--foreground)]">Security mode</p>
           <p className="mt-2 text-xs leading-5 text-[var(--muted-foreground)]">
             Every write action routes through the audit wrapper and server-side role checks.
           </p>
         </div>
-        <div className="md:max-lg:hidden lg:mt-4 lg:block">
+        <div className="mt-4">
           <SignOutButton />
         </div>
       </div>
+    </>
+  );
+}
+
+export function Sidebar({ user }: SidebarProps) {
+  return (
+    <aside className="hidden h-screen flex-col border-r border-[var(--surface-border)] bg-white/80 p-6 shadow-[12px_0_36px_rgba(15,23,42,0.04)] md:sticky md:top-0 md:flex">
+      <NavigationContent user={user} />
     </aside>
   );
 }
 
-export function MobileNavigation({ user }: MobileNavigationProps) {
-  const pathname = usePathname();
-  const links = getNavForRole(user.role);
-
+export function MobileSidebarSheet({ user, open, onClose }: MobileSidebarSheetProps) {
   return (
-    <nav
-      className="fixed inset-x-0 bottom-0 z-50 flex min-h-[var(--mobile-nav-height)] items-center justify-around border-t border-[var(--surface-border)] bg-white/95 px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_32px_rgba(15,23,42,0.08)] backdrop-blur md:hidden"
-      aria-label="Mobile dashboard navigation"
-    >
-      {links.map((item) => {
-        const Icon = item.icon;
-        const current = isCurrentPath(pathname, item.href);
-
-        return (
-          <Link
-            key={item.href}
-            href={item.href as Route}
-            aria-current={current ? "page" : undefined}
-            className={cn(
-              "flex min-h-[44px] min-w-[44px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[10px] font-semibold text-[var(--muted-foreground)]",
-              current && "bg-[var(--accent-soft)] text-[var(--accent-ink)]",
-            )}
-          >
-            <Icon className="h-5 w-5" />
-            <span className="max-w-full truncate">{item.label}</span>
-          </Link>
-        );
-      })}
-    </nav>
+    <div className={cn("fixed inset-0 z-50 md:hidden", open ? "pointer-events-auto" : "pointer-events-none")}>
+      <button
+        type="button"
+        className={cn("absolute inset-0 bg-slate-950/30 transition-opacity", open ? "opacity-100" : "opacity-0")}
+        aria-label="Close navigation"
+        tabIndex={open ? 0 : -1}
+        onClick={onClose}
+      />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Dashboard navigation"
+        className={cn("absolute inset-y-0 left-0 flex w-[min(var(--sidebar-width),calc(100vw-3rem))] flex-col bg-white p-6 shadow-[24px_0_64px_rgba(15,23,42,0.18)] transition-transform", open ? "translate-x-0" : "-translate-x-full")}
+      >
+        <button type="button" onClick={onClose} className="absolute right-4 top-4 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl text-[var(--muted-foreground)] hover:bg-[var(--surface-muted)]" aria-label="Close navigation">
+          <X className="h-5 w-5" />
+        </button>
+        <NavigationContent user={user} onNavigate={onClose} />
+      </aside>
+    </div>
   );
 }

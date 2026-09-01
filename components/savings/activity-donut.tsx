@@ -38,7 +38,7 @@ export function ActivityDonut({
       >
         <div className="grid h-full w-full place-items-center rounded-full bg-white/95 text-center shadow-inner">
           <div>
-            <p className="text-3xl font-semibold tracking-tight text-[var(--foreground)]">
+            <p className="text-3xl font-bold tracking-tight tabular-nums text-[var(--foreground)] md:text-4xl">
               {centerValue}
             </p>
             <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">

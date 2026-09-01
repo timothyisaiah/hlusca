@@ -13,7 +13,7 @@ export default async function BoardDashboardPage() {
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           Board
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] md:text-4xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">
           Oversight snapshot
         </h1>
       </div>
@@ -24,7 +24,7 @@ export default async function BoardDashboardPage() {
             <CardTitle>Total members</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-semibold">{summary.memberCount}</p>
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">{summary.memberCount}</p>
           </CardContent>
         </Card>
         <Card>
@@ -32,7 +32,7 @@ export default async function BoardDashboardPage() {
             <CardTitle>Active members</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-semibold">{summary.activeCount}</p>
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">{summary.activeCount}</p>
           </CardContent>
         </Card>
         <Card>
@@ -40,7 +40,7 @@ export default async function BoardDashboardPage() {
             <CardTitle>Pending activation</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-semibold">{summary.pendingCount}</p>
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">{summary.pendingCount}</p>
           </CardContent>
         </Card>
       </ResponsiveStatCards>

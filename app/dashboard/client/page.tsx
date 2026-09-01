@@ -25,7 +25,7 @@ export default async function ClientDashboardPage() {
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           Member portal
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] md:text-4xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">
           Welcome back, {member.firstName}
         </h1>
         <div className="flex flex-wrap items-center gap-3">
@@ -36,7 +36,7 @@ export default async function ClientDashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_380px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
         <Card className="overflow-hidden border-0 bg-[linear-gradient(135deg,#ffffff,#f1efff_55%,#dce7ff)] shadow-[0_30px_90px_rgba(89,102,255,0.14)]">
           <CardContent className="relative p-6 md:p-8">
             <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[rgba(89,102,255,0.12)]" />
@@ -51,7 +51,7 @@ export default async function ClientDashboardPage() {
                 <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
                   Total balance
                 </p>
-                <p className="mt-3 text-4xl font-semibold tracking-tight tabular-nums text-[var(--foreground)] md:text-5xl">
+                <p className="mt-3 text-3xl font-bold tracking-tight tabular-nums text-[var(--foreground)] md:text-4xl">
                   {formatCurrency(member.account.balance)}
                 </p>
               </div>
@@ -108,13 +108,13 @@ export default async function ClientDashboardPage() {
         </Card>
       </div>
 
-      <ResponsiveStatCards className="lg:grid-cols-4">
+      <ResponsiveStatCards>
         <Card>
           <CardHeader>
             <CardTitle>Savings balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               {formatCurrency(member.account.balance)}
             </p>
           </CardContent>
@@ -124,7 +124,7 @@ export default async function ClientDashboardPage() {
             <CardTitle>Total deposited</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               {formatCurrency(ledger.summary.totalDeposited)}
             </p>
           </CardContent>
@@ -134,7 +134,7 @@ export default async function ClientDashboardPage() {
             <CardTitle>Total withdrawn</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               {formatCurrency(ledger.summary.totalWithdrawn)}
             </p>
           </CardContent>
@@ -144,7 +144,7 @@ export default async function ClientDashboardPage() {
             <CardTitle>Transactions logged</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="text-3xl font-bold tabular-nums md:text-4xl">
               {ledger.summary.transactionCount}
             </p>
           </CardContent>
