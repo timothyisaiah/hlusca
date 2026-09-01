@@ -674,12 +674,12 @@ keep it in sync with the phases in §15.
 
 ### Phase 2 — Savings Module
 - [x] `SavingsAccount` created automatically on enrollment (balance 0)
-- [ ] Deposit endpoint + UI (Treasurer)
-- [ ] Withdrawal endpoint + UI — **no limit, no notice period** (decision #4), only
+- [x] Deposit endpoint + UI (Treasurer)
+- [x] Withdrawal endpoint + UI — **no limit, no notice period** (decision #4), only
       balance-sufficiency check
-- [ ] `Transaction` ledger writes on every deposit/withdrawal, atomic with balance update
-- [ ] Member-facing transaction log (filter by date/type, paginate, CSV/PDF export)
-- [ ] Audit log entries verified for all savings mutations
+- [x] `Transaction` ledger writes on every deposit/withdrawal, atomic with balance update
+- [x] Member-facing transaction log (filter by date/type, paginate, CSV/PDF export)
+- [x] Audit log entries verified for all savings mutations
 
 ### Phase 3 — Loan Application & Approval
 - [ ] `LoanType` config screen (Admin) — interest method, rate, max term, max

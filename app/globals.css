@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #edf4f4;
-  --background-deep: #d8e7e6;
-  --foreground: #12232d;
+  --background: #eef1ff;
+  --background-deep: #d8e1ff;
+  --foreground: #1a2140;
   --surface: rgba(255, 255, 255, 0.92);
-  --surface-muted: #eef5f3;
-  --surface-border: rgba(18, 35, 45, 0.12);
-  --muted-foreground: #5f7682;
-  --accent: #0f6b78;
-  --accent-strong: #0a5360;
-  --accent-soft: rgba(15, 107, 120, 0.12);
-  --accent-ink: #0c5964;
+  --surface-muted: #f5f4ff;
+  --surface-border: rgba(26, 33, 64, 0.12);
+  --muted-foreground: #677394;
+  --accent: #5d6bff;
+  --accent-strong: #4d58e1;
+  --accent-soft: rgba(93, 107, 255, 0.12);
+  --accent-ink: #4250d1;
+  --accent-highlight: #ef75bf;
   --radius-card: 1.75rem;
   --touch-target: 2.75rem;
   --mobile-nav-height: 5.5rem;
@@ -37,7 +38,7 @@ html {
 body {
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.88), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(15, 107, 120, 0.12), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(93, 107, 255, 0.16), transparent 28%),
     linear-gradient(180deg, var(--background), var(--background-deep));
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -49,7 +50,7 @@ a {
 }
 
 ::selection {
-  background: rgba(15, 107, 120, 0.18);
+  background: rgba(93, 107, 255, 0.18);
 }
 
 .app-grid {

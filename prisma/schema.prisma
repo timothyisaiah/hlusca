@@ -45,6 +45,8 @@ enum AuditAction {
   DISBURSE
   SIGN
   EXPORT
+  DEPOSIT
+  WITHDRAW
 }
 
 enum AuditStatus {
@@ -72,6 +74,15 @@ enum PasswordResetChannel {
   ADMIN_ASSISTED
 }
 
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  INTEREST
+  DIVIDEND
+  LOAN_DISBURSEMENT
+  LOAN_REPAYMENT
+}
+
 model User {
   id                   String                 @id @default(cuid())
   username             String?
@@ -90,6 +101,7 @@ model User {
   auditLogs            AuditLog[]             @relation("AuditActor")
   notifications        Notification[]
   passwordResetRequests PasswordResetRequest[]
+  performedTransactions Transaction[]         @relation("TransactionPerformer")
 
   @@index([role])
   @@index([status])
@@ -127,8 +139,27 @@ model SavingsAccount {
   status        SavingsAccountStatus @default(ACTIVE)
   openedAt      DateTime             @default(now())
   member        Member               @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  transactions  Transaction[]
 
   @@index([status])
+}
+
+model Transaction {
+  id               String          @id @default(cuid())
+  savingsAccountId String
+  type             TransactionType
+  amount           Decimal         @db.Decimal(18, 2)
+  balanceAfter     Decimal         @db.Decimal(18, 2)
+  reference        String?
+  narrative        String?
+  performedById    String
+  createdAt        DateTime        @default(now())
+  savingsAccount   SavingsAccount  @relation(fields: [savingsAccountId], references: [id], onDelete: Restrict)
+  performedBy      User            @relation("TransactionPerformer", fields: [performedById], references: [id], onDelete: Restrict)
+
+  @@index([savingsAccountId, createdAt(sort: Desc)])
+  @@index([performedById, createdAt(sort: Desc)])
+  @@index([type, createdAt(sort: Desc)])
 }
 
 model AuditLog {

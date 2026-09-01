@@ -17,6 +17,8 @@ export function formatCurrency(
   return new Intl.NumberFormat("en-UG", {
     style: "currency",
     currency,
+    currencyDisplay: "code",
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(Number.isFinite(amount) ? amount : 0);
 }
@@ -30,6 +32,19 @@ export function formatDate(value: Date | string | null | undefined) {
 
   return new Intl.DateTimeFormat("en-UG", {
     dateStyle: "medium",
+  }).format(date);
+}
+
+export function formatDateTime(value: Date | string | null | undefined) {
+  if (!value) {
+    return "Not provided";
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  return new Intl.DateTimeFormat("en-UG", {
+    dateStyle: "medium",
+    timeStyle: "short",
   }).format(date);
 }
 

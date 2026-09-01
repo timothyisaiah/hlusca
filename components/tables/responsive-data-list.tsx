@@ -13,6 +13,8 @@ type ResponsiveDataListProps<Row> = {
   columns: ResponsiveDataListColumn<Row>[];
   getRowId: (row: Row) => string;
   emptyMessage: string;
+  mobileCard?: (row: Row) => ReactNode;
+  mobileCardClassName?: string;
 };
 
 export function ResponsiveDataList<Row>({
@@ -20,6 +22,8 @@ export function ResponsiveDataList<Row>({
   columns,
   getRowId,
   emptyMessage,
+  mobileCard,
+  mobileCardClassName,
 }: ResponsiveDataListProps<Row>) {
   if (rows.length === 0) {
     return (
@@ -35,20 +39,27 @@ export function ResponsiveDataList<Row>({
         {rows.map((row) => (
           <article
             key={getRowId(row)}
-            className="rounded-3xl border border-[var(--surface-border)] bg-white p-4 shadow-sm"
+            className={cn(
+              "rounded-3xl border border-[var(--surface-border)] bg-white p-4 shadow-sm",
+              mobileCardClassName,
+            )}
           >
-            <dl className="space-y-3">
-              {columns.map((column) => (
-                <div key={column.label} className="flex items-start justify-between gap-4">
-                  <dt className="shrink-0 text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-                    {column.label}
-                  </dt>
-                  <dd className={cn("min-w-0 text-right text-sm", column.className)}>
-                    {column.render(row)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            {mobileCard ? (
+              mobileCard(row)
+            ) : (
+              <dl className="space-y-3">
+                {columns.map((column) => (
+                  <div key={column.label} className="flex items-start justify-between gap-4">
+                    <dt className="shrink-0 text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+                      {column.label}
+                    </dt>
+                    <dd className={cn("min-w-0 text-right text-sm", column.className)}>
+                      {column.render(row)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
           </article>
         ))}
       </div>
