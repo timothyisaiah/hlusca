@@ -428,24 +428,108 @@ DB transaction so a failed audit write rolls back the business change (or vice v
 
 ## 12. UI/UX Guidelines
 
-- **SPA shell** with persistent sidebar nav scoped by role (nav items hidden, not
-  just disabled, for unauthorized sections).
+### 12.1 Design Direction (reference inspiration)
+
+Visual and interaction direction should draw from two reference styles the team has
+aligned on:
+
+- **A card-based mobile finance app** (bold single accent color — purple/blue — on a
+  white/neutral base, rounded cards, large tabular numbers for balances, colored
+  circular icons for transaction categories, simple donut/gauge/bar charts used
+  sparingly as secondary visual summaries, a persistent bottom icon bar for primary
+  navigation).
+- **A desktop financial dashboard** (fixed left sidebar with grouped nav sections,
+  a prominent primary-action button top-right — e.g. "Connect Account" —, stat cards
+  in a responsive grid, a search bar spanning available width, a lightweight
+  "Welcome" onboarding tooltip/modal pattern for first-time or demo users).
+
+The goal: **one consistent design system, two layouts** — not two different apps
+that happen to share a backend.
+
+### 12.2 Mobile-First, Responsive-Not-Adaptive
+
+**Most members will use HLUSCA on a phone browser first.** Build mobile-first and
+progressively enhance for desktop, not the reverse:
+
+- Design and implement every screen's mobile layout first; add desktop-only
+  enhancements (multi-column grids, persistent sidebar, hover states) at wider
+  breakpoints via the same component tree — never a separate "mobile app"/"desktop
+  app" code fork.
+- Use a single responsive Tailwind breakpoint strategy (e.g. `sm`/`md`/`lg`/`xl`)
+  so the same React components re-flow rather than swap out entirely. This is what
+  makes the desktop↔phone transition feel seamless rather than like two products:
+  the same card, the same data, the same interaction — just re-arranged.
+- Test resizing the browser window live during development (not just fixed device
+  presets) to catch any layout "jump" or content re-fetch at breakpoint boundaries.
+  A resize should never trigger a route change, a full re-render flash, or a scroll
+  position reset.
+
+### 12.3 Navigation Pattern by Breakpoint
+
+| Breakpoint | Primary nav pattern |
+|---|---|
+| **Mobile** (< `md`) | Bottom icon tab bar (4–5 top-level destinations max: Home, Savings, Loans, Notifications, Profile/More) — matches the reference mobile app's bottom bar. Secondary/role-specific items live behind a "More" tab or a slide-up sheet, not a hidden hamburger buried in a corner. |
+| **Tablet** (`md`–`lg`) | Collapsible icon-only sidebar (icons only, expandable via a toggle) — an intermediate state, not a jump straight from bottom-bar to full sidebar. |
+| **Desktop** (≥ `lg`) | Persistent full sidebar with labeled sections, grouped exactly as in §10 role views (e.g. "Main Navigation" grouped from "Connect Data/Admin" the way the reference dashboard separates its nav groups). |
+
+- The **same nav item set and same route structure** underlies all three — only the
+  chrome around it changes. A role's visible items (per §4 RBAC) must be identical in
+  content across breakpoints, just presented differently.
+- Persist nav/collapse state (sidebar expanded/collapsed) per user in local
+  preference storage so it doesn't reset on every visit or reload.
+
+### 12.4 Layout & Component Rules
+
+- **Stat/summary cards** (e.g. Total Savings, Active Loan Balance, This Month's
+  Dividends) render as a horizontal scroll row on mobile and a responsive grid
+  (2–4 columns) on desktop — same card component, same data shape, different
+  container via CSS grid/flex-wrap, not separate mobile/desktop card components.
+- **Tables** (transactions, schedules, applications — §11 lists) collapse to a
+  stacked card-per-row layout on mobile (label/value pairs, matching the reference
+  app's transaction-list style with a leading icon, title, and trailing amount) and
+  render as full data tables on desktop. Build this as one data-driven list
+  component with a `layout: 'cards' | 'table'` mode driven by breakpoint, not two
+  components to maintain in parallel.
+- **Charts** (savings growth, amortization curve, dividend allocation) use
+  simplified, single-metric views on mobile (as in the reference app's compact
+  gauge/donut cards) and can show richer multi-series views on desktop — same
+  underlying chart component/library (recharts), different prop configuration per
+  breakpoint, not a different charting approach per platform.
+- **Primary actions** (Apply for Loan, Record Deposit, Approve Application) are
+  always reachable within one tap/click regardless of breakpoint — a floating action
+  button or sticky bottom button on mobile, a top-bar button on desktop (matching the
+  reference dashboard's top-right "Connect Account"-style CTA placement).
+- **Modals/sheets:** on mobile, confirmation dialogs and multi-field forms (loan
+  application wizard, contract signing) render as full-height slide-up sheets; on
+  desktop the same content renders as a centered modal. Same form component and
+  validation logic, different presentation wrapper.
+- **Onboarding/contextual hints** (e.g., "Welcome to HLUSCA — here's your savings
+  overview") follow the reference app's lightweight dismissible tooltip/banner
+  pattern rather than a blocking multi-step tour — respect that members are here to
+  do a transaction, not read a manual.
+
+### 12.5 General Visual & Content Rules
+
 - Use a clean, trustworthy financial-app aesthetic: neutral background, one accent
   color for primary actions, clear typographic hierarchy for monetary values
-  (large, tabular-figures font for balances).
+  (large, tabular-figures font for balances) — consistent across both breakpoints.
 - Every money value: consistent currency formatting, always show currency code.
 - Tables (transactions, schedules, applications) need: search, filter by
-  date/status/type, pagination, and CSV/PDF export.
+  date/status/type, pagination, and CSV/PDF export — available identically on
+  mobile (as filter sheets/dropdowns) and desktop (as inline controls).
 - Loan application form: multi-step wizard (Loan type & amount → Terms & purpose →
-  Review & submit) with live eligibility/affordability preview.
+  Review & submit) with live eligibility/affordability preview; on mobile this is
+  one step per screen with a progress indicator, on desktop it can show a
+  step-sidebar alongside the active step — same wizard state machine underneath.
 - Contract signing screen: full contract preview, explicit "I agree" checkbox,
   signature pad, confirmation modal before final submit (this is a legal action —
-  make it deliberate, not a single accidental click).
-- Dashboards use simple charts (savings growth over time, loan balance amortization
-  curve) — keep charts optional/secondary to the numeric tables for a finance app.
-- Mobile-responsive since members may access via phone browsers primarily.
+  make it deliberate, not a single accidental tap/click, on either breakpoint).
 - Accessibility: proper form labels, sufficient contrast, keyboard navigation for
-  all financial forms.
+  all financial forms on desktop, and adequate touch-target sizing (min 44×44px)
+  for all interactive elements on mobile.
+- Performance: mobile is the primary surface, so treat mobile load time and
+  interaction responsiveness as the default performance budget, not an afterthought
+  tuned after desktop is done.
 
 ---
 
@@ -558,6 +642,14 @@ keep it in sync with the phases in §15.
 - [ ] CI/CD pipeline (GitHub Actions → Vercel) working on a "hello world" deploy
 - [x] `SystemSetting` table + helper (get/set) implemented, seeded with
       `LOAN_BOARD_APPROVAL_THRESHOLD = 3000000`
+- [x] Responsive design tokens/breakpoints established in Tailwind config
+      (mobile-first: base styles = mobile, `md`/`lg` overrides for tablet/desktop)
+- [ ] Core nav shell built once with breakpoint-driven chrome per §12.3 (bottom tab
+      bar → collapsible icon sidebar → full sidebar) — verified with live browser
+      resize testing, no layout jump or state loss across breakpoints
+- [x] Base responsive primitives built early (stat card, data-list with
+      `cards`/`table` layout modes, modal/sheet wrapper) so every later feature reuses
+      them instead of building bespoke mobile/desktop variants per screen
 
 ### Phase 1 — Foundation: Auth, Roles, Audit, Members
 - [x] `User` + `Member` schema migrated
@@ -646,6 +738,9 @@ keep it in sync with the phases in §15.
 - [ ] Load test with realistic pilot member/loan volumes
 - [ ] Full lifecycle integration test: apply → approve (both routing paths) → sign →
       disburse → schedule → pay (partial + full + overpay) → close
+- [ ] Cross-breakpoint QA pass: every screen built during Phases 1–7 re-tested at
+      mobile, tablet, and desktop widths for layout integrity, touch-target sizing,
+      and nav-pattern correctness per §12.3
 - [ ] UAT sign-off from a real Treasurer and Board user
 - [ ] Go-live checklist: env vars set, `SystemSetting` values confirmed for
       production, monitoring (Sentry) wired

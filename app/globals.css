@@ -12,6 +12,9 @@
   --accent-strong: #0a5360;
   --accent-soft: rgba(15, 107, 120, 0.12);
   --accent-ink: #0c5964;
+  --radius-card: 1.75rem;
+  --touch-target: 2.75rem;
+  --mobile-nav-height: 5.5rem;
 }
 
 @theme inline {
@@ -19,6 +22,8 @@
   --color-foreground: #12232d;
   --font-sans: "Aptos", "Segoe UI Variable", "Segoe UI", sans-serif;
   --font-mono: "Cascadia Mono", "IBM Plex Mono", "Consolas", monospace;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
 }
 
 * {

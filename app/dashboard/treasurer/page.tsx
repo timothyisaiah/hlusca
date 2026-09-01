@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResponsiveStatCards } from "@/components/layout/responsive-stat-cards";
 import { requireRole } from "@/lib/auth/server";
 import { getStaffDashboardSummary } from "@/lib/members/service";
 
@@ -7,17 +8,17 @@ export default async function TreasurerDashboardPage() {
   const summary = await getStaffDashboardSummary();
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-6 md:space-y-8">
       <div className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           Treasurer
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight text-[var(--foreground)]">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] md:text-4xl">
           Operations desk
         </h1>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <ResponsiveStatCards>
         <Card>
           <CardHeader>
             <CardTitle>Members tracked</CardTitle>
@@ -42,7 +43,7 @@ export default async function TreasurerDashboardPage() {
             <p className="text-4xl font-semibold">{summary.pendingCount}</p>
           </CardContent>
         </Card>
-      </div>
+      </ResponsiveStatCards>
     </section>
   );
 }

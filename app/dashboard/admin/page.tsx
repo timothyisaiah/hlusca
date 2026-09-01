@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResponsiveStatCards } from "@/components/layout/responsive-stat-cards";
 import { requireRole } from "@/lib/auth/server";
 import { getAdminOverview } from "@/lib/members/service";
 
@@ -7,12 +8,12 @@ export default async function AdminDashboardPage() {
   const overview = await getAdminOverview();
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-6 md:space-y-8">
       <div className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           Administrator
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight text-[var(--foreground)]">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] md:text-4xl">
           Enrollment, governance, and controls
         </h1>
         <p className="max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
@@ -20,7 +21,7 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <ResponsiveStatCards>
         <Card>
           <CardHeader>
             <CardTitle>Total members</CardTitle>
@@ -47,7 +48,7 @@ export default async function AdminDashboardPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </ResponsiveStatCards>
     </section>
   );
 }

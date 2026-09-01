@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResponsiveStatCards } from "@/components/layout/responsive-stat-cards";
 import { requireRole } from "@/lib/auth/server";
 import { getClientDashboardSummary } from "@/lib/members/service";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -20,12 +21,12 @@ export default async function ClientDashboardPage() {
   }
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-6 md:space-y-8">
       <div className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           Member portal
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight text-[var(--foreground)]">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] md:text-4xl">
           Welcome back, {member.firstName}
         </h1>
         <div className="flex flex-wrap items-center gap-3">
@@ -36,7 +37,7 @@ export default async function ClientDashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <ResponsiveStatCards>
         <Card>
           <CardHeader>
             <CardTitle>Savings balance</CardTitle>
@@ -67,7 +68,7 @@ export default async function ClientDashboardPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </ResponsiveStatCards>
     </section>
   );
 }

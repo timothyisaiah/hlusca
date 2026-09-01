@@ -8,7 +8,7 @@ import {
 } from "@prisma/client";
 
 import { ApiError, notFoundMessage } from "../api";
-import { SYSTEM_SETTING_KEYS } from "../constants";
+import { DATABASE_SCHEMA, SYSTEM_SETTING_KEYS } from "../constants";
 import { prisma } from "../db";
 import { runAuditedMutation } from "../audit/mutation";
 import type { RequestMetadata } from "../audit/request";
@@ -161,7 +161,7 @@ export async function issueMemberNumber(tx: Prisma.TransactionClient) {
   await ensureCoreSystemSettings(tx);
 
   const [row] = await tx.$queryRaw<{ value: string }[]>(Prisma.sql`
-    UPDATE "SystemSetting"
+    UPDATE ${Prisma.raw(`"${DATABASE_SCHEMA}"."SystemSetting"`)}
     SET "value" = ((COALESCE(NULLIF("value", ''), '0'))::integer + 1)::text,
         "updatedAt" = NOW()
     WHERE "key" = ${SYSTEM_SETTING_KEYS.MEMBER_NUMBER_SEQUENCE}
