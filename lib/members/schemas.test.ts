@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { memberEnrollmentSchema } from "@/lib/members/schemas";
+import {
+  adminMemberUpdateSchema,
+  memberEnrollmentSchema,
+} from "@/lib/members/schemas";
 
 describe("member enrollment schema", () => {
   it("accepts a city-only address and valid Ugandan E.164 numbers", () => {
@@ -20,5 +23,14 @@ describe("member enrollment schema", () => {
 
     expect(result.address).toBe("Kampala");
     expect(result.phone).toBe("+256778576892");
+  });
+
+  it("accepts only supported system roles for administrator updates", () => {
+    expect(adminMemberUpdateSchema.parse({ role: "TREASURER" }).role).toBe(
+      "TREASURER",
+    );
+    expect(
+      adminMemberUpdateSchema.safeParse({ role: "SUPERVISOR" }).success,
+    ).toBe(false);
   });
 });

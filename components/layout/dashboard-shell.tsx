@@ -1,12 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import type { Session } from "next-auth";
 import { Menu, X } from "lucide-react";
 
 import { MobileSidebarSheet, Sidebar } from "./sidebar";
 import { Badge } from "@/components/ui/badge";
 import { ROLE_LABELS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+
+const SIDEBAR_COLLAPSED_KEY = "hlusca:sidebar-collapsed";
+const SIDEBAR_PREFERENCE_EVENT = "hlusca:sidebar-preference";
+
+function subscribeToSidebarPreference(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(SIDEBAR_PREFERENCE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(SIDEBAR_PREFERENCE_EVENT, onStoreChange);
+  };
+}
+
+function getSidebarPreference() {
+  return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
+}
 
 type DashboardShellProps = {
   user: Session["user"];
@@ -15,10 +33,32 @@ type DashboardShellProps = {
 
 export function DashboardShell({ user, children }: DashboardShellProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const sidebarCollapsed = useSyncExternalStore(
+    subscribeToSidebarPreference,
+    getSidebarPreference,
+    () => false,
+  );
+
+  function toggleSidebar() {
+    window.localStorage.setItem(
+      SIDEBAR_COLLAPSED_KEY,
+      String(!sidebarCollapsed),
+    );
+    window.dispatchEvent(new Event(SIDEBAR_PREFERENCE_EVENT));
+  }
 
   return (
-    <div className="grid min-h-screen w-full grid-cols-1 md:grid-cols-[280px_1fr]">
-      <Sidebar user={user} />
+    <div
+      className={cn(
+        "grid min-h-screen w-full grid-cols-1 transition-[grid-template-columns] duration-200 md:grid-cols-[var(--sidebar-width)_1fr]",
+        sidebarCollapsed && "md:grid-cols-[76px_1fr]",
+      )}
+    >
+      <Sidebar
+        user={user}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={toggleSidebar}
+      />
       <MobileSidebarSheet
         user={user}
         open={mobileSidebarOpen}

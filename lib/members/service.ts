@@ -352,6 +352,22 @@ export async function updateMemberProfile(
         "phone" in input && input.phone
           ? assertE164Phone(input.phone)
           : existing.user?.phone ?? null;
+      const nextRole =
+        "role" in input && input.role
+          ? input.role
+          : existing.user?.role ?? null;
+
+      if (
+        existing.user &&
+        existing.user.id === actor.id &&
+        nextRole !== existing.user.role
+      ) {
+        throw new ApiError(
+          "You cannot change your own system role.",
+          400,
+          "SELF_ROLE_CHANGE_FORBIDDEN",
+        );
+      }
 
       if (existing.user) {
         await ensureUniqueIdentifiers(
@@ -393,11 +409,12 @@ export async function updateMemberProfile(
         await tx.user.update({
           where: { id: existing.user.id },
           data: {
-            username: nextUsername ?? undefined,
-            email: nextEmail ?? undefined,
-            phone: nextPhone ?? undefined,
-          },
-        });
+          username: nextUsername ?? undefined,
+          email: nextEmail ?? undefined,
+          phone: nextPhone ?? undefined,
+          role: nextRole ?? undefined,
+        },
+      });
       }
 
       return {
@@ -408,6 +425,7 @@ export async function updateMemberProfile(
         },
         afterState: {
           member: updatedMember,
+          systemRole: nextRole,
         },
       };
     },

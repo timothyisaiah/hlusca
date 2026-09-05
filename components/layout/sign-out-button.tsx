@@ -2,17 +2,24 @@
 
 import { useTransition } from "react";
 import { signOut } from "next-auth/react";
+import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export function SignOutButton() {
+type SignOutButtonProps = {
+  compact?: boolean;
+};
+
+export function SignOutButton({ compact = false }: SignOutButtonProps) {
   const [isPending, startTransition] = useTransition();
 
   return (
     <Button
       variant="outline"
-      className="w-full"
+      className={compact ? "min-h-[44px] min-w-[44px] rounded-2xl p-0" : "w-full"}
       disabled={isPending}
+      aria-label="Sign out"
+      title="Sign out"
       onClick={() =>
         startTransition(async () => {
           await signOut({
@@ -21,7 +28,7 @@ export function SignOutButton() {
         })
       }
     >
-      {isPending ? "Signing out..." : "Sign out"}
+      {compact ? <LogOut className="h-4 w-4" /> : isPending ? "Signing out..." : "Sign out"}
     </Button>
   );
 }

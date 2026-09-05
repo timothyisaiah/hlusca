@@ -21,6 +21,7 @@ type MemberRow = {
   createdAt: string;
   user: {
     username: string | null;
+    role: string;
   } | null;
 };
 
@@ -57,6 +58,7 @@ export function MembersTable({ members }: MembersTableProps) {
         member.lastName,
         member.phone,
         member.user?.username ?? "",
+        member.user?.role ?? "",
       ]
         .join(" ")
         .toLowerCase()
@@ -84,6 +86,10 @@ export function MembersTable({ members }: MembersTableProps) {
     {
       label: "Username",
       render: (member) => member.user?.username ?? "No login",
+    },
+    {
+      label: "System role",
+      render: (member) => member.user?.role ?? "No login",
     },
     {
       label: "Status",

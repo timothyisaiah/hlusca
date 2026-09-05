@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UserRole } from "@prisma/client";
 
 import {
   assertE164Phone,
@@ -83,6 +84,7 @@ export const adminMemberUpdateSchema = z.object({
   dateOfBirth: dateField.optional(),
   photoUrl: optionalTrimmedString,
   status: z.enum(["PENDING", "ACTIVE", "SUSPENDED", "EXITED"]).optional(),
+  role: z.nativeEnum(UserRole).optional(),
 });
 
 export const selfMemberUpdateSchema = z.object({

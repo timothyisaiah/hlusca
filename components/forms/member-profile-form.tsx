@@ -29,6 +29,7 @@ type MemberFormData = {
   photoUrl: string;
   status: string;
   username: string;
+  role: string;
 };
 
 type MemberProfileFormProps = {
@@ -73,6 +74,7 @@ export function MemberProfileForm({
             dateOfBirth: form.dateOfBirth,
             photoUrl: form.photoUrl,
             status: form.status,
+            role: form.role,
           }
         : {
             phone: form.phone,
@@ -165,6 +167,23 @@ export function MemberProfileForm({
                   <option value="SUSPENDED">Suspended</option>
                   <option value="EXITED">Exited</option>
                 </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="member-role">System role</Label>
+                <select
+                  id="member-role"
+                  className="h-11 w-full rounded-2xl border border-[var(--surface-border)] bg-white px-4 text-sm text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[color:rgba(14,116,144,0.14)]"
+                  value={form.role}
+                  onChange={(event) => updateField("role", event.target.value)}
+                >
+                  <option value="CLIENT">Client</option>
+                  <option value="TREASURER">Treasurer</option>
+                  <option value="BOARD">Board</option>
+                  <option value="ADMIN">Administrator</option>
+                </select>
+                <p className="text-xs leading-5 text-[var(--muted-foreground)]">
+                  Controls which dashboard and actions this member can access.
+                </p>
               </div>
             </>
           ) : null}

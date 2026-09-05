@@ -1,7 +1,6 @@
 import type { UserRole } from "@prisma/client";
 import type { LucideIcon } from "lucide-react";
 import {
-  Building2,
   CreditCard,
   FileCheck2,
   LayoutDashboard,
@@ -60,13 +59,6 @@ export const navItems: NavItem[] = [
     description: "Browse and maintain member records.",
     roles: ["ADMIN"],
     icon: Users,
-  },
-  {
-    href: "/dashboard/admin/members/new",
-    label: "Enroll Member",
-    description: "Create a new member, user, and savings account.",
-    roles: ["ADMIN"],
-    icon: Building2,
   },
 ];
 

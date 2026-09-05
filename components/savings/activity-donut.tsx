@@ -58,7 +58,7 @@ export function ActivityDonut({
           </p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid lg:grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface-muted)] px-4 py-4">
             <div className="flex items-center gap-3">
               <span className="h-3 w-3 rounded-full bg-[var(--accent)]" />

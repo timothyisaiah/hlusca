@@ -43,9 +43,10 @@ export default async function ClientProfilePage() {
           nextOfKinName: member.nextOfKinName,
           nextOfKinPhone: member.nextOfKinPhone,
           photoUrl: member.photoUrl ?? "",
-          status: member.status,
-          username: member.user?.username ?? "",
-        }}
+            status: member.status,
+            username: member.user?.username ?? "",
+            role: member.user?.role ?? "CLIENT",
+          }}
       />
     </section>
   );

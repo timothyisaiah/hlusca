@@ -98,6 +98,7 @@ export default async function AdminMemberDetailPage({
             photoUrl: member.photoUrl ?? "",
             status: member.status,
             username: member.user?.username ?? "",
+            role: member.user?.role ?? "CLIENT",
           }}
         />
 

@@ -741,7 +741,8 @@ keep it in sync with the phases in §15.
 
 ### Phase 1 — Foundation: Auth, Roles, Audit, Members
 - [x] `User` + `Member` schema migrated
-- [x] Role enum (CLIENT/TREASURER/BOARD/ADMIN) + RBAC middleware on all API routes
+- [x] Role enum (CLIENT/TREASURER/BOARD/ADMIN) + administrator role assignment
+      + RBAC middleware on all API routes
 - [x] Central "mutation wrapper" utility that writes `AuditLog` for every write
       (success and failure paths) — built and unit-tested before any other module uses it
 - [x] Admin "Enroll Member" screen (admin-only, per decision #5), with mandatory

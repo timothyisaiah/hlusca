@@ -211,49 +211,6 @@ export function TreasurerSavingsWorkspace({
         </Card>
       </div>
 
-      <ResponsiveStatCards>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total savings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold tabular-nums md:text-4xl">
-              {formatCurrency(workspace.summary.totalSavings)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Deposits this month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold tabular-nums md:text-4xl">
-              {formatCurrency(workspace.summary.monthlyDeposits)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Withdrawals this month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold tabular-nums md:text-4xl">
-              {formatCurrency(workspace.summary.monthlyWithdrawals)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Accounts active</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold tabular-nums md:text-4xl">
-              {workspace.summary.activeAccounts}
-            </p>
-          </CardContent>
-        </Card>
-      </ResponsiveStatCards>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
         <Card>
           <CardHeader>
