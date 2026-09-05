@@ -7,6 +7,8 @@ import {
   ShieldCheck,
   UserRound,
   Users,
+  Landmark,
+  Settings2,
 } from "lucide-react";
 
 export interface NavItem {
@@ -59,6 +61,20 @@ export const navItems: NavItem[] = [
     description: "Browse and maintain member records.",
     roles: ["ADMIN"],
     icon: Users,
+  },
+  {
+    href: "/dashboard/loans",
+    label: "Loans",
+    description: "Applications, approvals, contracts, and disbursement.",
+    roles: ["CLIENT", "TREASURER", "BOARD", "ADMIN"],
+    icon: Landmark,
+  },
+  {
+    href: "/dashboard/admin/loan-types",
+    label: "Loan Configuration",
+    description: "Loan products and approval routing.",
+    roles: ["ADMIN"],
+    icon: Settings2,
   },
 ];
 

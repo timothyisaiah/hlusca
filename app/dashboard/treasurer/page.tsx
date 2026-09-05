@@ -2,18 +2,9 @@ import { TreasurerSavingsWorkspace } from "@/components/savings/treasurer-saving
 import { requireRole } from "@/lib/auth/server";
 import { getTreasurerSavingsWorkspace } from "@/lib/savings/service";
 
-export default async function TreasurerDashboardPage(
-  props: PageProps<"/dashboard/treasurer">,
-) {
+export default async function TreasurerDashboardPage() {
   await requireRole(["TREASURER"]);
-  const searchParams = await props.searchParams;
-  const selectedMemberId =
-    typeof searchParams.member === "string"
-      ? searchParams.member
-      : Array.isArray(searchParams.member)
-        ? searchParams.member[0]
-        : undefined;
-  const workspace = await getTreasurerSavingsWorkspace(selectedMemberId);
+  const workspace = await getTreasurerSavingsWorkspace();
 
   return <TreasurerSavingsWorkspace workspace={workspace} />;
 }

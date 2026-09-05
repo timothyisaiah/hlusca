@@ -771,31 +771,31 @@ keep it in sync with the phases in §15.
 - [x] Audit log entries verified for all savings mutations
 
 ### Phase 3 — Loan Application & Approval
-- [ ] `LoanType` config screen (Admin) — interest method, rate, max term, max
+- [x] `LoanType` config screen (Admin) — interest method, rate, max term, max
       multiple of savings, processing fee
-- [ ] Loan application wizard (Client) with eligibility preview
-- [ ] Application routing logic implemented per decision #2:
-  - [ ] `< threshold` → Treasurer-only approval path
-  - [ ] `>= threshold` → Treasurer + Board dual approval path
-- [ ] Treasurer/Board review queues with approve/reject + comment
-- [ ] Rejection flow (reason captured, member notified, audit logged)
-- [ ] Threshold read from `SystemSetting`, not hardcoded — verified with a test that
+- [x] Loan application wizard (Client) with eligibility preview
+- [x] Application routing logic implemented per decision #2:
+  - [x] `< threshold` → Treasurer-only approval path
+  - [x] `>= threshold` → Treasurer + Board dual approval path
+- [x] Treasurer/Board review queues with approve/reject + comment
+- [x] Rejection flow (reason captured, member notified, audit logged)
+- [x] Threshold read from `SystemSetting`, not hardcoded — verified with a test that
       changes the setting and confirms routing changes accordingly
 
 ### Phase 4 — Contracts, Signature & Disbursement
-- [ ] Contract PDF generation from approved application (template with terms +
+- [x] Contract PDF generation from approved application (template with terms +
       schedule preview)
-- [ ] Signature capture screen: canvas pad + typed name + explicit confirm step
+- [x] Signature capture screen: canvas pad + typed name + explicit confirm step
       (decision #3 — no third-party e-sign integration)
-- [ ] Signature + timestamp + IP/user-agent persisted on `LoanContract`
-- [ ] `AuditLog` SIGN event written alongside contract signature (this *is* the legal
+- [x] Signature + timestamp + IP/user-agent persisted on `LoanContract`
+- [x] `AuditLog` SIGN event written alongside contract signature (this *is* the legal
       audit trail per decision #3)
-- [ ] Disbursement action (Treasurer): creates `Loan`, `Transaction`
+- [x] Disbursement action (Treasurer): creates `Loan`, `Transaction`
       (LOAN_DISBURSEMENT), and triggers schedule generation in one DB transaction
 
 ### Phase 5 — Repayment Schedule & Reconciliation
-- [ ] Schedule generator: flat-rate method implemented + unit tested
-- [ ] Schedule generator: reducing-balance method implemented + unit tested
+- [x] Schedule generator: flat-rate method implemented + unit tested
+- [x] Schedule generator: reducing-balance method implemented + unit tested
 - [ ] Payment recording endpoint + UI (Treasurer)
 - [ ] FIFO payment-matching logic (oldest unpaid installment first)
 - [ ] Partial payment handling (status=PARTIAL, remaining-due tracking)

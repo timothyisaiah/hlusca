@@ -102,6 +102,9 @@ model User {
   notifications        Notification[]
   passwordResetRequests PasswordResetRequest[]
   performedTransactions Transaction[]         @relation("TransactionPerformer")
+  loanDecisions         LoanApplication[]     @relation("LoanDecisionMaker")
+  loanApprovalSteps     LoanApprovalStep[]
+  disbursedLoans        Loan[]                @relation("LoanDisburser")
 
   @@index([role])
   @@index([status])
@@ -126,6 +129,8 @@ model Member {
   updatedAt        DateTime           @updatedAt
   user             User?
   savingsAccount   SavingsAccount?
+  loanApplications LoanApplication[]
+  loans            Loan[]
 
   @@index([status])
   @@index([createdAt])
@@ -156,6 +161,7 @@ model Transaction {
   createdAt        DateTime        @default(now())
   savingsAccount   SavingsAccount  @relation(fields: [savingsAccountId], references: [id], onDelete: Restrict)
   performedBy      User            @relation("TransactionPerformer", fields: [performedById], references: [id], onDelete: Restrict)
+  disbursedLoan    Loan?
 
   @@index([savingsAccountId, createdAt(sort: Desc)])
   @@index([performedById, createdAt(sort: Desc)])
@@ -218,4 +224,172 @@ model PasswordResetRequest {
   @@index([userId, createdAt(sort: Desc)])
   @@index([tokenHash])
   @@index([expiresAt])
+}
+
+enum InterestMethod {
+  FLAT
+  REDUCING_BALANCE
+}
+
+enum LoanApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum LoanDecision {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LoanContractStatus {
+  AWAITING_SIGNATURE
+  SIGNED
+  VOID
+}
+
+enum LoanStatus {
+  ACTIVE
+  CLOSED
+  DEFAULTED
+}
+
+enum LoanScheduleStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+  WAIVED
+}
+
+model LoanType {
+  id                   String         @id @default(cuid())
+  name                 String         @unique
+  interestMethod       InterestMethod
+  interestRate         Decimal        @db.Decimal(7, 4)
+  maxTermMonths        Int
+  maxMultipleOfSavings Decimal        @db.Decimal(7, 2)
+  processingFeePercent Decimal        @db.Decimal(7, 4)
+  active               Boolean        @default(true)
+  createdAt            DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt            DateTime       @updatedAt @db.Timestamptz(3)
+  applications         LoanApplication[]
+}
+
+model LoanApplication {
+  id                     String                @id @default(cuid())
+  memberId               String
+  loanTypeId             String
+  amountRequested        Decimal               @db.Decimal(18, 2)
+  termMonths             Int
+  purpose                String
+  status                 LoanApplicationStatus @default(SUBMITTED)
+  // Freeze product terms and routing at submission, before any configuration edits.
+  loanTypeName           String
+  interestMethod         InterestMethod
+  interestRate           Decimal               @db.Decimal(7, 4)
+  processingFeePercent   Decimal               @db.Decimal(7, 4)
+  maxMultipleOfSavings   Decimal               @db.Decimal(7, 2)
+  boardApprovalThreshold Decimal               @db.Decimal(18, 2)
+  submittedAt            DateTime              @default(now()) @db.Timestamptz(3)
+  decidedAt              DateTime?             @db.Timestamptz(3)
+  decidedById            String?
+  rejectionReason        String?
+  member                 Member                @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  loanType               LoanType              @relation(fields: [loanTypeId], references: [id], onDelete: Restrict)
+  decidedBy              User?                 @relation("LoanDecisionMaker", fields: [decidedById], references: [id], onDelete: Restrict)
+  approvalSteps          LoanApprovalStep[]
+  contract               LoanContract?
+  loan                   Loan?
+
+  @@index([memberId, submittedAt(sort: Desc)])
+  @@index([status, submittedAt])
+  @@index([loanTypeId])
+  @@index([decidedById])
+}
+
+model LoanApprovalStep {
+  id                String       @id @default(cuid())
+  loanApplicationId String
+  stepNumber        Int
+  approverRole      UserRole
+  approverId        String?
+  decision          LoanDecision @default(PENDING)
+  comment           String?
+  decidedAt         DateTime?    @db.Timestamptz(3)
+  application       LoanApplication @relation(fields: [loanApplicationId], references: [id], onDelete: Restrict)
+  approver          User?        @relation(fields: [approverId], references: [id], onDelete: Restrict)
+
+  @@unique([loanApplicationId, stepNumber])
+  @@unique([loanApplicationId, approverRole])
+  @@index([approverRole, decision])
+  @@index([approverId])
+}
+
+// A contract belongs to an approved application. The Loan does not exist until disbursement.
+model LoanContract {
+  id                 String             @id @default(cuid())
+  loanApplicationId  String             @unique
+  documentPdf        Bytes
+  documentHash       String
+  terms              Json
+  generatedAt        DateTime           @default(now()) @db.Timestamptz(3)
+  status             LoanContractStatus @default(AWAITING_SIGNATURE)
+  memberSignedAt     DateTime?          @db.Timestamptz(3)
+  signedName         String?
+  memberSignaturePng Bytes?
+  signatureHash      String?
+  signingIpAddress   String?
+  signingUserAgent   String?
+  consentVersion     String?
+  application        LoanApplication    @relation(fields: [loanApplicationId], references: [id], onDelete: Restrict)
+  loan               Loan?
+}
+
+model Loan {
+  id                        String         @id @default(cuid())
+  loanApplicationId         String         @unique
+  memberId                  String
+  contractId                String         @unique
+  principal                 Decimal        @db.Decimal(18, 2)
+  interestRate              Decimal        @db.Decimal(7, 4)
+  interestMethod            InterestMethod
+  termMonths                Int
+  processingFee             Decimal        @db.Decimal(18, 2)
+  netDisbursement           Decimal        @db.Decimal(18, 2)
+  disbursementDate          DateTime       @db.Timestamptz(3)
+  disbursedById             String
+  disbursementTransactionId String         @unique
+  status                    LoanStatus     @default(ACTIVE)
+  // Total unpaid scheduled principal + interest, excluding the fee withheld up front.
+  outstandingBalance        Decimal        @db.Decimal(18, 2)
+  application               LoanApplication @relation(fields: [loanApplicationId], references: [id], onDelete: Restrict)
+  member                    Member         @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  contract                  LoanContract   @relation(fields: [contractId], references: [id], onDelete: Restrict)
+  disbursedBy               User           @relation("LoanDisburser", fields: [disbursedById], references: [id], onDelete: Restrict)
+  disbursementTransaction   Transaction    @relation(fields: [disbursementTransactionId], references: [id], onDelete: Restrict)
+  schedule                  LoanSchedule[]
+
+  @@index([memberId, disbursementDate(sort: Desc)])
+  @@index([status])
+  @@index([disbursedById])
+}
+
+model LoanSchedule {
+  id                    String             @id @default(cuid())
+  loanId                String
+  installmentNumber     Int
+  dueDate               DateTime           @db.Date
+  principalDue          Decimal            @db.Decimal(18, 2)
+  interestDue           Decimal            @db.Decimal(18, 2)
+  totalDue              Decimal            @db.Decimal(18, 2)
+  principalBalanceAfter Decimal            @db.Decimal(18, 2)
+  status                LoanScheduleStatus @default(PENDING)
+  loan                  Loan               @relation(fields: [loanId], references: [id], onDelete: Restrict)
+
+  @@unique([loanId, installmentNumber])
+  @@index([status, dueDate])
 }

@@ -17,7 +17,7 @@ export default async function AdminDashboardPage() {
           Enrollment, governance, and controls
         </h1>
         <p className="max-w-2xl text-base leading-8 text-[var(--muted-foreground)]">
-          Phase 1 centers the platform around safe onboarding and strong operational visibility.
+          Manage membership, configure loan products, and keep approval rules current.
         </p>
       </div>
 

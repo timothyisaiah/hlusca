@@ -383,9 +383,7 @@ export async function getClientSavingsDashboard(
   };
 }
 
-export async function getTreasurerSavingsWorkspace(
-  selectedMemberId?: string,
-): Promise<TreasurerSavingsWorkspace> {
+export async function getTreasurerSavingsWorkspace(): Promise<TreasurerSavingsWorkspace> {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -455,11 +453,6 @@ export async function getTreasurerSavingsWorkspace(
   ]);
 
   const serializedMembers = members.map(serializeMember);
-  const selectedMember =
-    serializedMembers.find((member) => member.id === selectedMemberId) ??
-    serializedMembers[0] ??
-    null;
-
   const monthlyDepositsAmount = new Prisma.Decimal(
     toDecimalString(monthlyDeposits._sum.amount),
   );
@@ -479,12 +472,6 @@ export async function getTreasurerSavingsWorkspace(
         monthlyDeposits._count._all + monthlyWithdrawals._count._all,
     },
     members: serializedMembers,
-    selectedMember,
-    selectedLedger: selectedMember
-      ? await listMemberTransactions(selectedMember.id, {
-          takeAll: true,
-        })
-      : null,
     recentTransactions: recentTransactions.map(serializeTransaction),
   };
 }

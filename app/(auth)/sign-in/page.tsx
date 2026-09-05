@@ -4,7 +4,6 @@ import Link from "next/link";
 import { LoginForm } from "@/components/forms/login-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { DEFAULT_ADMIN_PASSWORD, DEFAULT_ADMIN_USERNAME } from "@/lib/constants";
 import { redirectSignedInUser } from "@/lib/auth/server";
 
 export default async function SignInPage() {
@@ -17,13 +16,13 @@ export default async function SignInPage() {
           <CardContent className="relative flex h-full flex-col justify-between gap-10 p-8 md:p-10">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(15,107,120,0.18),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(217,172,53,0.16),transparent_28%)]" />
             <div className="relative space-y-6">
-              <Badge>Phase 0 + 1</Badge>
+              <Badge>Member portal</Badge>
               <div className="max-w-2xl space-y-5">
                 <h1 className="text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-                  HLUSCA is ready for member onboarding, credential recovery, and audited access control.
+                  Your savings, loans, and membership in one place.
                 </h1>
                 <p className="max-w-xl text-base leading-8 text-[var(--muted-foreground)]">
-                  This foundation release includes multi-identifier sign-in, admin-only enrollment, automatic member and savings account creation, and role-scoped dashboards built on server-side checks.
+                  Check your savings, follow your loan applications, and review and sign your loan agreements from your HLUSCA account.
                 </p>
               </div>
             </div>
@@ -31,20 +30,18 @@ export default async function SignInPage() {
             <div className="relative grid gap-4 md:grid-cols-2">
               <div className="rounded-[28px] border border-white/70 bg-white/80 p-5 backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                  Pilot posture
+                  Savings and loans
                 </p>
                 <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
-                  Auth, audit, and enrollment are live. Savings transactions, loan flows, and dividend runs are scaffolded for the next phases.
+                  View your transactions and repayment schedules, with updates as your loan moves through review, approval, and disbursement.
                 </p>
               </div>
               <div className="rounded-[28px] border border-white/70 bg-white/80 p-5 backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                  Development admin
+                  Need access?
                 </p>
                 <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
-                  Username: <span className="font-mono">{DEFAULT_ADMIN_USERNAME}</span>
-                  <br />
-                  Password: <span className="font-mono">{DEFAULT_ADMIN_PASSWORD}</span>
+                  Contact your Administrator to enroll or recover access. You can sign in with your username, phone, email, or member number.
                 </p>
               </div>
             </div>

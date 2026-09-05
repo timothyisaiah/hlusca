@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -20,6 +20,57 @@ export function ResponsiveDialog({
   onClose,
   className,
 }: ResponsiveDialogProps) {
+  const dialog = useRef<HTMLElement>(null);
+  const close = useRef(onClose);
+  useEffect(() => {
+    close.current = onClose;
+  }, [onClose]);
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialog.current?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close.current();
+      }
+      if (event.key !== "Tab") return;
+      const items = [
+        ...(dialog.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex="0"]',
+        ) ?? []),
+      ];
+      const first = items[0],
+        last = items[items.length - 1];
+      if (!first) {
+        event.preventDefault();
+        return;
+      }
+      if (
+        event.shiftKey &&
+        (document.activeElement === first ||
+          document.activeElement === dialog.current)
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last ||
+          document.activeElement === dialog.current)
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+      previous?.focus();
+    };
+  }, [open]);
   if (!open) {
     return null;
   }
@@ -27,6 +78,8 @@ export function ResponsiveDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-slate-950/30 md:items-center md:justify-center md:p-6">
       <section
+        ref={dialog}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -36,7 +89,9 @@ export function ResponsiveDialog({
         )}
       >
         <div className="mb-5 flex items-center justify-between gap-4">
-          <h2 className="text-xl font-semibold text-[var(--foreground)]">{title}</h2>
+          <h2 className="text-xl font-semibold text-[var(--foreground)]">
+            {title}
+          </h2>
           <button
             type="button"
             onClick={onClose}

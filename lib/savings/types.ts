@@ -80,8 +80,6 @@ export interface TreasurerSavingsSummary {
 export interface TreasurerSavingsWorkspace {
   summary: TreasurerSavingsSummary;
   members: SavingsMemberListItem[];
-  selectedMember: SavingsMemberListItem | null;
-  selectedLedger: SavingsLedgerPage | null;
   recentTransactions: SavingsTransactionRecord[];
 }
 

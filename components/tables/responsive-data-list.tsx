@@ -64,7 +64,7 @@ export function ResponsiveDataList<Row>({
         ))}
       </div>
 
-      <div className="hidden overflow-hidden rounded-[28px] border border-[var(--surface-border)] bg-white md:block">
+      <div className="hidden overflow-x-auto rounded-[28px] border border-[var(--surface-border)] bg-white md:block">
         <table className="w-full border-collapse text-left text-sm">
           <thead className="bg-[var(--surface-muted)] text-[var(--muted-foreground)]">
             <tr>
