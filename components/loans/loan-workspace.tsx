@@ -204,7 +204,7 @@ export function LoanWorkspace({
               <div className="space-y-2">
                 <Badge>
                   {row.loan
-                    ? "Disbursed"
+                    ? titleCase(row.loan.status)
                     : row.contract?.status === "SIGNED"
                       ? "Ready for disbursement"
                       : titleCase(row.status)}

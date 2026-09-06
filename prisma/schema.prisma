@@ -105,6 +105,7 @@ model User {
   loanDecisions         LoanApplication[]     @relation("LoanDecisionMaker")
   loanApprovalSteps     LoanApprovalStep[]
   disbursedLoans        Loan[]                @relation("LoanDisburser")
+  recordedLoanPayments LoanPayment[]
 
   @@index([role])
   @@index([status])
@@ -265,6 +266,12 @@ enum LoanScheduleStatus {
   WAIVED
 }
 
+enum LoanPaymentMethod {
+  CASH
+  BANK_TRANSFER
+  MOBILE_MONEY
+}
+
 model LoanType {
   id                   String         @id @default(cuid())
   name                 String         @unique
@@ -372,6 +379,7 @@ model Loan {
   disbursedBy               User           @relation("LoanDisburser", fields: [disbursedById], references: [id], onDelete: Restrict)
   disbursementTransaction   Transaction    @relation(fields: [disbursementTransactionId], references: [id], onDelete: Restrict)
   schedule                  LoanSchedule[]
+  payments                  LoanPayment[]
 
   @@index([memberId, disbursementDate(sort: Desc)])
   @@index([status])
@@ -387,9 +395,48 @@ model LoanSchedule {
   interestDue           Decimal            @db.Decimal(18, 2)
   totalDue              Decimal            @db.Decimal(18, 2)
   principalBalanceAfter Decimal            @db.Decimal(18, 2)
+  principalPaid         Decimal            @default(0) @db.Decimal(18, 2)
+  interestPaid          Decimal            @default(0) @db.Decimal(18, 2)
   status                LoanScheduleStatus @default(PENDING)
   loan                  Loan               @relation(fields: [loanId], references: [id], onDelete: Restrict)
+  allocations           LoanPaymentAllocation[]
 
+  @@unique([id, loanId])
   @@unique([loanId, installmentNumber])
   @@index([status, dueDate])
+}
+
+// Immutable receipts. Allocation rows are derived again when a receipt is backdated.
+model LoanPayment {
+  id                      String            @id @default(cuid())
+  loanId                  String
+  amount                  Decimal           @db.Decimal(18, 2)
+  paymentDate             DateTime          @db.Date
+  method                  LoanPaymentMethod
+  reference               String            @db.VarChar(100)
+  targetInstallmentNumber Int?
+  recordedById            String
+  createdAt               DateTime          @default(now()) @db.Timestamptz(3)
+  loan                    Loan              @relation(fields: [loanId], references: [id], onDelete: Restrict)
+  recordedBy              User              @relation(fields: [recordedById], references: [id], onDelete: Restrict)
+  allocations             LoanPaymentAllocation[]
+
+  @@unique([id, loanId])
+  @@unique([loanId, reference])
+  @@index([loanId, paymentDate, createdAt, id])
+  @@index([recordedById])
+}
+
+model LoanPaymentAllocation {
+  paymentId       String
+  scheduleId      String
+  loanId          String
+  principalAmount Decimal      @db.Decimal(18, 2)
+  interestAmount  Decimal      @db.Decimal(18, 2)
+  payment         LoanPayment  @relation(fields: [paymentId, loanId], references: [id, loanId], onDelete: Restrict)
+  schedule        LoanSchedule @relation(fields: [scheduleId, loanId], references: [id, loanId], onDelete: Restrict)
+
+  @@id([paymentId, scheduleId])
+  @@index([scheduleId, loanId])
+  @@index([loanId])
 }

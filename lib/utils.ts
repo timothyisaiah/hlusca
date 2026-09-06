@@ -32,6 +32,12 @@ export function formatDate(value: Date | string | null | undefined) {
 
   return new Intl.DateTimeFormat("en-UG", {
     dateStyle: "medium",
+    // Calendar-only dates retain their day; timestamps use the SACCO's timezone.
+    // Explicit zones also keep server and browser rendering identical.
+    timeZone:
+      typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)
+        ? "UTC"
+        : "Africa/Kampala",
   }).format(date);
 }
 
@@ -45,6 +51,7 @@ export function formatDateTime(value: Date | string | null | undefined) {
   return new Intl.DateTimeFormat("en-UG", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Africa/Kampala",
   }).format(date);
 }
 

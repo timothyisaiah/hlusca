@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import type { ApplicationRecord } from "@/lib/loans/types";
-import type { ScheduleInstallment } from "@/lib/loans/schedule";
+import type { LoanStatement } from "@/lib/loans/statement-types";
+import { RepaymentWorkspace } from "./repayment-workspace";
 import { formatCurrency, formatDateTime, titleCase } from "@/lib/utils";
 import { Field, loanRequest, Notice, ScheduleTable } from "./shared";
 import { SignaturePad } from "./signature-pad";
@@ -20,11 +21,13 @@ import { SignaturePad } from "./signature-pad";
 export function ApplicationDetail({
   application: app,
   role,
-  schedule,
+  statement,
+  canRecordPayment,
 }: {
   application: ApplicationRecord;
   role: UserRole;
-  schedule: (ScheduleInstallment & { status?: string })[];
+  statement: LoanStatement | null;
+  canRecordPayment: boolean;
 }) {
   const router = useRouter();
   const [comment, setComment] = useState("");
@@ -101,12 +104,22 @@ export function ApplicationDetail({
   }
   return (
     <div className="space-y-6">
-      <Link
-        href="/dashboard/loans"
-        className={buttonVariants({ variant: "outline" })}
-      >
-        Back to loans
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link
+          href="/dashboard/loans"
+          className={buttonVariants({ variant: "outline" })}
+        >
+          Back to loans
+        </Link>
+        {statement && (
+          <a
+            href="#repayments"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            Repayments and statement
+          </a>
+        )}
+      </div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold md:text-3xl">
@@ -117,7 +130,9 @@ export function ApplicationDetail({
             {app.member.memberNumber}
           </p>
         </div>
-        <Badge>{app.loan ? "Disbursed" : titleCase(app.status)}</Badge>
+        <Badge>
+          {app.loan ? titleCase(app.loan.status) : titleCase(app.status)}
+        </Badge>
       </div>
       {!confirm && error && <Notice error>{error}</Notice>}
       {message && <Notice>{message}</Notice>}
@@ -398,22 +413,11 @@ export function ApplicationDetail({
           </CardContent>
         </Card>
       )}
-      {app.loan && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Repayment schedule</CardTitle>
-            <p className="mt-2 text-base">
-              Disbursed {formatDateTime(app.loan.disbursementDate)} ·
-              Outstanding scheduled balance:{" "}
-              <strong className="tabular-nums">
-                {formatCurrency(app.loan.outstandingBalance)}
-              </strong>
-            </p>
-          </CardHeader>
-          <CardContent>
-            <ScheduleTable schedule={schedule} />
-          </CardContent>
-        </Card>
+      {statement && (
+        <RepaymentWorkspace
+          statement={statement}
+          canRecord={canRecordPayment}
+        />
       )}
       <ResponsiveDialog
         open={confirm !== null}

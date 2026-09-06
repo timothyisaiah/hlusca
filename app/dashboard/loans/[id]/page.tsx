@@ -2,12 +2,9 @@ import { notFound } from "next/navigation";
 import { ApplicationDetail } from "@/components/loans/application-detail";
 import { requireCurrentUser } from "@/lib/auth/server";
 import { ApiError } from "@/lib/api";
-import {
-  getApplication,
-  getLoanActor,
-  getLoanSchedule,
-} from "@/lib/loans/service";
+import { getApplication, getLoanActor } from "@/lib/loans/service";
 import type { ApplicationRecord } from "@/lib/loans/types";
+import { getLoanStatement } from "@/lib/loans/statement";
 
 export default async function LoanDetailPage({
   params,
@@ -21,9 +18,9 @@ export default async function LoanDetailPage({
     if (error instanceof ApiError && error.status === 404) notFound();
     throw error;
   });
-  const schedule = application.loan
-    ? await getLoanSchedule(application.loan.id, actor)
-    : [];
+  const statement = application.loan
+    ? await getLoanStatement(application.loan.id, actor)
+    : null;
   return (
     <section className="w-full">
       <ApplicationDetail
@@ -31,7 +28,10 @@ export default async function LoanDetailPage({
           JSON.parse(JSON.stringify(application)) as ApplicationRecord
         }
         role={actor.role}
-        schedule={JSON.parse(JSON.stringify(schedule))}
+        statement={statement}
+        canRecordPayment={
+          actor.role === "TREASURER" && actor.memberId !== application.memberId
+        }
       />
     </section>
   );

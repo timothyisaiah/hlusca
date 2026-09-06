@@ -51,6 +51,12 @@ import { GET as document } from "../../app/api/contracts/[id]/document/route";
 import { GET as schedule } from "../../app/api/loans/[id]/schedule/route";
 import { GET as signatureImage } from "../../app/api/contracts/[id]/signature/route";
 import { GET as exportApplications } from "../../app/api/loan-applications/export/route";
+import { POST as repay } from "../../app/api/loans/[id]/payments/route";
+import { GET as statement } from "../../app/api/loans/[id]/statement/route";
+import { GET as overdue } from "../../app/api/cron/loans/overdue/route";
+import { businessDate } from "./reconciliation";
+import type { LoanStatement } from "./statement-types";
+import { proxy } from "../../proxy";
 
 type Handler = typeof submit;
 const prefix = `loans-test-${randomUUID()}`;
@@ -184,6 +190,40 @@ async function signed(amount = "1000000", actor = client) {
   return app;
 }
 
+async function activeLoan(amount = "1000000", actor = client) {
+  const app = await signed(amount, actor);
+  session.user = treasurer;
+  expect(
+    (await call(disburse, { password, confirm: true }, app.id)).status,
+  ).toBe(200);
+  return prisma.loan.findUniqueOrThrow({
+    where: { loanApplicationId: app.id },
+    include: { schedule: { orderBy: { installmentNumber: "asc" } } },
+  });
+}
+function receipt(amount: string, changes: Record<string, unknown> = {}) {
+  return {
+    amount,
+    paymentDate: businessDate(),
+    method: "CASH",
+    reference: `PAY-${randomUUID()}`,
+    confirm: true,
+    ...changes,
+  };
+}
+async function loanState(id: string) {
+  return prisma.loan.findUniqueOrThrow({
+    where: { id },
+    include: {
+      schedule: { orderBy: { installmentNumber: "asc" } },
+      payments: {
+        orderBy: { id: "asc" },
+        include: { allocations: { orderBy: { scheduleId: "asc" } } },
+      },
+    },
+  });
+}
+
 describe.skipIf(!process.env.LOAN_TEST_DATABASE_URL)(
   "loan lifecycle against disposable PostgreSQL",
   () => {
@@ -214,6 +254,7 @@ describe.skipIf(!process.env.LOAN_TEST_DATABASE_URL)(
       ).toBe(200);
     });
     afterAll(async () => {
+      vi.unstubAllEnvs();
       await prisma.$disconnect();
     });
 
@@ -636,6 +677,518 @@ describe.skipIf(!process.env.LOAN_TEST_DATABASE_URL)(
           data: { documentHash: "a".repeat(64) },
         }),
       ).rejects.toThrow("immutable");
+    });
+
+    it.each(["1000000", "3000000"])(
+      "repays and closes a %s loan through partial, rollover and final payments",
+      async (principal) => {
+        const loan = await activeLoan(principal);
+        const initialSavings = (
+          await prisma.savingsAccount.findUniqueOrThrow({
+            where: { memberId: client.memberId },
+          })
+        ).balance.toFixed(2);
+        const first = receipt("5000");
+        const firstResponse = await call(repay, first, loan.id);
+        expect(firstResponse.status).toBe(200);
+        const firstPayment = (await firstResponse.json()).payment;
+        let state = await loanState(loan.id);
+        expect(state.schedule[0].status).toBe("PARTIAL");
+        expect(state.schedule[0].interestPaid.toFixed(2)).toBe("5000.00");
+        expect(state.schedule[0].principalPaid.toFixed(2)).toBe("0.00");
+        const rollover = loan.schedule[0].totalDue
+          .minus(5000)
+          .plus(loan.schedule[1].totalDue)
+          .plus(1);
+        expect(
+          (await call(repay, receipt(rollover.toFixed(2)), loan.id)).status,
+        ).toBe(200);
+        state = await loanState(loan.id);
+        expect(state.schedule.slice(0, 3).map((row) => row.status)).toEqual([
+          "PAID",
+          "PAID",
+          "PARTIAL",
+        ]);
+        const success = await prisma.auditLog.findFirstOrThrow({
+          where: {
+            entityType: "LoanPayment",
+            entityId: firstPayment.id,
+            status: "SUCCESS",
+          },
+        });
+        expect(success.beforeState).toMatchObject({
+          loanId: loan.id,
+          outstandingBalance: loan.outstandingBalance.toString(),
+        });
+        expect(success.afterState).toMatchObject({
+          loanId: loan.id,
+          payment: { id: firstPayment.id },
+          allocations: [
+            { paymentId: firstPayment.id, interestAmount: "5000.00" },
+          ],
+        });
+        expect(
+          (
+            await call(
+              repay,
+              receipt(state.outstandingBalance.toFixed(2)),
+              loan.id,
+            )
+          ).status,
+        ).toBe(200);
+        state = await loanState(loan.id);
+        expect(state.status).toBe("CLOSED");
+        expect(state.outstandingBalance.toFixed(2)).toBe("0.00");
+        expect(state.schedule.every((row) => row.status === "PAID")).toBe(true);
+        expect((await call(repay, receipt("0.01"), loan.id)).status).toBe(409);
+        expect(
+          (
+            await prisma.savingsAccount.findUniqueOrThrow({
+              where: { memberId: client.memberId },
+            })
+          ).balance.toFixed(2),
+        ).toBe(initialSavings);
+        session.user = client;
+        const ledger = (await (
+          await read(statement, loan.id)
+        ).json()) as LoanStatement;
+        expect(ledger.rows.at(-1)?.balance).toBe("0.00");
+        expect(ledger.totalPaid).toBe(loan.outstandingBalance.toFixed(2));
+        expect(
+          ledger.rows
+            .filter((row) => row.type === "PAYMENT")
+            .reduce(
+              (sum, row) => sum.plus(row.principal),
+              new Prisma.Decimal(0),
+            )
+            .toFixed(2),
+        ).toBe(`${principal}.00`);
+      },
+    );
+
+    it("reconciles a backdated receipt and records changed older allocations in the audit", async () => {
+      const loan = await activeLoan();
+      await prisma.loan.update({
+        where: { id: loan.id },
+        data: { disbursementDate: new Date("2000-01-01T00:00:00Z") },
+      });
+      const late = await (
+        await call(
+          repay,
+          receipt("15000", {
+            paymentDate: "2001-01-20",
+            reference: "LATE-RECEIPT",
+          }),
+          loan.id,
+        )
+      ).json();
+      expect(
+        (
+          await loanState(loan.id)
+        ).payments[0].allocations[0].interestAmount.toFixed(2),
+      ).toBe("10000.00");
+      const earlyResponse = await call(
+        repay,
+        receipt("5000", {
+          paymentDate: "2001-01-05",
+          reference: "EARLY-RECEIPT",
+        }),
+        loan.id,
+      );
+      expect(earlyResponse.status).toBe(200);
+      const early = await earlyResponse.json();
+      const state = await loanState(loan.id);
+      expect(
+        state.payments.find((p) => p.id === late.payment.id)!.allocations[0],
+      ).toMatchObject({
+        interestAmount: new Prisma.Decimal(5000),
+        principalAmount: new Prisma.Decimal(10000),
+      });
+      const audit = await prisma.auditLog.findFirstOrThrow({
+        where: {
+          entityId: early.payment.id,
+          entityType: "LoanPayment",
+          status: "SUCCESS",
+        },
+      });
+      expect(JSON.stringify(audit.beforeState)).toContain(
+        '"interestAmount":"10000"',
+      );
+      expect(JSON.stringify(audit.afterState)).toContain(
+        '"interestAmount":"5000.00"',
+      );
+      session.user = client;
+      const ledger = await (
+        await read(statement, loan.id, "?from=2001-01-10&type=PAYMENT")
+      ).json();
+      expect(ledger.rows).toHaveLength(1);
+      expect(ledger.rows[0]).toMatchObject({
+        reference: "LATE-RECEIPT",
+        interest: "5000.00",
+        balance: "1100000.00",
+      });
+      expect((await read(statement, loan.id, "?page=2")).status).toBe(200);
+    });
+
+    it("supports installment references and rejects duplicates, surplus and invalid dates without writes", async () => {
+      const loan = await activeLoan();
+      const input = receipt("100", { reference: " inst-3/receipt-123 " });
+      expect((await call(repay, input, loan.id)).status).toBe(200);
+      let state = await loanState(loan.id);
+      expect(state.payments[0]).toMatchObject({
+        reference: "INST-3/RECEIPT-123",
+        targetInstallmentNumber: 3,
+      });
+      expect(state.schedule[2].status).toBe("PARTIAL");
+      expect(state.schedule[0].status).toBe("PENDING");
+      const before = JSON.stringify(state);
+      const invalid = [
+        input,
+        receipt("1120000"),
+        receipt("10", { paymentDate: "1999-01-01" }),
+        receipt("10", { paymentDate: "2099-01-01" }),
+        receipt("10", { targetInstallmentNumber: 13 }),
+        receipt("10", {
+          reference: "INST-3/DIFFERENT",
+          targetInstallmentNumber: 2,
+        }),
+        receipt("10", { confirm: false }),
+      ];
+      for (const request of invalid)
+        expect(
+          (await call(repay, request, loan.id)).status,
+        ).toBeGreaterThanOrEqual(400);
+      state = await loanState(loan.id);
+      expect(JSON.stringify(state)).toBe(before);
+      expect(
+        await prisma.auditLog.count({
+          where: {
+            entityId: loan.id,
+            entityType: "LoanPayment",
+            status: "FAILURE",
+          },
+        }),
+      ).toBe(invalid.length);
+      await expect(
+        prisma.loanPayment.update({
+          where: { id: state.payments[0].id },
+          data: { amount: "200" },
+        }),
+      ).rejects.toThrow("immutable");
+      await expect(
+        prisma.loanPayment.delete({ where: { id: state.payments[0].id } }),
+      ).rejects.toThrow("immutable");
+    });
+
+    it("enforces repayment roles, fresh account status, CSRF and member statement ownership", async () => {
+      const loan = await activeLoan();
+      const before = JSON.stringify(await loanState(loan.id));
+      for (const actor of [null, client, board, admin]) {
+        session.user = actor;
+        expect((await call(repay, receipt("10"), loan.id)).status).toBe(
+          actor ? 403 : 401,
+        );
+      }
+      session.user = treasurer;
+      expect((await call(repay, {}, loan.id, "{")).status).toBe(400);
+      expect(
+        (
+          await repay(
+            new NextRequest("http://localhost:3000/api/test", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                origin: "https://untrusted.example",
+              },
+              body: JSON.stringify(receipt("10")),
+            }),
+            { params: Promise.resolve({ id: loan.id }) },
+          )
+        ).status,
+      ).toBe(403);
+      await prisma.user.update({
+        where: { id: treasurer.id },
+        data: { status: "SUSPENDED" },
+      });
+      try {
+        expect((await call(repay, receipt("10"), loan.id)).status).toBe(401);
+      } finally {
+        await prisma.user.update({
+          where: { id: treasurer.id },
+          data: { status: "ACTIVE" },
+        });
+      }
+      expect(JSON.stringify(await loanState(loan.id))).toBe(before);
+      session.user = outsider;
+      expect((await read(statement, loan.id)).status).toBe(404);
+      expect((await read(statement, loan.id, "?format=pdf")).status).toBe(404);
+      expect(
+        await prisma.auditLog.count({
+          where: {
+            entityType: "LoanStatement",
+            entityId: loan.id,
+            actorId: outsider.id,
+            status: "FAILURE",
+          },
+        }),
+      ).toBe(1);
+      session.user = client;
+      for (const format of ["pdf", "csv"]) {
+        const response = await read(statement, loan.id, `?format=${format}`);
+        expect(response.status).toBe(200);
+        expect(response.headers.get("cache-control")).toContain("no-store");
+        const text = await response.text();
+        expect(text).toContain(loan.id);
+        expect(text).toContain("Rose Ayo");
+        if (format === "pdf") expect(text).toMatch(/^%PDF-1.4/);
+      }
+      expect(
+        await prisma.auditLog.count({
+          where: {
+            entityType: "LoanStatement",
+            entityId: loan.id,
+            actorId: client.id,
+            status: "SUCCESS",
+          },
+        }),
+      ).toBe(2);
+      for (const actor of [admin, board, treasurer]) {
+        session.user = actor;
+        expect((await read(statement, loan.id)).status).toBe(200);
+      }
+    });
+
+    it("serializes competing payments and duplicate receipts without losing money", async () => {
+      const loan = await activeLoan();
+      const responses = await Promise.all([
+        call(repay, receipt("600000"), loan.id),
+        call(repay, receipt("600000"), loan.id),
+      ]);
+      expect(responses.map((r) => r.status).sort()).toEqual([200, 409]);
+      let state = await loanState(loan.id);
+      expect(state.payments).toHaveLength(1);
+      expect(state.outstandingBalance.toFixed(2)).toBe("520000.00");
+      const duplicate = receipt("100");
+      const repeated = await Promise.all([
+        call(repay, duplicate, loan.id),
+        call(repay, duplicate, loan.id),
+      ]);
+      expect(repeated.map((r) => r.status).sort()).toEqual([200, 409]);
+      state = await loanState(loan.id);
+      expect(state.payments).toHaveLength(2);
+      expect(state.outstandingBalance.toFixed(2)).toBe("519900.00");
+    });
+
+    it("rolls back receipt, matching, balance and notification when repayment auditing fails", async () => {
+      const loan = await activeLoan();
+      const initial = JSON.stringify(await loanState(loan.id));
+      const notices = await prisma.notification.count({
+        where: { userId: client.id },
+      });
+      await prisma.$executeRawUnsafe(
+        `CREATE FUNCTION hlusca.fail_payment_test_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW."entityType" = 'LoanPayment' AND NEW.status = 'SUCCESS' THEN RAISE EXCEPTION 'Injected repayment audit failure'; END IF; RETURN NEW; END $$`,
+      );
+      await prisma.$executeRawUnsafe(
+        `CREATE TRIGGER fail_payment_test_audit BEFORE INSERT ON hlusca."AuditLog" FOR EACH ROW EXECUTE FUNCTION hlusca.fail_payment_test_audit()`,
+      );
+      try {
+        expect((await call(repay, receipt("100"), loan.id)).status).toBe(500);
+        expect(JSON.stringify(await loanState(loan.id))).toBe(initial);
+        expect(
+          await prisma.notification.count({ where: { userId: client.id } }),
+        ).toBe(notices);
+        expect(
+          await prisma.auditLog.count({
+            where: {
+              entityType: "LoanPayment",
+              entityId: loan.id,
+              status: "FAILURE",
+            },
+          }),
+        ).toBe(1);
+      } finally {
+        await prisma.$executeRawUnsafe(
+          `DROP TRIGGER fail_payment_test_audit ON hlusca."AuditLog"`,
+        );
+        await prisma.$executeRawUnsafe(
+          `DROP FUNCTION hlusca.fail_payment_test_audit()`,
+        );
+      }
+    });
+
+    it("flags overdue installments daily, authenticates the job and stays safe against a simultaneous payoff", async () => {
+      const loan = await activeLoan();
+      const today = businessDate();
+      const yesterday = new Date(`${today}T00:00:00Z`);
+      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+      expect(
+        (
+          await call(
+            repay,
+            receipt(loan.schedule[0].totalDue.plus(1).toFixed(2)),
+            loan.id,
+          )
+        ).status,
+      ).toBe(200);
+      await prisma.loanSchedule.updateMany({
+        where: { loanId: loan.id, installmentNumber: { lte: 3 } },
+        data: { dueDate: yesterday },
+      });
+      await prisma.loanSchedule.update({
+        where: { id: loan.schedule[3].id },
+        data: { dueDate: new Date(`${today}T00:00:00Z`) },
+      });
+      vi.stubEnv(
+        "CRON_SECRET",
+        "test-only-overdue-secret-at-least-32-characters",
+      );
+      const invoke = (authorized = true) =>
+        overdue(
+          new NextRequest("http://localhost:3000/api/cron/loans/overdue", {
+            headers: authorized
+              ? { authorization: `Bearer ${process.env.CRON_SECRET}` }
+              : {},
+          }),
+        );
+      expect((await invoke(false)).status).toBe(401);
+      expect((await invoke()).status).toBe(200);
+      const state = await loanState(loan.id);
+      expect(state.schedule.slice(0, 4).map((s) => s.status)).toEqual([
+        "PAID",
+        "OVERDUE",
+        "OVERDUE",
+        "PENDING",
+      ]);
+      expect((await (await invoke()).json()).updated).toBe(0);
+      const jobLogs = await prisma.auditLog.findMany({
+        where: {
+          entityType: "LoanSchedule",
+          status: "SUCCESS",
+        },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      });
+      const log = jobLogs.find((entry) =>
+        JSON.stringify(entry.afterState).includes(loan.id),
+      );
+      expect(log).toBeDefined();
+      expect(JSON.stringify(log!.beforeState)).toContain("PARTIAL");
+      expect(JSON.stringify(log!.afterState)).toContain("OVERDUE");
+      await prisma.loanSchedule.update({
+        where: { id: loan.schedule[3].id },
+        data: { dueDate: yesterday },
+      });
+      const responses = await Promise.all([
+        call(repay, receipt(state.outstandingBalance.toFixed(2)), loan.id),
+        invoke(),
+      ]);
+      expect(responses.map((r) => r.status)).toEqual([200, 200]);
+      const closed = await loanState(loan.id);
+      expect(closed.status).toBe("CLOSED");
+      expect(closed.schedule.every((s) => s.status === "PAID")).toBe(true);
+      vi.stubEnv("CRON_SECRET", "");
+      expect((await invoke()).status).toBe(503);
+    });
+
+    it("lets sessionless cron and audited repayment routes reach their own authentication", async () => {
+      for (const path of [
+        "/api/cron/loans/overdue",
+        "/api/loans/test/payments",
+        "/api/loans/test/statement?format=pdf",
+      ]) {
+        const response = await proxy(
+          new NextRequest(`http://localhost:3000${path}`),
+        );
+        expect(response.headers.get("x-middleware-next")).toBe("1");
+      }
+      expect(
+        (await proxy(new NextRequest("http://localhost:3000/api/members")))
+          .status,
+      ).toBe(401);
+      expect(
+        (await proxy(new NextRequest("http://localhost:3000/dashboard/loans")))
+          .status,
+      ).toBe(307);
+    });
+
+    it("rejects self-recording and cross-loan allocation links", async () => {
+      const loan = await activeLoan();
+      const other = await activeLoan("1000000", outsider);
+      await prisma.user.update({
+        where: { id: client.id },
+        data: { role: "TREASURER" },
+      });
+      try {
+        session.user = { ...client, role: "TREASURER" };
+        expect((await call(repay, receipt("100"), loan.id)).status).toBe(403);
+      } finally {
+        await prisma.user.update({
+          where: { id: client.id },
+          data: { role: "CLIENT" },
+        });
+      }
+      session.user = treasurer;
+      const response = await call(repay, receipt("100"), loan.id);
+      const paymentId = (await response.json()).payment.id;
+      await expect(
+        prisma.loanPaymentAllocation.create({
+          data: {
+            loanId: loan.id,
+            paymentId,
+            scheduleId: other.schedule[0].id,
+            principalAmount: "1",
+            interestAmount: "0",
+          },
+        }),
+      ).rejects.toMatchObject({ code: "P2003" });
+    });
+
+    it("rolls back overdue flags when their audit cannot persist", async () => {
+      const loan = await activeLoan();
+      await prisma.loanSchedule.update({
+        where: { id: loan.schedule[0].id },
+        data: { dueDate: new Date("2000-01-01T00:00:00Z") },
+      });
+      vi.stubEnv(
+        "CRON_SECRET",
+        "test-only-overdue-secret-at-least-32-characters",
+      );
+      await prisma.$executeRawUnsafe(
+        `CREATE FUNCTION hlusca.fail_overdue_test_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW."entityType" = 'LoanSchedule' AND NEW.status = 'SUCCESS' THEN RAISE EXCEPTION 'Injected overdue audit failure'; END IF; RETURN NEW; END $$`,
+      );
+      await prisma.$executeRawUnsafe(
+        `CREATE TRIGGER fail_overdue_test_audit BEFORE INSERT ON hlusca."AuditLog" FOR EACH ROW EXECUTE FUNCTION hlusca.fail_overdue_test_audit()`,
+      );
+      const failures = await prisma.auditLog.count({
+        where: { entityType: "LoanSchedule", status: "FAILURE" },
+      });
+      try {
+        const response = await overdue(
+          new NextRequest("http://localhost:3000/api/cron/loans/overdue", {
+            headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
+          }),
+        );
+        expect(response.status).toBe(500);
+        expect(
+          (
+            await prisma.loanSchedule.findUniqueOrThrow({
+              where: { id: loan.schedule[0].id },
+            })
+          ).status,
+        ).toBe("PENDING");
+        expect(
+          await prisma.auditLog.count({
+            where: { entityType: "LoanSchedule", status: "FAILURE" },
+          }),
+        ).toBe(failures + 1);
+      } finally {
+        await prisma.$executeRawUnsafe(
+          `DROP TRIGGER fail_overdue_test_audit ON hlusca."AuditLog"`,
+        );
+        await prisma.$executeRawUnsafe(
+          `DROP FUNCTION hlusca.fail_overdue_test_audit()`,
+        );
+      }
     });
 
     it("exports only the member's applications and audits exports and rejected scopes", async () => {

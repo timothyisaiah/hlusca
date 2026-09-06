@@ -796,13 +796,13 @@ keep it in sync with the phases in §15.
 ### Phase 5 — Repayment Schedule & Reconciliation
 - [x] Schedule generator: flat-rate method implemented + unit tested
 - [x] Schedule generator: reducing-balance method implemented + unit tested
-- [ ] Payment recording endpoint + UI (Treasurer)
-- [ ] FIFO payment-matching logic (oldest unpaid installment first)
-- [ ] Partial payment handling (status=PARTIAL, remaining-due tracking)
-- [ ] Overpayment handling (roll forward to next installment)
-- [ ] Scheduled job: auto-flag overdue installments (daily cron)
-- [ ] Member-facing loan statement (date/principal/interest/balance ledger view + PDF export)
-- [ ] Audit log entries verified for all payment/schedule mutations
+- [x] Payment recording endpoint + UI (Treasurer)
+- [x] FIFO payment-matching logic (oldest unpaid installment first)
+- [x] Partial payment handling (status=PARTIAL, remaining-due tracking)
+- [x] Overpayment handling (roll forward to next installment)
+- [x] Scheduled job: auto-flag overdue installments (daily cron)
+- [x] Member-facing loan statement (date/principal/interest/balance ledger view + PDF export)
+- [x] Audit log entries verified for all payment/schedule mutations
 
 ### Phase 6 — Investments & Dividends
 - [ ] `InvestmentProduct` + `MemberInvestment` schema and admin config screen
@@ -825,7 +825,7 @@ keep it in sync with the phases in §15.
 - [ ] Verify `AuditLog` table has UPDATE/DELETE revoked at the DB role level
 - [ ] Backup policy confirmed with hosting provider (retention window documented)
 - [ ] Load test with realistic pilot member/loan volumes
-- [ ] Full lifecycle integration test: apply → approve (both routing paths) → sign →
+- [x] Full lifecycle integration test: apply → approve (both routing paths) → sign →
       disburse → schedule → pay (partial + full + overpay) → close
 - [ ] Cross-breakpoint QA pass: every screen built during Phases 1–7 re-tested at
       mobile, tablet, and desktop widths for layout integrity, touch-target sizing,

@@ -63,6 +63,23 @@ export const disbursementSchema = z.object({
   password: z.string().min(1).max(200),
   confirm: z.literal(true),
 });
+export const paymentSchema = z.object({
+  amount: moneySchema,
+  paymentDate: z.iso.date(),
+  method: z.enum(["CASH", "BANK_TRANSFER", "MOBILE_MONEY"]),
+  reference: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .regex(
+      /^[A-Za-z0-9][A-Za-z0-9 ./_-]*$/,
+      "Use letters, numbers, spaces, dots, /, _ or - in the receipt reference.",
+    )
+    .transform((value) => value.toUpperCase()),
+  targetInstallmentNumber: z.number().int().min(1).max(360).optional(),
+  confirm: z.literal(true),
+});
 export const applicationFiltersSchema = z
   .object({
     status: z

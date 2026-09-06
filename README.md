@@ -3,7 +3,7 @@
 HLUSCA is a role-based cooperative management application for member enrollment,
 savings accounts, and auditable financial operations.
 
-## Loans: Phases 3 and 4
+## Loans: Phases 3, 4 and 5
 
 Apply the committed migrations and regenerate Prisma before using these screens:
 
@@ -52,7 +52,55 @@ points, with the original full Unicode name retained in the on-screen agreement.
 The disbursement endpoint is
 `POST /api/loan-applications/:id/disburse`: its identifier is the application ID,
 because the Loan is created by that action. Loan schedules are available at
-`GET /api/loans/:id/schedule`. Repayment recording/reconciliation remains Phase 5.
+`GET /api/loans/:id/schedule`.
+
+### Repayments and statements
+
+Open a disbursed application from **Loans** to see its repayment workspace.
+Treasurers can record a receipt with its amount, calendar date, method (cash,
+bank transfer or mobile money), and reference, then review and confirm it. Another
+Treasurer must record a Treasurer-member's own repayments. These are external
+receipts and do not change savings balances.
+
+`POST /api/loans/:id/payments` accepts decimal-string `amount`, `paymentDate`
+(`YYYY-MM-DD`), `method`, `reference`, optional `targetInstallmentNumber`, and
+`confirm: true`. References are trimmed, uppercased, and unique within each loan;
+a duplicate is rejected with 409. Dates must fall between disbursement and today
+in **Africa/Kampala**. Receipts are immutable at the database level; this phase
+does not add a correction or waiver workflow.
+
+Payments cover the oldest unpaid installment first, paying interest before
+principal within each installment. A selector or reference such as
+`INST-3/BANK-RECEIPT-123` gives installment 3 priority. Any remainder then covers
+other installments in due-date order. Partial payments retain the exact remaining
+principal and interest; overdue partial installments remain overdue. Amounts
+above the entire remaining scheduled balance are rejected. Fully repaid loans
+close automatically. Backdated receipts replay all payments by payment date,
+recording timestamp, and ID, and may change previous principal/interest matches.
+The original receipts remain unchanged, and the audit stores the old and new
+allocation state.
+
+Members can see only their own statements; staff can view all. The statement has
+date/type/reference filters, pagination, installment matches, and audited PDF/CSV
+downloads at `GET /api/loans/:id/statement?format=pdf|csv`. Omit `format` for
+paginated JSON; `from`, `to`, `type`, `query`, and `page` are supported. Running
+balances include earlier transactions excluded by filters. Opening scheduled
+debt includes all contractual principal and interest, and receipt rows show
+positive amounts paid against it. The PDF also includes the full current schedule.
+
+Payment receipts, allocation changes, schedule counters, remaining loan balance,
+member notification, and success audit commit together. A loan row lock serializes
+repayments and overdue updates; failed requests leave financial data unchanged
+and receive a failure audit.
+
+### Daily overdue job
+
+Set a private, random **`CRON_SECRET` of at least 32 characters** in the deployment
+environment. The committed `vercel.json` schedules `/api/cron/loans/overdue` daily
+at 00:00 UTC (03:00 Kampala). Deploy the configuration to register the job. Vercel
+sends the secret as a bearer authorization header; other hosting environments
+must schedule the same authenticated GET themselves. See [job operations](jobs/README.md)
+and [Vercel's cron documentation](https://vercel.com/docs/cron-jobs/manage-cron-jobs).
 
 ### Loan lifecycle integration tests
 
@@ -61,7 +109,9 @@ signature validation, and PDF/CSV checks. Database tests use a separate, disposa
 local PostgreSQL database named **hlusca_loans_test**. They exercise real migrations
 and route handlers, including both approval paths, changed thresholds, ownership
 and role restrictions, immutable signatures, concurrent disbursements, and rollback
-when audit persistence fails.
+when audit persistence fails. Phase 5 adds partial/rollover/final repayment through
+both approval paths, chronological backdating, receipt immutability, duplicate
+and concurrent payment checks, statement ownership/exports, and overdue-job tests.
 
 With that database running, set its URL and run (PowerShell example):
 

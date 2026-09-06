@@ -743,6 +743,7 @@ export async function disburseApplication(
         create: quote.schedule.map((row) => ({
           ...row,
           dueDate: new Date(`${row.dueDate}T00:00:00Z`),
+          status: new Prisma.Decimal(row.totalDue).isZero() ? "PAID" : "PENDING",
         })),
       },
     },

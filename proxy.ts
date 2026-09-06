@@ -15,6 +15,12 @@ export async function proxy(request: NextRequest) {
   });
   const isApiRoute = pathname.startsWith("/api/");
   const isPublicAuthRoute = publicAuthPages.has(pathname);
+  // These routes authenticate inside their audited handler. In particular, cron
+  // uses a bearer secret instead of a member session. Failed repayment/export
+  // attempts must reach their handler so they receive a failure audit.
+  const handlesOwnAuthentication =
+    pathname === "/api/cron/loans/overdue" ||
+    /^\/api\/loans\/[^/]+\/(payments|statement)$/.test(pathname);
 
   if (isPublicAuthRoute && token?.sub) {
     const destination = token.mustChangePassword
@@ -27,7 +33,9 @@ export async function proxy(request: NextRequest) {
   const requiresSession =
     pathname === "/change-password" ||
     pathname.startsWith("/dashboard") ||
-    (isApiRoute && !pathname.startsWith("/api/auth"));
+    (isApiRoute &&
+      !pathname.startsWith("/api/auth") &&
+      !handlesOwnAuthentication);
 
   if (requiresSession && !token?.sub) {
     if (isApiRoute) {
