@@ -1,0 +1,1956 @@
+{
+  "version": 1,
+  "counts": {
+    "routeFiles": 36,
+    "operations": 45,
+    "pages": 20
+  },
+  "navigation": [
+    {
+      "roles": [
+        "CLIENT"
+      ],
+      "href": "/dashboard/client",
+      "label": "Dashboard",
+      "description": "Your member summary and account details."
+    },
+    {
+      "roles": [
+        "CLIENT"
+      ],
+      "href": "/dashboard/client/profile",
+      "label": "Profile",
+      "description": "Keep your contact information current."
+    },
+    {
+      "roles": [
+        "TREASURER"
+      ],
+      "href": "/dashboard/treasurer",
+      "label": "Treasurer Desk",
+      "description": "Operational finance actions and queues."
+    },
+    {
+      "roles": [
+        "BOARD"
+      ],
+      "href": "/dashboard/board",
+      "label": "Board Desk",
+      "description": "Approvals, oversight, and audit visibility."
+    },
+    {
+      "roles": [
+        "ADMIN"
+      ],
+      "href": "/dashboard/admin",
+      "label": "Admin Overview",
+      "description": "Enrollment, settings, and governance controls."
+    },
+    {
+      "roles": [
+        "ADMIN"
+      ],
+      "href": "/dashboard/admin/members",
+      "label": "Members",
+      "description": "Browse and maintain member records."
+    },
+    {
+      "roles": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "href": "/dashboard/loans",
+      "label": "Loans",
+      "description": "Applications, approvals, contracts, and disbursement."
+    },
+    {
+      "roles": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "href": "/dashboard/investments",
+      "label": "Investments",
+      "description": "Investment products and member holdings."
+    },
+    {
+      "roles": [
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "href": "/dashboard/dividends",
+      "label": "Dividends",
+      "description": "Financial-year proposals, approvals, and posting."
+    },
+    {
+      "roles": [
+        "ADMIN"
+      ],
+      "href": "/dashboard/admin/loan-types",
+      "label": "Loan Configuration",
+      "description": "Loan products and approval routing."
+    }
+  ],
+  "pages": [
+    {
+      "path": "/change-password",
+      "source": "app/(auth)/change-password/page.tsx",
+      "title": "Change password",
+      "audience": "everyone"
+    },
+    {
+      "path": "/forgot-password",
+      "source": "app/(auth)/forgot-password/page.tsx",
+      "title": "Password recovery",
+      "audience": "everyone"
+    },
+    {
+      "path": "/sign-in",
+      "source": "app/(auth)/sign-in/page.tsx",
+      "title": "Sign in",
+      "audience": "everyone"
+    },
+    {
+      "path": "/dashboard/admin/loan-types",
+      "source": "app/dashboard/admin/loan-types/page.tsx",
+      "title": "Loan Configuration",
+      "audience": "ADMIN"
+    },
+    {
+      "path": "/dashboard/admin/members/{id}",
+      "source": "app/dashboard/admin/members/[id]/page.tsx",
+      "title": "Member profile",
+      "audience": "ADMIN"
+    },
+    {
+      "path": "/dashboard/admin/members/new",
+      "source": "app/dashboard/admin/members/new/page.tsx",
+      "title": "Enroll a new member",
+      "audience": "ADMIN"
+    },
+    {
+      "path": "/dashboard/admin/members",
+      "source": "app/dashboard/admin/members/page.tsx",
+      "title": "Members",
+      "audience": "ADMIN"
+    },
+    {
+      "path": "/dashboard/admin",
+      "source": "app/dashboard/admin/page.tsx",
+      "title": "Admin Overview",
+      "audience": "ADMIN"
+    },
+    {
+      "path": "/dashboard/board",
+      "source": "app/dashboard/board/page.tsx",
+      "title": "Board Desk",
+      "audience": "BOARD"
+    },
+    {
+      "path": "/dashboard/client",
+      "source": "app/dashboard/client/page.tsx",
+      "title": "Member dashboard",
+      "audience": "CLIENT"
+    },
+    {
+      "path": "/dashboard/client/profile",
+      "source": "app/dashboard/client/profile/page.tsx",
+      "title": "Your profile",
+      "audience": "CLIENT"
+    },
+    {
+      "path": "/dashboard/dividends",
+      "source": "app/dashboard/dividends/page.tsx",
+      "title": "Dividends",
+      "audience": "TREASURER BOARD ADMIN"
+    },
+    {
+      "path": "/dashboard/investments",
+      "source": "app/dashboard/investments/page.tsx",
+      "title": "Investments",
+      "audience": "everyone"
+    },
+    {
+      "path": "/dashboard/loans/{id}",
+      "source": "app/dashboard/loans/[id]/page.tsx",
+      "title": "Loan application details",
+      "audience": "everyone"
+    },
+    {
+      "path": "/dashboard/loans/apply",
+      "source": "app/dashboard/loans/apply/page.tsx",
+      "title": "Apply for a loan",
+      "audience": "CLIENT"
+    },
+    {
+      "path": "/dashboard/loans",
+      "source": "app/dashboard/loans/page.tsx",
+      "title": "Loans",
+      "audience": "everyone"
+    },
+    {
+      "path": "/dashboard",
+      "source": "app/dashboard/page.tsx",
+      "title": "Dashboard redirect",
+      "audience": "everyone"
+    },
+    {
+      "path": "/dashboard/treasurer/members/{memberId}",
+      "source": "app/dashboard/treasurer/members/[memberId]/page.tsx",
+      "title": "Member savings ledger",
+      "audience": "TREASURER"
+    },
+    {
+      "path": "/dashboard/treasurer",
+      "source": "app/dashboard/treasurer/page.tsx",
+      "title": "Treasurer Desk",
+      "audience": "TREASURER"
+    },
+    {
+      "path": "/",
+      "source": "app/page.tsx",
+      "title": "Entry point",
+      "audience": "everyone"
+    }
+  ],
+  "endpoints": [
+    {
+      "key": "GET /api/auth/{...nextauth}",
+      "method": "GET",
+      "path": "/api/auth/{...nextauth}",
+      "source": "app/api/auth/[...nextauth]/route.ts",
+      "guard": "delegated",
+      "roles": null,
+      "schemas": [],
+      "title": "Read authentication/session resources",
+      "group": "Access",
+      "policy": {
+        "kind": "framework"
+      },
+      "input": "NextAuth catch-all handler. The application uses the Credentials provider with identifier and password, plus NextAuth session cookies and CSRF handling. Use the signIn/signOut client helpers. GET includes session, csrf, providers and sign-in resources; POST includes callback/credentials and signout. See API conventions for the delegated-handler boundary.",
+      "output": "NextAuth-managed JSON, HTML or redirect depending on the subpath, request and session state; this is not the application's ordinary JSON error contract.",
+      "conditions": "Credentials must match an ACTIVE login account. Identifier may be a member number, username, phone or email. Sign-out uses the current session.",
+      "effects": "Successful sign-in updates lastLoginAt and writes LOGIN; rejected credentials write LOGIN_FAILED. Sign-out writes LOGOUT when a token user exists.",
+      "screens": [
+        "/sign-in"
+      ],
+      "errors": "Framework-managed authentication and CSRF errors; invalid credentials are surfaced by the sign-in form.",
+      "request": "/api/auth/session",
+      "allowed": [],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "GET /api/contracts/{id}/document",
+      "method": "GET",
+      "path": "/api/contracts/{id}/document",
+      "source": "app/api/contracts/[id]/document/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "Download the retained agreement PDF",
+      "group": "Loans",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "No request body.",
+      "output": "200 application/pdf, inline HLUSCA-loan-contract.pdf; private, no-store and nosniff headers.",
+      "conditions": "Member: own agreement; staff: any agreement. id is the contract ID.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "404 document absent or outside ownership; shared 401/403/500/503 errors.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/contracts/{id}/signature",
+      "method": "GET",
+      "path": "/api/contracts/{id}/signature",
+      "source": "app/api/contracts/[id]/signature/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "View the saved signature image",
+      "group": "Loans",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "No request body.",
+      "output": "200 image/png; private, no-store and nosniff headers.",
+      "conditions": "Member: own contract; staff: any contract. A signature must have been stored.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "404 signature absent or outside ownership; shared 401/403/500/503 errors.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/cron/loans/overdue",
+      "method": "GET",
+      "path": "/api/cron/loans/overdue",
+      "source": "app/api/cron/loans/overdue/route.ts",
+      "guard": "custom",
+      "roles": null,
+      "schemas": [],
+      "title": "Flag overdue installments",
+      "group": "Operations",
+      "policy": {
+        "kind": "service"
+      },
+      "input": "Authorization: Bearer <CRON_SECRET>. No request body or session cookie required. Configured secret must contain at least 32 characters.",
+      "output": "200 { date: YYYY-MM-DD, updated: number }; Cache-Control: no-store.",
+      "conditions": "Scheduler secret required; ordinary role membership grants no access. Selects PENDING/PARTIAL installments before today's Kampala date on ACTIVE/DEFAULTED loans.",
+      "effects": "Updates overdue status only, preserving paid/waived/closed/due-today rows. Does not add penalties or default loans. Locks Loan rows first; busy loans are skipped until a later invocation. UPDATE LoanSchedule audit includes zero-change successes and failures.",
+      "screens": [],
+      "errors": "401 invalid or missing bearer token; 503 missing/short CRON_SECRET; shared 500/503 errors.",
+      "allowed": [],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "GET /api/dividend-history",
+      "method": "GET",
+      "path": "/api/dividend-history",
+      "source": "app/api/dividend-history/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [
+        "memberFilterSchema"
+      ],
+      "title": "View posted dividend history",
+      "group": "Dividends",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "Optional query memberId. Members are always restricted to their linked memberId; another ID is forbidden. Staff may omit memberId to list all members' records.",
+      "output": "200 DividendHistoryRecord[]: id, amount, averageBalance and run { financialYear, periodStart, periodEnd, postedAt }.",
+      "conditions": "Member: own history; staff: any member. Only POSTED runs appear.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/client",
+        "/dashboard/investments"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/dividend-runs",
+      "method": "GET",
+      "path": "/api/dividend-runs",
+      "source": "app/api/dividend-runs/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "Review dividend runs and allocations",
+      "group": "Dividends",
+      "policy": {
+        "kind": "session",
+        "only": [
+          "TREASURER",
+          "BOARD",
+          "ADMIN"
+        ]
+      },
+      "input": "No request body.",
+      "output": "200 RunRecord[] with financial-year period, pool, calculation method, frozen calculationSnapshot, status, creator/reviewer names and timestamps.",
+      "conditions": "Staff roles only. Member history is served by /api/dividend-history.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/dividends"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/investment-products",
+      "method": "GET",
+      "path": "/api/investment-products",
+      "source": "app/api/investment-products/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "List investment products",
+      "group": "Investments",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "No request body.",
+      "output": "200 ProductRecord[]: id, name, description, expectedReturnRate, riskProfile, active (and serialized stored fields).",
+      "conditions": "All authenticated roles. Administrator sees inactive products; others see active products only.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/investments"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/investments",
+      "method": "GET",
+      "path": "/api/investments",
+      "source": "app/api/investments/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [
+        "memberFilterSchema"
+      ],
+      "title": "View member investment holdings",
+      "group": "Investments",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "Optional query memberId. Members are always restricted to their linked memberId; another ID is forbidden. Staff may omit memberId to list all members' records.",
+      "output": "200 InvestmentRecord[] including member, productName, principal, expectedReturnRate, riskProfile, dates and status; decimal values are strings.",
+      "conditions": "Member: own investments. Staff: any member's investments.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/investments"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/loan-applications",
+      "method": "GET",
+      "path": "/api/loan-applications",
+      "source": "app/api/loan-applications/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [
+        "applicationFiltersSchema"
+      ],
+      "title": "List loan applications",
+      "group": "Loans",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "Optional query: status (SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED, CANCELLED), query (up to 100 characters), memberId, page (1–100000; default 1), queue (true/false; default false), from and to (YYYY-MM-DD; start must not follow end). JSON pages contain 10 applications. Member scope is enforced even when memberId is supplied.",
+      "output": "200 { applications: ApplicationRecord[], total, page, pageSize }.",
+      "conditions": "Member: own applications. Staff: all applications subject to filters. queue=true selects the current review role's pending steps; Board queue excludes applications still awaiting Treasurer review.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/loans"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "request": "/api/loan-applications?queue=true&page=1",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/loan-applications/{id}",
+      "method": "GET",
+      "path": "/api/loan-applications/{id}",
+      "source": "app/api/loan-applications/[id]/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "View a loan application",
+      "group": "Loans",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "No request body.",
+      "output": "200 ApplicationRecord with member, approvalSteps, retained contract metadata and loan if disbursed.",
+      "conditions": "Member: own application; staff: any application. id is the application ID.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "404 application absent or outside Member ownership; shared 401/403/500/503 errors.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/loan-applications/export",
+      "method": "GET",
+      "path": "/api/loan-applications/export",
+      "source": "app/api/loan-applications/export/route.ts",
+      "guard": "custom",
+      "roles": null,
+      "schemas": [
+        "z\n          .enum([\"csv\", \"pdf\"])",
+        "applicationFiltersSchema"
+      ],
+      "title": "Export loan applications",
+      "group": "Loans",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "Optional query: status (SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED, CANCELLED), query (up to 100 characters), memberId, page (1–100000; default 1), queue (true/false; default false), from and to (YYYY-MM-DD; start must not follow end). JSON pages contain 10 applications. Member scope is enforced even when memberId is supplied. Required format=csv or pdf. page is overridden to 1; limit is 5,000 matching applications.",
+      "output": "200 text/csv or application/pdf attachment with private, no-store caching.",
+      "conditions": "Same ownership and filtering as application list. Narrow filters when more than 5,000 records match.",
+      "effects": "EXPORT LoanApplication audit with filters, format and count; failures reaching the audited handler are logged.",
+      "screens": [
+        "/dashboard/loans"
+      ],
+      "errors": "400 invalid format/filters or export too large; shared 401/403/500/503 errors.",
+      "request": "/api/loan-applications/export?format=csv&status=APPROVED",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/loan-applications/preview",
+      "method": "GET",
+      "path": "/api/loan-applications/preview",
+      "source": "app/api/loan-applications/preview/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [
+        "previewSchema"
+      ],
+      "title": "Preview loan eligibility and repayment",
+      "group": "Loans",
+      "policy": {
+        "kind": "session",
+        "only": [
+          "CLIENT"
+        ]
+      },
+      "input": "Required query: loanTypeId, amountRequested (positive decimal string), termMonths (integer 1–360). Purpose is not required for a preview.",
+      "output": "200 { eligible, reasons: string[], savingsBalance, maximumAmount, approvalRoles, processingFee, netDisbursement, totalInterest, totalRepayable, schedule } (monetary values are decimal strings; schedule is a preview).",
+      "conditions": "Member account required; product must be active. Eligibility reasons include inactive membership/account, excessive term, insufficient savings-based limit and nonpositive net disbursement.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/loans/apply"
+      ],
+      "errors": "400 invalid query; 403 non-Member or missing membership; 404 inactive/missing loan type; shared 401/500/503 errors.",
+      "request": "/api/loan-applications/preview?loanTypeId=product-demo&amountRequested=300000.00&termMonths=12",
+      "allowed": [
+        "CLIENT"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "GET /api/loan-settings",
+      "method": "GET",
+      "path": "/api/loan-settings",
+      "source": "app/api/loan-settings/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "Read the Board approval threshold",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "No request body.",
+      "output": "200 { threshold: decimal string }.",
+      "conditions": "All authenticated roles may read this API; its configuration screen is Administrator-only.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/admin/loan-types"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/loan-types",
+      "method": "GET",
+      "path": "/api/loan-types",
+      "source": "app/api/loan-types/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "List loan products",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "No request body.",
+      "output": "200 array of loan types with rates, term limits, savings multiple, fee and active flag.",
+      "conditions": "All signed-in roles. Administrator sees inactive products; other roles see active products only.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/loans/apply",
+        "/dashboard/admin/loan-types"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/loans/{id}/schedule",
+      "method": "GET",
+      "path": "/api/loans/{id}/schedule",
+      "source": "app/api/loans/[id]/schedule/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "Read a loan repayment schedule",
+      "group": "Repayments",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "No request body.",
+      "output": "200 ordered LoanSchedule array with due dates, principalDue, interestDue, totalDue, principalBalanceAfter, principalPaid, interestPaid and status.",
+      "conditions": "Member: own loan; staff: any loan. id is the Loan ID from a disbursed application.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "404 loan absent or outside ownership; shared 401/403/500/503 errors.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/loans/{id}/statement",
+      "method": "GET",
+      "path": "/api/loans/{id}/statement",
+      "source": "app/api/loans/[id]/statement/route.ts",
+      "guard": "custom",
+      "roles": null,
+      "schemas": [
+        "z.enum([\"pdf\", \"csv\"])",
+        "statementFiltersSchema"
+      ],
+      "title": "View or export a loan statement",
+      "group": "Repayments",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "Optional query: from/to (YYYY-MM-DD), type (DISBURSEMENT or PAYMENT), query (receipt reference search, 100 characters), page (1–100000; default 1). Omit format for JSON; use format=pdf or csv for export. format=json is invalid. JSON page size is 20; export limit 5,000 matching rows.",
+      "output": "200 LoanStatement with rows, schedule, totals, member/loan details plus total, page, pageSize; or private, no-store CSV/PDF attachment. PDF includes the complete current schedule.",
+      "conditions": "Member: own loan; staff: any loan. Opening scheduled debt contains all contractual principal and interest; filtered-out earlier rows still contribute to running balances.",
+      "effects": "JSON reads have no success audit. Downloads and failed export attempts reaching the handler use EXPORT LoanStatement audits.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "400 invalid filters/format or export exceeds limit; 404 missing or unowned loan; shared 401/403/500/503 errors.",
+      "request": "/api/loans/loan-demo/statement?type=PAYMENT&page=1",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/members",
+      "method": "GET",
+      "path": "/api/members",
+      "source": "app/api/members/route.ts",
+      "guard": "withRouteAuth",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [],
+      "title": "List member records",
+      "group": "Membership",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "No request body.",
+      "output": "200 array of member profiles, with selected linked user fields and savings account; no API pagination. Table search is performed in the browser.",
+      "conditions": "Sign in and complete any required password change.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/admin/members"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/members/{id}",
+      "method": "GET",
+      "path": "/api/members/{id}",
+      "source": "app/api/members/[id]/route.ts",
+      "guard": "withRouteAuth",
+      "roles": null,
+      "schemas": [],
+      "title": "View a member profile",
+      "group": "Membership",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "No request body.",
+      "output": "200 member profile with selected linked user information and savings account.",
+      "conditions": "Member: own member ID. Treasurer, Board and Administrator: any member ID. Staff API access does not imply an administration menu.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/admin/members/{id}",
+        "/dashboard/client/profile"
+      ],
+      "errors": "403 another member's record; 404 NOT_FOUND; shared 401/403/500/503 errors.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/members/{id}/transactions",
+      "method": "GET",
+      "path": "/api/members/{id}/transactions",
+      "source": "app/api/members/[id]/transactions/route.ts",
+      "guard": "withRouteAuth",
+      "roles": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "schemas": [
+        "savingsLedgerQuerySchema"
+      ],
+      "title": "View or export a savings ledger",
+      "group": "Savings",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "Optional query: query (80 characters), type (TransactionType), from/to (date strings), page (integer ≥1; default 1), pageSize (1–100; default 8), format (json default, csv, pdf). Savings date boundaries use the server's local Date operations; do not assume the dedicated Kampala calendar logic used by repayments and dividends.",
+      "output": "200 JSON { member, summary, transactions, pagination: { page, pageSize, totalCount, totalPages } }; or downloadable text/csv or application/pdf. Exports use all matching rows, ignoring page limits.",
+      "conditions": "Member: own ledger. Treasurer, Board, Administrator: any member ledger.",
+      "effects": "Reads savings records. This savings export handler currently does not write an EXPORT audit; loan exports do.",
+      "screens": [
+        "/dashboard/client",
+        "/dashboard/treasurer/members/{memberId}"
+      ],
+      "errors": "400 invalid query; 403 ownership; 404 NOT_FOUND; shared 401/500/503 errors.",
+      "request": "/api/members/member-demo/transactions?format=json&page=1&pageSize=8",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "PATCH /api/investment-products/{id}",
+      "method": "PATCH",
+      "path": "/api/investment-products/{id}",
+      "source": "app/api/investment-products/[id]/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "productSchema"
+      ],
+      "auditAction": "UPDATE",
+      "title": "Edit or deactivate an investment product",
+      "group": "Investments",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: name (2–100 characters), description (3–2000), expectedReturnRate (annual percentage string, 0–100, up to 4 decimals), riskProfile (LOW, MEDIUM, HIGH), active (boolean; default true). Unknown keys are rejected. PATCH uses the complete payload.",
+      "output": "200 saved product.",
+      "conditions": "Administrator; product name must be unique. Existing investments retain their snapshotted product terms.",
+      "effects": "UPDATE InvestmentProduct audit; saves product.",
+      "screens": [
+        "/dashboard/investments"
+      ],
+      "errors": "400 validation failure; 404 missing product on PATCH; 409 duplicate product name; shared mutation errors.",
+      "body": {
+        "name": "Example fixed investment",
+        "description": "Illustrative external investment record",
+        "expectedReturnRate": "8",
+        "riskProfile": "LOW",
+        "active": true
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "PATCH /api/investments/{id}",
+      "method": "PATCH",
+      "path": "/api/investments/{id}",
+      "source": "app/api/investments/[id]/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "investmentStatusSchema"
+      ],
+      "auditAction": "UPDATE",
+      "title": "Mark an investment matured or cancelled",
+      "group": "Investments",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: status (MATURED or CANCELLED). Unknown keys rejected.",
+      "output": "200 updated investment record.",
+      "conditions": "Administrator; holding must still be ACTIVE. MATURED requires maturity date reached in Kampala; CANCELLED closes an active record.",
+      "effects": "Updates status; UPDATE MemberInvestment audit. Does not credit savings or investment proceeds.",
+      "screens": [
+        "/dashboard/investments"
+      ],
+      "errors": "404 missing holding; 409 already closed or maturity not reached; shared mutation errors.",
+      "body": {
+        "status": "MATURED"
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "PATCH /api/loan-settings",
+      "method": "PATCH",
+      "path": "/api/loan-settings",
+      "source": "app/api/loan-settings/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "thresholdSchema"
+      ],
+      "auditAction": "UPDATE",
+      "title": "Set the Board approval threshold",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: threshold (positive decimal string, up to 12 integer digits and 2 decimals).",
+      "output": "200 { threshold: decimal string }.",
+      "conditions": "Administrator. Amounts at or above the threshold require a Board step. Applies to new applications only.",
+      "effects": "Saves SystemSetting; UPDATE audit.",
+      "screens": [
+        "/dashboard/admin/loan-types"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "body": {
+        "threshold": "1000000.00"
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "PATCH /api/loan-types/{id}",
+      "method": "PATCH",
+      "path": "/api/loan-types/{id}",
+      "source": "app/api/loan-types/[id]/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "loanTypeSchema"
+      ],
+      "auditAction": "UPDATE",
+      "title": "Edit or deactivate a loan product",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: name (2–100 characters), interestMethod (FLAT or REDUCING_BALANCE), interestRate (annual percentage string, 0–100, up to 4 decimals), maxTermMonths (integer 1–360), maxMultipleOfSavings (positive decimal string, up to 2 decimals), processingFeePercent (percentage string, less than 100), active (boolean; defaults true). PATCH requires the complete product payload, too.",
+      "output": "200 saved loan type.",
+      "conditions": "Administrator; unique product name. Edit/deactivation affects future applications; submitted applications retain their terms.",
+      "effects": "UPDATE LoanType audit and product persistence.",
+      "screens": [
+        "/dashboard/admin/loan-types"
+      ],
+      "errors": "400 validation failure; 404 missing product on PATCH; 409 duplicate product name; shared 401/403/500/503 errors.",
+      "body": {
+        "name": "Example development loan",
+        "interestMethod": "REDUCING_BALANCE",
+        "interestRate": "12",
+        "maxTermMonths": 12,
+        "maxMultipleOfSavings": "3",
+        "processingFeePercent": "2",
+        "active": true
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "PATCH /api/members/{id}",
+      "method": "PATCH",
+      "path": "/api/members/{id}",
+      "source": "app/api/members/[id]/route.ts",
+      "guard": "withRouteAuth",
+      "roles": null,
+      "schemas": [
+        "selfMemberUpdateSchema",
+        "adminMemberUpdateSchema"
+      ],
+      "title": "Update a member profile or role",
+      "group": "Membership",
+      "policy": {
+        "kind": "session",
+        "own": true,
+        "only": [
+          "CLIENT",
+          "ADMIN"
+        ]
+      },
+      "input": "JSON: optional address, phone, email, nextOfKinName, nextOfKinPhone for Members. Administrator may also send firstName, lastName, username, nationalIdNumber, dateOfBirth, photoUrl, status (PENDING, ACTIVE, SUSPENDED, EXITED), role (CLIENT, TREASURER, BOARD, ADMIN). See validation reference for individual field rules.",
+      "output": "200 updated member profile; refresh the page after role changes because the response's included user relation is read before the linked user update.",
+      "conditions": "Member: own record and contact fields. Administrator: any member; cannot change their own system role. Membership status is separate from login and savings-account status.",
+      "effects": "Updates profile and linked login identifiers/role together; UPDATE Member audit. Existing JWT role claims refresh on a new sign-in.",
+      "screens": [
+        "/dashboard/admin/members/{id}",
+        "/dashboard/client/profile"
+      ],
+      "errors": "400 SELF_ROLE_CHANGE_FORBIDDEN or validation failure; 403 disallowed role/ownership; 404 NOT_FOUND; 409 IDENTIFIER_TAKEN; shared 401/500/503 errors.",
+      "body": {
+        "address": "Updated example address",
+        "phone": "+256700000123"
+      },
+      "allowed": [
+        "CLIENT",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "POST /api/auth/{...nextauth}",
+      "method": "POST",
+      "path": "/api/auth/{...nextauth}",
+      "source": "app/api/auth/[...nextauth]/route.ts",
+      "guard": "delegated",
+      "roles": null,
+      "schemas": [],
+      "title": "Sign in or sign out",
+      "group": "Access",
+      "policy": {
+        "kind": "framework"
+      },
+      "input": "NextAuth catch-all handler. The application uses the Credentials provider with identifier and password, plus NextAuth session cookies and CSRF handling. Use the signIn/signOut client helpers. GET includes session, csrf, providers and sign-in resources; POST includes callback/credentials and signout. See API conventions for the delegated-handler boundary.",
+      "output": "NextAuth-managed JSON, HTML or redirect depending on the subpath, request and session state; this is not the application's ordinary JSON error contract.",
+      "conditions": "Credentials must match an ACTIVE login account. Identifier may be a member number, username, phone or email. Sign-out uses the current session.",
+      "effects": "Successful sign-in updates lastLoginAt and writes LOGIN; rejected credentials write LOGIN_FAILED. Sign-out writes LOGOUT when a token user exists.",
+      "screens": [
+        "/sign-in"
+      ],
+      "errors": "Framework-managed authentication and CSRF errors; invalid credentials are surfaced by the sign-in form.",
+      "request": null,
+      "allowed": [],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/auth/change-password",
+      "method": "POST",
+      "path": "/api/auth/change-password",
+      "source": "app/api/auth/change-password/route.ts",
+      "guard": "withRouteAuth",
+      "roles": null,
+      "schemas": [
+        "changePasswordSchema"
+      ],
+      "title": "Change your password",
+      "group": "Access",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: currentPassword (nonempty), newPassword (at least 10 characters including lowercase, uppercase, a digit and a symbol). This authenticated route permits users who must change their temporary password.",
+      "output": "200 { success: true }.",
+      "conditions": "Current password must match. Applies to the signed-in user only.",
+      "effects": "Replaces password hash, clears mustChangePassword and temporary-credential timestamp, consumes all outstanding reset requests. PASSWORD_CHANGE audit.",
+      "screens": [
+        "/change-password"
+      ],
+      "errors": "400 WEAK_PASSWORD or CURRENT_PASSWORD_INVALID; 401 unauthenticated; 404 NOT_FOUND; shared 500/503 errors.",
+      "body": {
+        "currentPassword": "<current-password>",
+        "newPassword": "<new-strong-password>"
+      },
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "POST /api/auth/reset-password",
+      "method": "POST",
+      "path": "/api/auth/reset-password",
+      "source": "app/api/auth/reset-password/route.ts",
+      "guard": "custom",
+      "roles": null,
+      "schemas": [
+        "passwordResetRequestSchema"
+      ],
+      "title": "Request password recovery",
+      "group": "Access",
+      "policy": {
+        "kind": "public"
+      },
+      "input": "JSON: identifier (nonempty member number, username, phone or email).",
+      "output": "200 { channel: EMAIL | SMS | ADMIN_ASSISTED | null, previewToken: string | null }.",
+      "conditions": "No session required. Email is preferred when present, otherwise phone, otherwise administrator assistance. An unmatched identifier returns null fields.",
+      "effects": "Creates a hashed reset token valid for 15 minutes and a stored notification when possible; PASSWORD_RESET audit. The pilot returns the raw previewToken to the form; email/SMS sending is not implemented.",
+      "screens": [
+        "/forgot-password"
+      ],
+      "errors": "400 validation failure; shared 500/503 errors.",
+      "body": {
+        "identifier": "HLUSCA-000123"
+      },
+      "allowed": [],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/auth/reset-password/confirm",
+      "method": "POST",
+      "path": "/api/auth/reset-password/confirm",
+      "source": "app/api/auth/reset-password/confirm/route.ts",
+      "guard": "custom",
+      "roles": null,
+      "schemas": [
+        "passwordResetConfirmSchema"
+      ],
+      "title": "Complete password recovery",
+      "group": "Access",
+      "policy": {
+        "kind": "public"
+      },
+      "input": "JSON: identifier (nonempty), token (at least 6 characters), newPassword (same complexity rules as password change).",
+      "output": "200 { success: true }.",
+      "conditions": "No session required; token must match an unconsumed, unexpired request for the resolved user.",
+      "effects": "Updates password hash, clears first-login flags, consumes the matching reset request; PASSWORD_CHANGE audit. User signs in afterward.",
+      "screens": [
+        "/forgot-password"
+      ],
+      "errors": "400 INVALID_RESET_REQUEST, TOKEN_INVALID, WEAK_PASSWORD or validation failure; shared 500/503 errors.",
+      "body": {
+        "identifier": "HLUSCA-000123",
+        "token": "<reset-token>",
+        "newPassword": "<new-strong-password>"
+      },
+      "allowed": [],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/contracts/{id}/sign",
+      "method": "POST",
+      "path": "/api/contracts/{id}/sign",
+      "source": "app/api/contracts/[id]/sign/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "CLIENT"
+      ],
+      "schemas": [
+        "signatureSchema"
+      ],
+      "auditAction": "SIGN",
+      "title": "Sign a loan agreement",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: typedName (3–200 characters, matching the contract's member name), signature (data:image/png;base64,…; up to 350000 characters), documentHash (64 lowercase hexadecimal characters), agree: true. PNG is validated for format, size, dimensions and nonblank ink.",
+      "output": "200 signed contract metadata.",
+      "conditions": "Member owns the contract and is active; contract awaits signature; submitted hash matches retained PDF. UI requires a review and final confirmation.",
+      "effects": "Retains PNG/hash, typed name, consent version, PDF hash, timestamp, IP and user agent; marks SIGNED; SIGN audit. Database trigger protects the original agreement and signed evidence.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "400 name/signature/consent validation; 403 ownership or inactive member; 404 missing contract; 409 state/hash conflict; shared mutation errors.",
+      "body": {
+        "typedName": "Demo Member",
+        "signature": "data:image/png;base64,<valid-signature-PNG>",
+        "documentHash": "<64-character-document-hash>",
+        "agree": true
+      },
+      "allowed": [
+        "CLIENT"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/dividend-runs",
+      "method": "POST",
+      "path": "/api/dividend-runs",
+      "source": "app/api/dividend-runs/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "dividendRunSchema"
+      ],
+      "auditAction": "CREATE",
+      "title": "Calculate a dividend proposal",
+      "group": "Dividends",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: financialYear (integer 2000–9998 matching ending year), periodStart and periodEnd (YYYY-MM-DD inclusive; one completed 12-month year of 365/366 days), totalPoolAmount (positive decimal string). Unknown keys rejected.",
+      "output": "200 PROPOSED dividend run with frozen calculationSnapshot allocations.",
+      "conditions": "Treasurer; period must have ended; no overlapping non-REJECTED run; at least one eligible positive-weight member. Active members and active accounts opened before year end with positive average daily savings qualify.",
+      "effects": "Computes daily closing savings in Africa/Kampala with exact balance-day weights and largest-remainder cent distribution. Saves proposal and CREATE DividendRun audit. Does not credit savings yet.",
+      "screens": [
+        "/dashboard/dividends"
+      ],
+      "errors": "400 invalid/incomplete/uncompleted year; 409 overlapping run, no eligible members or inconsistent savings history; shared mutation errors.",
+      "body": {
+        "financialYear": 2025,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "totalPoolAmount": "1000000.00"
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/dividend-runs/{id}/approve",
+      "method": "POST",
+      "path": "/api/dividend-runs/{id}/approve",
+      "source": "app/api/dividend-runs/[id]/approve/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "BOARD"
+      ],
+      "schemas": [
+        "dividendDecisionSchema\n    .omit({ decision: true })\n    .extend({ decision: z.literal(\"APPROVED\").default(\"APPROVED\") })"
+      ],
+      "auditAction": "APPROVE",
+      "title": "Approve a dividend proposal",
+      "group": "Dividends",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: comment (3–2000 characters); optional decision must equal APPROVED and defaults to that value. Unknown keys rejected.",
+      "output": "200 updated dividend run.",
+      "conditions": "Board; run must be PROPOSED. Its creator cannot review it, even after a role change.",
+      "effects": "Stores decision, reviewer, comment and timestamp; APPROVE DividendRun audit. Allocations remain frozen for Treasurer posting.",
+      "screens": [
+        "/dashboard/dividends"
+      ],
+      "errors": "403 creator reviewing own proposal; 404 missing run; 409 already decided; shared mutation errors.",
+      "body": {
+        "comment": "Example Board review recorded"
+      },
+      "allowed": [
+        "BOARD"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "Allowed",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/dividend-runs/{id}/post",
+      "method": "POST",
+      "path": "/api/dividend-runs/{id}/post",
+      "source": "app/api/dividend-runs/[id]/post/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "dividendPostSchema"
+      ],
+      "auditAction": "DISBURSE",
+      "title": "Post approved dividends to savings",
+      "group": "Dividends",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: password (Treasurer's current password, 1–200 characters), confirm: true. Unknown keys rejected.",
+      "output": "200 posted dividend run.",
+      "conditions": "Treasurer; valid password; APPROVED and not yet posted; approver cannot post the same run. Rechecks every recipient's member/account status and saved allocation integrity.",
+      "effects": "Creates DividendAllocation history and positive DIVIDEND savings credits, updates balances and POSTED status, stores DISBURSE DividendRun audit atomically. Zero shares remain in history without zero ledger entries. Repeat/concurrent calls cannot pay twice.",
+      "screens": [
+        "/dashboard/dividends"
+      ],
+      "errors": "403 password/actor or approver posting own approved run; 404 missing run; 409 nonapproved/already-posted run, inactive recipients or allocation integrity conflict; shared mutation errors.",
+      "body": {
+        "password": "<treasurer-password>",
+        "confirm": true
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/dividend-runs/{id}/reject",
+      "method": "POST",
+      "path": "/api/dividend-runs/{id}/reject",
+      "source": "app/api/dividend-runs/[id]/reject/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "BOARD"
+      ],
+      "schemas": [
+        "dividendDecisionSchema\n    .omit({ decision: true })\n    .extend({ decision: z.literal(\"REJECTED\").default(\"REJECTED\") })"
+      ],
+      "auditAction": "REJECT",
+      "title": "Reject a dividend proposal",
+      "group": "Dividends",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: comment (3–2000 characters); optional decision must equal REJECTED and defaults to that value. Unknown keys rejected.",
+      "output": "200 updated dividend run.",
+      "conditions": "Board; run must be PROPOSED. Its creator cannot review it, even after a role change.",
+      "effects": "Stores decision, reviewer, comment and timestamp; REJECT DividendRun audit. A new proposal can replace the rejected period.",
+      "screens": [
+        "/dashboard/dividends"
+      ],
+      "errors": "403 creator reviewing own proposal; 404 missing run; 409 already decided; shared mutation errors.",
+      "body": {
+        "comment": "Example Board review recorded"
+      },
+      "allowed": [
+        "BOARD"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "Allowed",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/investment-products",
+      "method": "POST",
+      "path": "/api/investment-products",
+      "source": "app/api/investment-products/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "productSchema"
+      ],
+      "auditAction": "CREATE",
+      "title": "Create an investment product",
+      "group": "Investments",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: name (2–100 characters), description (3–2000), expectedReturnRate (annual percentage string, 0–100, up to 4 decimals), riskProfile (LOW, MEDIUM, HIGH), active (boolean; default true). Unknown keys are rejected. PATCH uses the complete payload.",
+      "output": "200 saved product.",
+      "conditions": "Administrator; product name must be unique. Existing investments retain their snapshotted product terms.",
+      "effects": "CREATE InvestmentProduct audit; saves product.",
+      "screens": [
+        "/dashboard/investments"
+      ],
+      "errors": "400 validation failure; 404 missing product on PATCH; 409 duplicate product name; shared mutation errors.",
+      "body": {
+        "name": "Example fixed investment",
+        "description": "Illustrative external investment record",
+        "expectedReturnRate": "8",
+        "riskProfile": "LOW",
+        "active": true
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "POST /api/investments",
+      "method": "POST",
+      "path": "/api/investments",
+      "source": "app/api/investments/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "investmentSchema"
+      ],
+      "auditAction": "CREATE",
+      "title": "Record an externally funded investment",
+      "group": "Investments",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: memberId and investmentProductId (1–100 characters), principal (positive decimal string), startDate and maturityDate (YYYY-MM-DD). Unknown keys rejected.",
+      "output": "200 saved investment record with member information.",
+      "conditions": "Administrator; ACTIVE member and active product; start not in future; maturity after start.",
+      "effects": "Creates ACTIVE holding and snapshots product name, rate and risk; CREATE MemberInvestment audit. Does not debit savings, transfer money, or automatically pay returns.",
+      "screens": [
+        "/dashboard/investments"
+      ],
+      "errors": "400 invalid dates/payload; 409 inactive product/member; shared mutation errors.",
+      "body": {
+        "memberId": "member-demo",
+        "investmentProductId": "product-demo",
+        "principal": "500000.00",
+        "startDate": "2026-09-01",
+        "maturityDate": "2027-09-01"
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "POST /api/loan-applications",
+      "method": "POST",
+      "path": "/api/loan-applications",
+      "source": "app/api/loan-applications/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "CLIENT"
+      ],
+      "schemas": [
+        "applicationSchema"
+      ],
+      "auditAction": "CREATE",
+      "title": "Apply for a loan",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: loanTypeId (1–100 characters), amountRequested (positive decimal string), termMonths (integer 1–360), purpose (10–2000 characters).",
+      "output": "200 ApplicationRecord including member, approvalSteps, contract and loan relations (the latter are initially null).",
+      "conditions": "Member's own active membership and active savings account; active product, term within product limit, requested amount ≤ current savings × product multiple, positive net disbursement.",
+      "effects": "Creates SUBMITTED application and ordered approval steps; snapshots product terms and approval threshold. CREATE LoanApplication audit.",
+      "screens": [
+        "/dashboard/loans/apply"
+      ],
+      "errors": "400 validation/eligibility failure; 403 missing membership; 404 unavailable product; shared 401/403/500/503 errors.",
+      "body": {
+        "loanTypeId": "product-demo",
+        "amountRequested": "300000.00",
+        "termMonths": 12,
+        "purpose": "Example school fees application"
+      },
+      "allowed": [
+        "CLIENT"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/loan-applications/{id}/approve",
+      "method": "POST",
+      "path": "/api/loan-applications/{id}/approve",
+      "source": "app/api/loan-applications/[id]/approve/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER",
+        "BOARD"
+      ],
+      "schemas": [
+        "decisionSchema"
+      ],
+      "auditAction": "APPROVE",
+      "title": "Approve a loan application",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: optional comment (up to 2000 characters; defaults empty).",
+      "output": "200 updated ApplicationRecord.",
+      "conditions": "The application must be SUBMITTED or UNDER_REVIEW and awaiting this role's next approval step. Treasurer reviews first. Amounts equal to or above the frozen threshold also require Board approval. You cannot review your own application or complete another step after already reviewing it under a different role.",
+      "effects": "Updates approval step and UNDER_REVIEW/APPROVED state. Final approval creates the contract automatically. Stores member notification and APPROVE audit.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "400 invalid comment; 403 own application, wrong review stage or repeated reviewer; 404 missing application; 409 already decided; shared 401/500/503 errors.",
+      "body": {
+        "comment": "Example review completed"
+      },
+      "allowed": [
+        "TREASURER",
+        "BOARD"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/loan-applications/{id}/contract",
+      "method": "POST",
+      "path": "/api/loan-applications/{id}/contract",
+      "source": "app/api/loan-applications/[id]/contract/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER",
+        "BOARD"
+      ],
+      "schemas": [
+        "z.object({})"
+      ],
+      "auditAction": "CREATE",
+      "title": "Ensure an approved application has a contract",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON object {} is required by the mutation wrapper.",
+      "output": "200 contract metadata.",
+      "conditions": "Treasurer or Board; application must be APPROVED. Existing contract is reused; signed evidence is not regenerated. The UI relies on automatic creation at final approval and does not expose a separate generate button.",
+      "effects": "Creates the retained agreement if absent; CREATE LoanContract audit.",
+      "screens": [],
+      "errors": "404 missing application; 409 application not approved; shared mutation errors (see API conventions).",
+      "body": {},
+      "allowed": [
+        "TREASURER",
+        "BOARD"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/loan-applications/{id}/disburse",
+      "method": "POST",
+      "path": "/api/loan-applications/{id}/disburse",
+      "source": "app/api/loan-applications/[id]/disburse/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "disbursementSchema"
+      ],
+      "auditAction": "DISBURSE",
+      "title": "Disburse an approved and signed loan",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: password (Treasurer's current password, 1–200 characters), confirm: true. id is the application ID; no Loan exists until this action succeeds.",
+      "output": "200 serialized Loan scalar record including id, loanApplicationId, memberId, contractId, principal, rates, fees, netDisbursement, disbursementDate, outstandingBalance and status. Fetch schedule or application details separately for related records.",
+      "conditions": "Treasurer; own-loan disbursement forbidden; approved and signed, not already disbursed; PDF integrity, active member/account and current savings eligibility rechecked.",
+      "effects": "Creates Loan and monthly schedule; credits net principal after fee to savings; stores notification and DISBURSE audit atomically. Full principal plus scheduled interest remains repayable.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "403 incorrect password, own loan or invalid actor; 404 missing application; 409 duplicate, state, integrity, account or eligibility conflict; shared mutation errors.",
+      "body": {
+        "password": "<treasurer-password>",
+        "confirm": true
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/loan-applications/{id}/reject",
+      "method": "POST",
+      "path": "/api/loan-applications/{id}/reject",
+      "source": "app/api/loan-applications/[id]/reject/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER",
+        "BOARD"
+      ],
+      "schemas": [
+        "rejectionSchema"
+      ],
+      "auditAction": "REJECT",
+      "title": "Reject a loan application",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: comment (required, 3–2000 characters).",
+      "output": "200 updated ApplicationRecord.",
+      "conditions": "The application must be SUBMITTED or UNDER_REVIEW and awaiting this role's next approval step. Treasurer reviews first. Amounts equal to or above the frozen threshold also require Board approval. You cannot review your own application or complete another step after already reviewing it under a different role.",
+      "effects": "Updates current approval step and REJECTED state, saves rejection reason and member notification; REJECT audit.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "400 invalid comment; 403 own application, wrong review stage or repeated reviewer; 404 missing application; 409 already decided; shared 401/500/503 errors.",
+      "body": {
+        "comment": "Example: supporting purpose needs clarification"
+      },
+      "allowed": [
+        "TREASURER",
+        "BOARD"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/loan-types",
+      "method": "POST",
+      "path": "/api/loan-types",
+      "source": "app/api/loan-types/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "loanTypeSchema"
+      ],
+      "auditAction": "CREATE",
+      "title": "Create a loan product",
+      "group": "Loans",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: name (2–100 characters), interestMethod (FLAT or REDUCING_BALANCE), interestRate (annual percentage string, 0–100, up to 4 decimals), maxTermMonths (integer 1–360), maxMultipleOfSavings (positive decimal string, up to 2 decimals), processingFeePercent (percentage string, less than 100), active (boolean; defaults true). PATCH requires the complete product payload, too.",
+      "output": "200 saved loan type.",
+      "conditions": "Administrator; unique product name. Edit/deactivation affects future applications; submitted applications retain their terms.",
+      "effects": "CREATE LoanType audit and product persistence.",
+      "screens": [
+        "/dashboard/admin/loan-types"
+      ],
+      "errors": "400 validation failure; 404 missing product on PATCH; 409 duplicate product name; shared 401/403/500/503 errors.",
+      "body": {
+        "name": "Example development loan",
+        "interestMethod": "REDUCING_BALANCE",
+        "interestRate": "12",
+        "maxTermMonths": 12,
+        "maxMultipleOfSavings": "3",
+        "processingFeePercent": "2",
+        "active": true
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "POST /api/loans/{id}/payments",
+      "method": "POST",
+      "path": "/api/loans/{id}/payments",
+      "source": "app/api/loans/[id]/payments/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "paymentSchema"
+      ],
+      "auditAction": "CREATE",
+      "title": "Record a loan repayment receipt",
+      "group": "Repayments",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: amount (positive decimal string), paymentDate (YYYY-MM-DD), method (CASH, BANK_TRANSFER, MOBILE_MONEY), reference (1–100 characters, letters/digits/spaces/dots/slashes/underscores/hyphens; begins with a letter or digit), optional targetInstallmentNumber (integer 1–360), confirm: true. Reference is trimmed and uppercased.",
+      "output": "200 { payment, outstandingBalance: decimal string, status: LoanStatus }.",
+      "conditions": "Treasurer; another Treasurer must record a Treasurer-member's own loan receipt. Loan not CLOSED, date between disbursement and today in Kampala, unique reference within loan, amount ≤ entire scheduled balance. Target installment must be valid.",
+      "effects": "Stores immutable receipt, recomputes allocations chronologically, updates schedule counters and loan balance, closes fully paid loan, stores notification and CREATE LoanPayment audit. External receipts do not alter savings. Backdating may change earlier allocations.",
+      "screens": [
+        "/dashboard/loans/{id}"
+      ],
+      "errors": "400 invalid date/target/reference or payload; 403 own loan; 404 missing loan; 409 closed loan, duplicate reference or excessive amount; shared mutation errors.",
+      "body": {
+        "amount": "30000.00",
+        "paymentDate": "2026-09-09",
+        "method": "BANK_TRANSFER",
+        "reference": "DEMO-RECEIPT-123",
+        "confirm": true
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/members",
+      "method": "POST",
+      "path": "/api/members",
+      "source": "app/api/members/route.ts",
+      "guard": "withRouteAuth",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "memberEnrollmentSchema"
+      ],
+      "title": "Enroll a member",
+      "group": "Membership",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: firstName and lastName (at least 2 characters), username (3–32 letters, digits, dots, underscores or hyphens), phone and nextOfKinPhone (international +country-code format), address and nextOfKinName (at least 2 characters), nationalIdNumber (at least 5 characters). Optional email, dateOfBirth and photoUrl. Username, phone and email must be unique across users.",
+      "output": "200 { member: profile including user and savingsAccount, temporaryPassword: string, deliveryMethod: string }.",
+      "conditions": "Administrator; unique identifiers. The created login is CLIENT/ACTIVE and membership is PENDING.",
+      "effects": "Creates member number, member, login, zero-balance ACTIVE savings account and welcome notification in an audited transaction. Returns a temporary password for handover; CREATE Member audit.",
+      "screens": [
+        "/dashboard/admin/members/new"
+      ],
+      "errors": "400 validation failure; 409 IDENTIFIER_TAKEN for an existing login identifier; shared 401/403/500/503 errors.",
+      "body": {
+        "firstName": "Demo",
+        "lastName": "Member",
+        "username": "demo.member",
+        "phone": "+256700000123",
+        "address": "Example address",
+        "nationalIdNumber": "DEMO-000123",
+        "nextOfKinName": "Demo Contact",
+        "nextOfKinPhone": "+256700000124"
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "POST /api/savings/{accountId}/deposit",
+      "method": "POST",
+      "path": "/api/savings/{accountId}/deposit",
+      "source": "app/api/savings/[accountId]/deposit/route.ts",
+      "guard": "withRouteAuth",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "savingsMutationSchema"
+      ],
+      "title": "Record a savings deposit",
+      "group": "Savings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: amount (positive string or number with at most 2 decimal places; prefer strings), optional reference (80 characters) and narrative (240 characters). accountId is the savings account ID, not the member ID.",
+      "output": "200 { memberId, memberNumber, balance: decimal string, transaction, activatedMember: boolean }.",
+      "conditions": "Treasurer; savings account must be ACTIVE. The handler does not forbid the Treasurer's own savings account.",
+      "effects": "Locks account, adds balance and DEPOSIT transaction, activates a PENDING member on deposit; DEPOSIT audit in the same transaction.",
+      "screens": [
+        "/dashboard/treasurer",
+        "/dashboard/treasurer/members/{memberId}"
+      ],
+      "errors": "400 validation failure; 404 NOT_FOUND; 409 ACCOUNT_INACTIVE or INSUFFICIENT_BALANCE for withdrawal; shared 401/403/500/503 errors.",
+      "body": {
+        "amount": "50000.00",
+        "reference": "DEMO-RECEIPT-123",
+        "narrative": "Example savings entry"
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/savings/{accountId}/withdraw",
+      "method": "POST",
+      "path": "/api/savings/{accountId}/withdraw",
+      "source": "app/api/savings/[accountId]/withdraw/route.ts",
+      "guard": "withRouteAuth",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "savingsMutationSchema"
+      ],
+      "title": "Record a savings withdrawal",
+      "group": "Savings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: amount (positive string or number with at most 2 decimal places; prefer strings), optional reference (80 characters) and narrative (240 characters). accountId is the savings account ID, not the member ID.",
+      "output": "200 { memberId, memberNumber, balance: decimal string, transaction, activatedMember: boolean }.",
+      "conditions": "Treasurer; ACTIVE savings account and enough available balance. The handler does not forbid the Treasurer's own savings account.",
+      "effects": "Locks account, subtracts balance and adds WITHDRAWAL transaction; WITHDRAW audit in the same transaction.",
+      "screens": [
+        "/dashboard/treasurer",
+        "/dashboard/treasurer/members/{memberId}"
+      ],
+      "errors": "400 validation failure; 404 NOT_FOUND; 409 ACCOUNT_INACTIVE or INSUFFICIENT_BALANCE for withdrawal; shared 401/403/500/503 errors.",
+      "body": {
+        "amount": "50000.00",
+        "reference": "DEMO-RECEIPT-123",
+        "narrative": "Example savings entry"
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    }
+  ]
+}

@@ -31,11 +31,24 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Test documentation tooling
+        run: npm run docs:test
+
+      - name: Check application documentation
+        run: npm run docs:check
+
       - name: Test
         run: npm run test
 
       - name: Build
         run: npm run build
+
+      - name: Upload application handbook
+        uses: actions/upload-artifact@v4
+        with:
+          name: hlusca-application-handbook
+          path: docs/index.html
+          if-no-files-found: error
         
   migrate-production:
     name: Deploy production migrations

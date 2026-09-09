@@ -3,6 +3,29 @@
 HLUSCA is a role-based cooperative management application for member enrollment,
 savings accounts, and auditable financial operations.
 
+## Application handbook
+
+Open [the searchable HTML handbook](docs/index.html) in a browser. It works
+offline and includes role-based navigation guides, the action/permissions matrix,
+all application HTTP operations, validation rules, and architecture/operations.
+Use **Print / Save PDF** for a complete printable snapshot.
+
+The Markdown guides and endpoint catalog live in `docs/`. Generated references
+are extracted from application code. CI flags changed source that needs guide
+review, new undocumented routes/pages, stale output, and broken internal links.
+
+```bash
+npm run docs:generate
+npm run docs:review -- loans --note "Reviewed the loan changes and updated affected instructions and API conditions."
+npm run docs:build
+npm run docs:check
+npm run docs:test
+```
+
+Use the review group(s) reported by `docs:check`; acknowledge only after reviewing
+the change. See [handbook maintenance](docs/maintenance.md) for the workflow.
+Documentation commands require no database, application secrets or running server.
+
 ## Investments and dividends: Phase 6
 
 Apply `20260909120000_phase6_investments_dividends` with `npx prisma migrate deploy`
