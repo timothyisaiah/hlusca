@@ -106,6 +106,9 @@ model User {
   loanApprovalSteps     LoanApprovalStep[]
   disbursedLoans        Loan[]                @relation("LoanDisburser")
   recordedLoanPayments LoanPayment[]
+  dividendRunsCreated  DividendRun[] @relation("DividendCreator")
+  dividendRunsDecided  DividendRun[] @relation("DividendDecider")
+  dividendRunsPosted   DividendRun[] @relation("DividendPoster")
 
   @@index([role])
   @@index([status])
@@ -132,6 +135,8 @@ model Member {
   savingsAccount   SavingsAccount?
   loanApplications LoanApplication[]
   loans            Loan[]
+  investments      MemberInvestment[]
+  dividendAllocations DividendAllocation[]
 
   @@index([status])
   @@index([createdAt])
@@ -146,7 +151,9 @@ model SavingsAccount {
   openedAt      DateTime             @default(now())
   member        Member               @relation(fields: [memberId], references: [id], onDelete: Restrict)
   transactions  Transaction[]
+  dividendAllocations DividendAllocation[]
 
+  @@unique([id, memberId])
   @@index([status])
 }
 
@@ -163,6 +170,7 @@ model Transaction {
   savingsAccount   SavingsAccount  @relation(fields: [savingsAccountId], references: [id], onDelete: Restrict)
   performedBy      User            @relation("TransactionPerformer", fields: [performedById], references: [id], onDelete: Restrict)
   disbursedLoan    Loan?
+  dividendAllocation DividendAllocation?
 
   @@index([savingsAccountId, createdAt(sort: Desc)])
   @@index([performedById, createdAt(sort: Desc)])
@@ -225,6 +233,105 @@ model PasswordResetRequest {
   @@index([userId, createdAt(sort: Desc)])
   @@index([tokenHash])
   @@index([expiresAt])
+}
+
+enum InvestmentRiskProfile {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum MemberInvestmentStatus {
+  ACTIVE
+  MATURED
+  CANCELLED
+}
+
+enum DividendRunStatus {
+  PROPOSED
+  APPROVED
+  REJECTED
+  POSTED
+}
+
+model InvestmentProduct {
+  id                 String @id @default(cuid())
+  name               String @unique
+  description        String
+  expectedReturnRate Decimal @db.Decimal(7, 4)
+  riskProfile        InvestmentRiskProfile
+  active             Boolean @default(true)
+  createdAt          DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(3)
+  investments        MemberInvestment[]
+}
+
+model MemberInvestment {
+  id                    String @id @default(cuid())
+  memberId              String
+  investmentProductId   String
+  principal             Decimal @db.Decimal(18, 2)
+  startDate             DateTime @db.Date
+  maturityDate          DateTime @db.Date
+  status                MemberInvestmentStatus @default(ACTIVE)
+  // Preserve the terms recorded at enrollment into a product.
+  productName           String
+  expectedReturnRate    Decimal @db.Decimal(7, 4)
+  riskProfile           InvestmentRiskProfile
+  createdAt             DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime @updatedAt @db.Timestamptz(3)
+  member                Member @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  product               InvestmentProduct @relation(fields: [investmentProductId], references: [id], onDelete: Restrict)
+
+  @@index([memberId, createdAt(sort: Desc)])
+  @@index([investmentProductId])
+  @@index([status, maturityDate])
+}
+
+model DividendRun {
+  id                  String @id @default(cuid())
+  financialYear       Int
+  periodStart         DateTime @db.Date
+  periodEnd           DateTime @db.Date
+  totalPoolAmount     Decimal @db.Decimal(18, 2)
+  calculationMethod   String @default("PRO_RATA_AVERAGE_DAILY_SAVINGS")
+  // Frozen proposal, including exact balance-day weights and rounded payouts.
+  calculationSnapshot Json
+  runDate             DateTime @default(now()) @db.Timestamptz(3)
+  runById             String
+  status              DividendRunStatus @default(PROPOSED)
+  decidedById         String?
+  decidedAt           DateTime? @db.Timestamptz(3)
+  decisionComment     String?
+  postedById          String?
+  postedAt            DateTime? @db.Timestamptz(3)
+  runBy               User @relation("DividendCreator", fields: [runById], references: [id], onDelete: Restrict)
+  decidedBy           User? @relation("DividendDecider", fields: [decidedById], references: [id], onDelete: Restrict)
+  postedBy            User? @relation("DividendPoster", fields: [postedById], references: [id], onDelete: Restrict)
+  allocations         DividendAllocation[]
+
+  @@index([status, runDate])
+  @@index([runById])
+  @@index([decidedById])
+  @@index([postedById])
+}
+
+model DividendAllocation {
+  id                String @id @default(cuid())
+  dividendRunId     String
+  memberId          String
+  savingsAccountId  String
+  amount            Decimal @db.Decimal(18, 2)
+  averageBalance    Decimal @db.Decimal(18, 2)
+  transactionId     String? @unique
+  run               DividendRun @relation(fields: [dividendRunId], references: [id], onDelete: Restrict)
+  member            Member @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  savingsAccount    SavingsAccount @relation(fields: [savingsAccountId, memberId], references: [id, memberId], onDelete: Restrict)
+  transaction       Transaction? @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+
+  @@unique([dividendRunId, memberId])
+  @@index([memberId])
+  @@index([savingsAccountId, memberId])
 }
 
 enum InterestMethod {

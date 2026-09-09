@@ -9,6 +9,8 @@ import {
   Users,
   Landmark,
   Settings2,
+  TrendingUp,
+  Coins,
 } from "lucide-react";
 
 export interface NavItem {
@@ -68,6 +70,20 @@ export const navItems: NavItem[] = [
     description: "Applications, approvals, contracts, and disbursement.",
     roles: ["CLIENT", "TREASURER", "BOARD", "ADMIN"],
     icon: Landmark,
+  },
+  {
+    href: "/dashboard/investments",
+    label: "Investments",
+    description: "Investment products and member holdings.",
+    roles: ["CLIENT", "TREASURER", "BOARD", "ADMIN"],
+    icon: TrendingUp,
+  },
+  {
+    href: "/dashboard/dividends",
+    label: "Dividends",
+    description: "Financial-year proposals, approvals, and posting.",
+    roles: ["TREASURER", "BOARD", "ADMIN"],
+    icon: Coins,
   },
   {
     href: "/dashboard/admin/loan-types",

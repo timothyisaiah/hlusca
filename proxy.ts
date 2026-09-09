@@ -20,6 +20,7 @@ export async function proxy(request: NextRequest) {
   // attempts must reach their handler so they receive a failure audit.
   const handlesOwnAuthentication =
     pathname === "/api/cron/loans/overdue" ||
+    /^\/api\/(investment-products|investments|dividend-runs|dividend-history)(\/|$)/.test(pathname) ||
     /^\/api\/loans\/[^/]+\/(payments|statement)$/.test(pathname);
 
   if (isPublicAuthRoute && token?.sub) {

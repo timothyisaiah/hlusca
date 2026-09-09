@@ -805,13 +805,13 @@ keep it in sync with the phases in §15.
 - [x] Audit log entries verified for all payment/schedule mutations
 
 ### Phase 6 — Investments & Dividends
-- [ ] `InvestmentProduct` + `MemberInvestment` schema and admin config screen
-- [ ] `DividendRun` creation (Treasurer), pro-rata-by-average-balance calculation
+- [x] `InvestmentProduct` + `MemberInvestment` schema and admin config screen
+- [x] `DividendRun` creation (Treasurer), pro-rata-by-average-balance calculation
       implemented per decision #1
-- [ ] Board approval step for `DividendRun` before posting
-- [ ] Posting a dividend run creates `DividendAllocation` rows + `Transaction`
+- [x] Board approval step for `DividendRun` before posting
+- [x] Posting a dividend run creates `DividendAllocation` rows + `Transaction`
       (DIVIDEND) per member + balance updates, all atomic
-- [ ] Member dashboard shows dividend history
+- [x] Member dashboard shows dividend history
 
 ### Phase 7 — Reporting & Audit UI
 - [ ] Admin/Board audit log viewer: filter by actor, entity type, date range, action, status

@@ -1,4 +1,7 @@
 import { notFound } from "next/navigation";
+import { DividendHistory } from "@/components/investments/member-history";
+import { dividendHistory } from "@/lib/investments/service";
+import { getLoanActor } from "@/lib/loans/service";
 
 import { ActivityDonut } from "@/components/savings/activity-donut";
 import { MemberTransactionLog } from "@/components/savings/member-transaction-log";
@@ -16,7 +19,11 @@ export default async function ClientDashboardPage() {
     notFound();
   }
 
-  const dashboard = await getClientSavingsDashboard(user.memberId);
+  const actor = await getLoanActor(user.id);
+  const [dashboard, dividends] = await Promise.all([
+    getClientSavingsDashboard(user.memberId),
+    dividendHistory(actor),
+  ]);
   const { member, ledger } = dashboard;
 
   return (
@@ -150,6 +157,8 @@ export default async function ClientDashboardPage() {
           </CardContent>
         </Card>
       </ResponsiveStatCards>
+
+      <DividendHistory rows={dividends} />
 
       <Card>
         <CardHeader>

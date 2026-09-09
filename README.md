@@ -3,6 +3,59 @@
 HLUSCA is a role-based cooperative management application for member enrollment,
 savings accounts, and auditable financial operations.
 
+## Investments and dividends: Phase 6
+
+Apply `20260909120000_phase6_investments_dividends` with `npx prisma migrate deploy`
+and run `npm run db:generate` before starting the updated app.
+
+- **Administrator → Investments:** create, edit, or deactivate products with an
+  expected annual return and risk profile; record member investments and mark them
+  matured or cancelled. Each holding retains its original product terms. These
+  are records of externally funded investments; recording or closing a holding
+  does not debit savings or automatically pay investment returns.
+- **Treasurer → Dividends:** choose the completed 12-month financial-year dates,
+  ending year, and pool; calculate a proposal and review its member allocations.
+  January–December of the previous year is the default. The pilot ships only
+  `PRO_RATA_AVERAGE_DAILY_SAVINGS`, shown as the calculation setting on the screen.
+- **Board → Dividends:** review the frozen allocation, then approve or reject with
+  a comment. A rejected proposal can be replaced. Its creator cannot approve it,
+  even after changing roles.
+- **Treasurer → Dividends:** post an approved run with password confirmation.
+  Allocations, dividend ledger credits, balances, posted status, and one audit
+  event commit together. The approver cannot also post it. Concurrent or repeated
+  requests cannot pay a run twice; overlapping non-rejected years are prohibited.
+- **Member → Dashboard / Investments:** view posted dividend history and owned
+  investments. Server checks prevent access to another member's holdings/history.
+
+Dividends use daily closing savings balances in **Africa/Kampala**, averaged over
+every day of the year, including leap days and zero days before first savings.
+The UTC savings ledger supplies the opening balance and daily movements: deposits,
+interest, dividends, and loan disbursements are credits; withdrawals and any savings
+loan-repayment entries are debits. LoanPayment receipts are a separate ledger and
+do not change savings. No current-balance shortcut is used.
+
+Eligibility is fixed at proposal time: active members with active accounts opened
+before year-end and positive average savings. Posting rechecks account/member
+status and fails atomically if a recipient is no longer active. The saved proposal
+keeps exact balance-day weights and rounded shares; subsequent savings activity
+does not change the approved payouts. Integer arithmetic and largest remainders
+distribute the pool exactly to the cent, with stable member-ID tie breaking. A
+share rounded to zero is retained as a zero allocation without a zero-value ledger
+transaction. Savings history must be complete, including opening-balance entries.
+
+The unit suite tests weighting, leap years, rounding and validation. PostgreSQL
+tests cover route permissions, ownership, approval/posting, concurrent requests,
+Kampala boundaries, immutable proposals and rollback when audit persistence fails:
+
+```powershell
+$env:INVESTMENT_TEST_DATABASE_URL='postgresql://postgres:YOUR_LOCAL_PASSWORD@127.0.0.1:5432/hlusca_investments_test'
+npm run test:investments:integration
+```
+
+Create this disposable local database first. The runner refuses remote hosts and
+other database names, applies migrations, and retains synthetic test records.
+Ordinary unit tests skip this suite unless its database variable is set.
+
 ## Loans: Phases 3, 4 and 5
 
 Apply the committed migrations and regenerate Prisma before using these screens:
