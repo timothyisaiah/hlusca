@@ -16,6 +16,8 @@ export function SignaturePad({
   function line(x: number, y: number) {
     const context = canvas.current?.getContext("2d");
     if (!context) return;
+    // The pad stays white ("paper") in both themes so dark ink is legible and
+    // the saved signature PNG looks the same whichever theme signed it.
     context.strokeStyle = "#172033";
     context.lineWidth = 3;
     context.lineCap = "round";
@@ -71,7 +73,7 @@ export function SignaturePad({
         tabIndex={disabled ? -1 : 0}
         aria-label="Draw your signature"
         aria-describedby="signature-instructions"
-        className="aspect-[3/1] w-full touch-none rounded-2xl border-2 border-dashed border-slate-400 bg-white outline-none focus:ring-2 focus:ring-[var(--accent)]"
+        className="aspect-[3/1] w-full touch-none rounded-2xl border-2 border-dashed border-[var(--surface-border-strong)] bg-white outline-none focus:ring-2 focus:ring-[var(--accent)]"
         onPointerDown={(event) => {
           if (disabled || (event.pointerType === "mouse" && event.button !== 0))
             return;

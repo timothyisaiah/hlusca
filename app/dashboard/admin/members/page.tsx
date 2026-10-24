@@ -2,6 +2,7 @@ import Link from "next/link";
 import { UserPlus } from "lucide-react";
 
 import { MembersTable } from "@/components/tables/members-table";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/server";
 import { listMembers } from "@/lib/members/service";
@@ -21,11 +22,8 @@ export default async function AdminMembersPage() {
             Member registry
           </h1>
         </div>
-        <Link
-          href="/dashboard/admin/members/new"
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--accent-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
-        >
-          <UserPlus className="h-4 w-4" />
+        <Link href="/dashboard/admin/members/new" className={buttonVariants()}>
+          <UserPlus />
           Enroll member
         </Link>
       </div>

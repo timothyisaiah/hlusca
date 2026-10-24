@@ -58,7 +58,7 @@ function FieldError({ messages }: { messages?: string[] }) {
   const message = messages?.[0];
 
   return message ? (
-    <p className="text-xs text-[#8a1f1f]" role="alert">
+    <p className="text-xs text-[var(--danger)]" role="alert">
       {message}
     </p>
   ) : null;
@@ -270,19 +270,19 @@ export function EnrollMemberForm() {
         </form>
 
         {error ? (
-          <p className="rounded-2xl bg-[#fff2f2] px-4 py-3 text-sm text-[#8a1f1f]">
+          <p className="rounded-2xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
             {error}
           </p>
         ) : null}
 
         {result ? (
-          <div className="rounded-[28px] border border-[#f2d38a] bg-[#fff6dd] p-5 text-sm text-[#5f4a11]">
+          <div className="rounded-[28px] border border-[var(--warning-border)] bg-[var(--warning-soft)] p-5 text-sm text-[var(--warning-ink)]">
             <p className="font-semibold">
               Enrollment complete for {result.member.memberNumber}.
             </p>
             <p className="mt-2">
               Temporary password:{" "}
-              <span className="rounded bg-white px-2 py-1 font-mono text-xs">
+              <span className="rounded bg-[var(--surface-solid)] px-2 py-1 font-mono text-xs">
                 {result.temporaryPassword}
               </span>
             </p>
@@ -291,7 +291,7 @@ export function EnrollMemberForm() {
             </p>
             <Link
               href={`/dashboard/admin/members/${result.member.id}`}
-              className="mt-4 inline-flex text-sm font-semibold text-[#0f5c70]"
+              className="mt-4 inline-flex text-sm font-semibold text-[var(--accent-ink)]"
             >
               Open member profile
             </Link>

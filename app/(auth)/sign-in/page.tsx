@@ -1,72 +1,57 @@
 import { Suspense } from "react";
-import Link from "next/link";
+import type { Metadata } from "next";
 
+import { BrandMark } from "@/components/brand/brand-mark";
 import { LoginForm } from "@/components/forms/login-form";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { redirectSignedInUser } from "@/lib/auth/server";
+
+export const metadata: Metadata = { title: "Sign in" };
 
 export default async function SignInPage() {
   await redirectSignedInUser();
 
   return (
     <main className="app-grid flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <Card className="overflow-hidden">
-          <CardContent className="relative flex h-full flex-col justify-between gap-10 p-8 md:p-10">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(15,107,120,0.18),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(217,172,53,0.16),transparent_28%)]" />
-            <div className="relative space-y-6">
-              <Badge>Member portal</Badge>
-              <div className="max-w-2xl space-y-5">
-                <h1 className="text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-                  Your savings, loans, and membership in one place.
-                </h1>
-                <p className="max-w-xl text-base leading-8 text-[var(--muted-foreground)]">
-                  Check your savings, follow your loan applications, and review and sign your loan agreements from your HLUSCA account.
-                </p>
-              </div>
-            </div>
+      <div className="grid w-full max-w-md overflow-hidden rounded-[32px] border border-[var(--surface-border)] bg-[var(--surface)] shadow-[0_30px_90px_var(--shadow-color)] lg:max-w-5xl lg:grid-cols-2">
+        {/* Brand panel: large screens only; phones get the mark above the form. */}
+        <section
+          aria-hidden
+          className="relative hidden flex-col items-center justify-center gap-8 overflow-hidden bg-[image:var(--hero-accent)] p-12 text-white lg:flex"
+        >
+          <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-20 -right-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+          <BrandMark decorative className="relative h-64 w-64 drop-shadow-[0_12px_30px_rgba(0,0,0,0.25)]" />
+          <p className="relative max-w-xs text-center text-lg leading-8 text-white/85">
+            Savings, loans and membership in one place.
+          </p>
+        </section>
 
-            <div className="relative grid gap-4 md:grid-cols-2">
-              <div className="rounded-[28px] border border-white/70 bg-white/80 p-5 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                  Savings and loans
-                </p>
-                <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
-                  View your transactions and repayment schedules, with updates as your loan moves through review, approval, and disbursement.
-                </p>
-              </div>
-              <div className="rounded-[28px] border border-white/70 bg-white/80 p-5 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                  Need access?
-                </p>
-                <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
-                  Contact your Administrator to enroll or recover access. You can sign in with your username, phone, email, or member number.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <section className="flex flex-col justify-center gap-8 p-8 sm:p-10 lg:p-14">
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+            <BrandMark className="h-24 w-24 text-[var(--accent-ink)] lg:hidden" />
+            <p className="mt-4 text-sm font-bold tracking-[0.2em] text-[var(--accent-ink)] lg:mt-0">
+              HLUSCA
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
+              Welcome back
+            </h1>
+            <p className="mt-2 text-base text-[var(--muted-foreground)]">
+              Sign in to your account.
+            </p>
+          </div>
 
-        <div className="space-y-4">
           <Suspense
             fallback={
-              <div className="rounded-[32px] border border-[var(--surface-border)] bg-[var(--surface)] p-8 shadow-[0_24px_70px_rgba(18,35,45,0.08)]">
-                <p className="text-sm text-[var(--muted-foreground)]">
-                  Loading sign-in form...
-                </p>
-              </div>
+              <p className="text-sm text-[var(--muted-foreground)]">Loading sign-in…</p>
             }
           >
             <LoginForm />
           </Suspense>
-          <p className="text-center text-sm text-[var(--muted-foreground)]">
-            Forgot your password?{" "}
-            <Link href="/forgot-password" className="font-semibold text-[var(--accent)]">
-              Start a reset
-            </Link>
+
+          <p className="text-center text-sm text-[var(--muted-foreground)] lg:text-left">
+            New or locked out? Contact your Administrator.
           </p>
-        </div>
+        </section>
       </div>
     </main>
   );

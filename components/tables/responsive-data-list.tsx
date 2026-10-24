@@ -40,7 +40,7 @@ export function ResponsiveDataList<Row>({
           <article
             key={getRowId(row)}
             className={cn(
-              "rounded-3xl border border-[var(--surface-border)] bg-white p-4 shadow-sm",
+              "rounded-3xl border border-[var(--surface-border)] bg-[var(--surface-solid)] p-4 shadow-sm",
               mobileCardClassName,
             )}
           >
@@ -64,7 +64,7 @@ export function ResponsiveDataList<Row>({
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-[28px] border border-[var(--surface-border)] bg-white md:block">
+      <div className="hidden overflow-x-auto rounded-[28px] border border-[var(--surface-border)] bg-[var(--surface-solid)] md:block">
         <table className="w-full border-collapse text-left text-sm">
           <thead className="bg-[var(--surface-muted)] text-[var(--muted-foreground)]">
             <tr>

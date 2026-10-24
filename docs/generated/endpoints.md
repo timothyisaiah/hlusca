@@ -608,6 +608,27 @@ Host: localhost:3000
 Cookie: <session-cookie-from-sign-in>
 ```
 
+## GET /handbook
+
+**Open the application handbook** · Operations
+
+| Contract | Details |
+| --- | --- |
+| Authentication | public |
+| Request | No request body. |
+| Success response | 200 text/html: the built docs/index.html served as a standalone document (no app layout or styles); Cache-Control: no-cache. 404 text/plain when the handbook has not been built. |
+| Conditions | No session required: the path is outside the session proxy. The handbook follows the shared light/dark theme preference. |
+| Effects and audit | Reads records; no business mutation or read audit is performed by this handler. |
+| Errors | 404 handbook not built. |
+| Screen | API/framework operation; no dedicated application action button |
+| Source | [`app/handbook/route.ts`](../../app/handbook/route.ts) |
+| Extracted guard | `custom`; effective conditions reviewed from handler/service |
+
+```http
+GET /handbook HTTP/1.1
+Host: localhost:3000
+```
+
 ## PATCH /api/earnings-settings
 
 **Set the member earnings share** · Earnings

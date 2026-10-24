@@ -3,8 +3,8 @@
 ## Sign in
 
 1. Open the application address supplied by your cooperative. The sign-in page is `/sign-in`.
-2. Enter your member number, username, phone number or email in the identifier field. Use the international phone format, for example `+256700000123`.
-3. Enter your password and select **Sign in**.
+2. In **Username, phone, email or member number**, enter any one of them. Use the international phone format, for example `+256700000123`.
+3. Enter your password and select **Sign in**. Select the eye button to show or hide what you typed.
 4. If instructed to change a temporary password, complete that step before opening your dashboard.
 5. After sign-in, the application directs you to the landing page for your assigned role.
 
@@ -21,7 +21,7 @@ You can also open `/change-password` while signed in. The current password is al
 
 ## Recover a forgotten password
 
-1. Select **Forgot password** from sign-in, or open `/forgot-password`.
+1. Select **Forgot password?** beside the password field on sign-in, or open `/forgot-password`.
 2. Enter the same identifier you normally use to sign in and request recovery.
 3. Follow the channel and token/code instructions shown. The pilot displays a preview reset token when one is generated.
 4. Enter the token/code and a new strong password, then submit the reset form.
@@ -39,6 +39,10 @@ On a computer, use the left sidebar. It can be collapsed into icons; expand it t
 | Treasurer | Treasurer Desk, Loans, Investments, Dividends, Member Earnings |
 | Board | Board Desk, Loans, Investments, Dividends, Member Earnings |
 | Administrator | Admin Overview, Members, Loans, Investments, Dividends, Member Earnings, Loan Configuration |
+
+### Light and dark theme
+
+HLUSCA follows your device's light or dark setting by default. Select the theme button (sun, moon or screen icon) in the top bar, or in the top-right corner of the sign-in pages, to cycle between **System**, **Light** and **Dark**. Your choice is remembered on that browser and also applies to the application handbook, which has its own **Theme** button. Signatures are always drawn on a white pad so they look the same in either theme.
 
 The [generated screen directory](generated/navigation.md) is the definitive menu inventory. Detail pages open from lists. For example, a Treasurer opens a member ledger from Treasurer Desk; a loan record opens from Loans. Use the page's back link to return to the relevant list.
 

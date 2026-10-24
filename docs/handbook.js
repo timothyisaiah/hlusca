@@ -80,6 +80,32 @@
     if (event.key === "Escape") { sidebar.classList.remove("is-open"); toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-label", "Open contents"); }
     if (event.key === "/" && !["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) { event.preventDefault(); search.focus(); }
   });
+  // Theme: shares the app's "hlusca:theme" preference (same origin). Cycles
+  // System → Light → Dark; System follows the device setting live.
+  const themeButton = document.querySelector("#theme-toggle");
+  const themeLabels = { system: "System", light: "Light", dark: "Dark" };
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+  function storedTheme() {
+    try { const value = localStorage.getItem("hlusca:theme"); return value === "light" || value === "dark" ? value : "system"; } catch { return "system"; }
+  }
+  function applyTheme(preference) {
+    const dark = preference === "dark" || (preference === "system" && systemDark.matches);
+    document.documentElement.classList.toggle("dark", dark);
+    document.documentElement.classList.toggle("light", !dark);
+    themeButton.textContent = `Theme: ${themeLabels[preference]}`;
+    themeButton.setAttribute("aria-label", `Theme: ${themeLabels[preference]}. Change theme`);
+  }
+  let currentTheme = storedTheme();
+  themeButton.addEventListener("click", () => {
+    const order = ["system", "light", "dark"];
+    const next = order[(order.indexOf(currentTheme) + 1) % order.length];
+    currentTheme = next;
+    try { if (next === "system") localStorage.removeItem("hlusca:theme"); else localStorage.setItem("hlusca:theme", next); } catch { /* storage blocked: applies to this view only */ }
+    applyTheme(next);
+  });
+  systemDark.addEventListener("change", () => { if (currentTheme === "system") applyTheme("system"); });
+  window.addEventListener("storage", (event) => { if (event.key === "hlusca:theme") { currentTheme = storedTheme(); applyTheme(currentTheme); } });
+  applyTheme(currentTheme);
   window.addEventListener("hashchange", revealAnchor);
   if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver((entries) => {

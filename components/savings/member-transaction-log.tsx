@@ -42,22 +42,22 @@ function getTransactionIcon(type: SavingsTransactionRecord["type"]) {
     case "WITHDRAWAL":
       return {
         Icon: ArrowUpRight,
-        iconClassName: "bg-[#ffe7ef] text-[#b14a72]",
-        amountClassName: "text-[#9f2f59]",
+        iconClassName: "bg-[var(--category-pink-soft)] text-[var(--category-pink)]",
+        amountClassName: "text-[var(--category-pink-strong)]",
       };
     case "INTEREST":
     case "DIVIDEND":
       return {
         Icon: Sparkles,
-        iconClassName: "bg-[#eef6ff] text-[#4d78d5]",
-        amountClassName: "text-[#355fb8]",
+        iconClassName: "bg-[var(--category-blue-soft)] text-[var(--category-blue)]",
+        amountClassName: "text-[var(--category-blue-strong)]",
       };
     case "LOAN_DISBURSEMENT":
     case "LOAN_REPAYMENT":
       return {
         Icon: Landmark,
-        iconClassName: "bg-[#effaf2] text-[#2c8f58]",
-        amountClassName: "text-[#1f7a48]",
+        iconClassName: "bg-[var(--category-green-soft)] text-[var(--category-green)]",
+        amountClassName: "text-[var(--category-green-strong)]",
       };
     default:
       return {
@@ -242,7 +242,7 @@ export function MemberTransactionLog({
             setTypeFilter(event.target.value);
             setPage(1);
           }}
-          className="h-11 rounded-2xl border border-[var(--surface-border)] bg-white px-4 text-sm text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[color:rgba(89,102,255,0.14)]"
+          className="h-11 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-solid)] px-4 text-sm text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[color:rgba(89,102,255,0.14)]"
         >
           <option value="">All types</option>
           {transactionTypes.map((type) => (

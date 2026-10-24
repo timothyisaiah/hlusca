@@ -86,13 +86,13 @@ export function ChangePasswordForm() {
           </div>
 
           {error ? (
-            <p className="rounded-2xl bg-[#fff2f2] px-4 py-3 text-sm text-[#8a1f1f]">
+            <p className="rounded-2xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
               {error}
             </p>
           ) : null}
 
           {success ? (
-            <p className="rounded-2xl bg-[#edfdf2] px-4 py-3 text-sm text-[#1d6d42]">
+            <p className="rounded-2xl bg-[var(--success-soft)] px-4 py-3 text-sm text-[var(--success)]">
               {success}
             </p>
           ) : null}

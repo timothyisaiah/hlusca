@@ -6,7 +6,7 @@ import { formatCurrency, formatDate, titleCase } from "@/lib/utils";
 import type { ScheduleInstallment } from "@/lib/loans/schedule";
 
 export const selectClass =
-  "min-h-11 w-full rounded-2xl border border-[var(--surface-border)] bg-white px-3 text-base";
+  "min-h-11 w-full rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-solid)] px-3 text-base";
 
 export function Field({
   label,
@@ -35,7 +35,7 @@ export function Notice({
   return (
     <p
       role={error ? "alert" : "status"}
-      className={`rounded-2xl p-4 text-base ${error ? "bg-red-50 text-red-800" : "bg-[var(--surface-muted)] text-[var(--foreground)]"}`}
+      className={`rounded-2xl p-4 text-base ${error ? "bg-[var(--danger-soft)] text-[var(--danger)]" : "bg-[var(--surface-muted)] text-[var(--foreground)]"}`}
     >
       {children}
     </p>

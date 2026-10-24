@@ -58,12 +58,12 @@ export function ActivityDonut({
     <div className={cn("@container", className)}>
       <div className="grid gap-6 @xl:grid-cols-[auto_minmax(0,1fr)] @xl:items-center">
         <div
-          className="mx-auto grid h-40 w-40 place-items-center rounded-full p-4 shadow-[0_24px_60px_rgba(99,102,241,0.18)]"
+          className="mx-auto grid h-40 w-40 place-items-center rounded-full p-4 shadow-[0_24px_60px_var(--accent-shadow)]"
           style={{
             background: `conic-gradient(var(--accent) 0deg ${angle}, var(--accent-highlight) ${angle} 360deg)`,
           }}
         >
-          <div className="grid h-full w-full place-items-center rounded-full bg-white/95 text-center shadow-inner">
+          <div className="grid h-full w-full place-items-center rounded-full bg-[var(--surface-solid)] text-center shadow-inner">
             <div>
               <p className="text-3xl font-bold tracking-tight tabular-nums text-[var(--foreground)]">
                 {centerValue}

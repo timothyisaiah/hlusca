@@ -107,7 +107,7 @@ export function SavingsTransactionForm({
         </p>
         <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">{memberName}</p>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">{memberNumber}</p>
-        <div className="mt-4 rounded-2xl bg-white px-4 py-3">
+        <div className="mt-4 rounded-2xl bg-[var(--surface-solid)] px-4 py-3">
           <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
             Current balance
           </p>
@@ -131,7 +131,7 @@ export function SavingsTransactionForm({
           aria-invalid={Boolean(fieldErrors.amount)}
         />
         {fieldErrors.amount?.[0] ? (
-          <p className="text-xs text-[#8a1f1f]">{fieldErrors.amount[0]}</p>
+          <p className="text-xs text-[var(--danger)]">{fieldErrors.amount[0]}</p>
         ) : null}
       </div>
 
@@ -145,7 +145,7 @@ export function SavingsTransactionForm({
           aria-invalid={Boolean(fieldErrors.reference)}
         />
         {fieldErrors.reference?.[0] ? (
-          <p className="text-xs text-[#8a1f1f]">{fieldErrors.reference[0]}</p>
+          <p className="text-xs text-[var(--danger)]">{fieldErrors.reference[0]}</p>
         ) : null}
       </div>
 
@@ -159,12 +159,12 @@ export function SavingsTransactionForm({
           aria-invalid={Boolean(fieldErrors.narrative)}
         />
         {fieldErrors.narrative?.[0] ? (
-          <p className="text-xs text-[#8a1f1f]">{fieldErrors.narrative[0]}</p>
+          <p className="text-xs text-[var(--danger)]">{fieldErrors.narrative[0]}</p>
         ) : null}
       </div>
 
       {error ? (
-        <p className="rounded-2xl bg-[#fff2f2] px-4 py-3 text-sm text-[#8a1f1f]">
+        <p className="rounded-2xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
           {error}
         </p>
       ) : null}

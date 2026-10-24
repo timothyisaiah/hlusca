@@ -27,6 +27,18 @@ Prisma transaction and PostgreSQL constraints: persist records and audit
 
 Next.js in this repository ships local documentation under `node_modules/next/dist/docs/`. Read the relevant local guide before changing framework code, as required by AGENTS.md.
 
+## Theming and UI tokens
+
+All colours come from CSS custom properties in [globals.css](../app/globals.css): a light set on `:root` and a dark set on `.dark` (surfaces, text, accent, status, ledger categories, hero gradients, shadows). Components reference tokens such as `bg-[var(--surface-solid)]` or `text-[var(--danger)]`, never literal colours. Exceptions: white text and overlays on the accent-blue Treasurer hero, and the white signature pad. A pre-paint script in [layout](../app/layout.tsx) applies the stored choice or the device preference before first render, avoiding a light flash; [theme](../lib/theme.ts) and the theme toggle manage the choice (`localStorage` key `hlusca:theme`). `color-scheme` follows the theme so native date pickers and selects match. Filled buttons use `--accent-solid`, which meets WCAG AA contrast for white labels in both themes.
+
+Base element styles sit in `@layer base`, because unlayered CSS overrides Tailwind utilities. That is what previously turned button-styled links' white text dark. Use `buttonVariants()` for any link that should look like a button.
+
+The handbook (`docs/index.html`) is a separate document with its own light and dark tokens in [handbook.css](handbook.css). A pre-paint script in the build template and [handbook.js](handbook.js) read the same `hlusca:theme` preference as the app, and its toolbar has its own theme button. Printing always uses the light palette. It is served raw rather than inside an app page so the two stylesheets never mix.
+
+## Brand assets
+
+The logo mark lives in `public/brand/`: `hlusca-mark.png` (white on transparent, used as a CSS mask by the `BrandMark` component so it takes the current theme colour) and `hlusca-logo-original.png` (the supplied artwork). Browser and platform icons use Next.js file conventions in `app/`: `favicon.ico`, `icon.png`, `apple-icon.png`, the `opengraph-image.png`/`twitter-image.png` share thumbnail with alt text, and `manifest.ts` (192/512 and maskable icons in `public/brand/`). These were generated once from the original with an image script; regenerate them all together if the logo changes. `metadataBase` comes from `NEXTAUTH_URL`, so share thumbnails resolve to absolute URLs.
+
 ## Data relationships
 
 ```flow
@@ -127,7 +139,7 @@ npm run test:investments:integration
 
 ## Known pilot boundaries
 
-Password recovery exposes preview tokens and notification records are stored without email/SMS delivery. Membership changes do not synchronize login/account suspension automatically. Savings exports have no EXPORT audit event; some early authorization failures bypass mutation auditing. Staff-only account management, a full audit viewer, portfolio reporting, receipt corrections/waivers and automated investment proceeds are not implemented screens. Backup retention, monitoring integration, broad security review and operational sign-off remain deployment responsibilities tracked by the build specification. The `/handbook` page is outside the session proxy and opens without signing in (it includes this endpoint and data reference); `/api/handbook` requires a session. The member dashboard's loan-earnings estimate recalculates across the full ledger on each load, which suits pilot volumes but should be cached as membership grows.
+Password recovery exposes preview tokens and notification records are stored without email/SMS delivery. Membership changes do not synchronize login/account suspension automatically. Savings exports have no EXPORT audit event; some early authorization failures bypass mutation auditing. Staff-only account management, a full audit viewer, portfolio reporting, receipt corrections/waivers and automated investment proceeds are not implemented screens. Backup retention, monitoring integration, broad security review and operational sign-off remain deployment responsibilities tracked by the build specification. `/handbook` serves the built handbook as a standalone document outside the session proxy, so it opens without signing in (it includes this endpoint and data reference); `/api/handbook` requires a session. The member dashboard's loan-earnings estimate recalculates across the full ledger on each load, which suits pilot volumes but should be cached as membership grows.
 
 Source references: [package scripts](../package.json), [Prisma configuration](../prisma.config.ts), [bootstrap script](../scripts/bootstrap-admin.ts), [audit wrapper](../lib/audit/mutation.ts), [CI workflow](../.github/workflows/ci.yml), [build specification](../agent.md).
 

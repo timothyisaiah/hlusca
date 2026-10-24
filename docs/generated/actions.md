@@ -109,6 +109,7 @@ Allowed means the role may attempt the action; the conditions on its endpoint en
 | --- | --- | --- |
 | [Read authentication/session resources](endpoints.md#get-api-auth-nextauth) | framework | Credentials must match an ACTIVE login account. Identifier may be a member number, username, phone or email. Sign-out uses the current session. |
 | [Flag overdue installments](endpoints.md#get-api-cron-loans-overdue) | service | Scheduler secret required; ordinary role membership grants no access. Selects PENDING/PARTIAL installments before today's Kampala date on ACTIVE/DEFAULTED loans. |
+| [Open the application handbook](endpoints.md#get-handbook) | public | No session required: the path is outside the session proxy. The handbook follows the shared light/dark theme preference. |
 | [Sign in or sign out](endpoints.md#post-api-auth-nextauth) | framework | Credentials must match an ACTIVE login account. Identifier may be a member number, username, phone or email. Sign-out uses the current session. |
 | [Request password recovery](endpoints.md#post-api-auth-reset-password) | public | No session required. Email is preferred when present, otherwise phone, otherwise administrator assistance. An unmatched identifier returns null fields. |
 | [Complete password recovery](endpoints.md#post-api-auth-reset-password-confirm) | public | No session required; token must match an unconsumed, unexpired request for the resolved user. |

@@ -113,7 +113,7 @@ export function ApplicationWizard({ types }: { types: LoanTypeRecord[] }) {
                 <li
                   key={label}
                   aria-current={step === i ? "step" : undefined}
-                  className={`rounded-full px-3 py-2 ${step === i ? "bg-[var(--accent)] text-white" : "bg-[var(--surface-muted)]"}`}
+                  className={`rounded-full px-3 py-2 ${step === i ? "bg-[var(--accent-solid)] text-[var(--accent-contrast)]" : "bg-[var(--surface-muted)]"}`}
                 >
                   {i + 1}. {label}
                 </li>
@@ -219,7 +219,7 @@ export function ApplicationWizard({ types }: { types: LoanTypeRecord[] }) {
                 </p>
               </div>
             )}
-            <div className="sticky bottom-3 flex flex-wrap gap-3 rounded-2xl bg-white py-3">
+            <div className="sticky bottom-3 flex flex-wrap gap-3 rounded-2xl bg-[var(--surface-solid)] py-3">
               {step > 0 && (
                 <Button
                   variant="outline"

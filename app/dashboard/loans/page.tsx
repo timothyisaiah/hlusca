@@ -39,7 +39,7 @@ export default async function LoansPage({
         initial={filters}
       />
       {notifications.length > 0 && (
-        <aside className="space-y-3 rounded-3xl bg-white p-5">
+        <aside className="space-y-3 rounded-3xl bg-[var(--surface-solid)] p-5">
           <h2 className="text-lg font-semibold md:text-xl">Recent updates</h2>
           {notifications.map((notice) => (
             <div

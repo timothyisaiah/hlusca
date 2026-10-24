@@ -61,12 +61,12 @@ export default async function ClientDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 @5xl/main:grid-cols-[2fr_1fr]">
-        <Card className="flex flex-col overflow-hidden border-0 bg-[linear-gradient(135deg,#ffffff,#f1efff_55%,#dce7ff)] shadow-[0_30px_90px_rgba(89,102,255,0.14)]">
+        <Card className="flex flex-col overflow-hidden border-0 bg-[image:var(--hero-soft)] shadow-[0_30px_90px_var(--accent-shadow)]">
           {/* Fills the row height set by the snapshot card: balance on top,
               detail tiles anchored to the bottom instead of leaving a gap. */}
           <CardContent className="@container relative flex flex-1 flex-col justify-between gap-8 p-6 md:p-8">
-            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[rgba(89,102,255,0.12)]" />
-            <div className="absolute bottom-0 right-6 h-28 w-28 rounded-full bg-[rgba(244,114,182,0.08)] blur-2xl" />
+            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[var(--accent-soft)]" />
+            <div className="absolute bottom-0 right-6 h-28 w-28 rounded-full bg-[var(--category-pink-soft)] blur-2xl" />
             <div className="relative space-y-6">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge>Primary savings</Badge>
@@ -86,7 +86,7 @@ export default async function ClientDashboardPage() {
             </div>
 
             <div className="relative grid gap-4 @xl:grid-cols-3">
-              <div className="min-w-0 rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+              <div className="min-w-0 rounded-[24px] border border-[var(--surface-glass-border)] bg-[var(--surface-glass)] px-4 py-4 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                   Net flow
                 </p>
@@ -96,7 +96,7 @@ export default async function ClientDashboardPage() {
                   className="mt-2 text-[var(--foreground)]"
                 />
               </div>
-              <div className="min-w-0 rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+              <div className="min-w-0 rounded-[24px] border border-[var(--surface-glass-border)] bg-[var(--surface-glass)] px-4 py-4 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                   Last activity
                 </p>
@@ -106,7 +106,7 @@ export default async function ClientDashboardPage() {
                     : "No savings activity yet"}
                 </p>
               </div>
-              <div className="min-w-0 rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+              <div className="min-w-0 rounded-[24px] border border-[var(--surface-glass-border)] bg-[var(--surface-glass)] px-4 py-4 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                   Account opened
                 </p>

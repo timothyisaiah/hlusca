@@ -158,7 +158,7 @@ export function MemberProfileForm({
                 <Label htmlFor="member-status">Status</Label>
                 <select
                   id="member-status"
-                  className="h-11 w-full rounded-2xl border border-[var(--surface-border)] bg-white px-4 text-sm text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[color:rgba(14,116,144,0.14)]"
+                  className="h-11 w-full rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-solid)] px-4 text-sm text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[color:rgba(14,116,144,0.14)]"
                   value={form.status}
                   onChange={(event) => updateField("status", event.target.value)}
                 >
@@ -172,7 +172,7 @@ export function MemberProfileForm({
                 <Label htmlFor="member-role">System role</Label>
                 <select
                   id="member-role"
-                  className="h-11 w-full rounded-2xl border border-[var(--surface-border)] bg-white px-4 text-sm text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[color:rgba(14,116,144,0.14)]"
+                  className="h-11 w-full rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-solid)] px-4 text-sm text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[color:rgba(14,116,144,0.14)]"
                   value={form.role}
                   onChange={(event) => updateField("role", event.target.value)}
                 >
@@ -279,13 +279,13 @@ export function MemberProfileForm({
         </form>
 
         {error ? (
-          <p className="rounded-2xl bg-[#fff2f2] px-4 py-3 text-sm text-[#8a1f1f]">
+          <p className="rounded-2xl bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
             {error}
           </p>
         ) : null}
 
         {success ? (
-          <p className="rounded-2xl bg-[#edfdf2] px-4 py-3 text-sm text-[#1d6d42]">
+          <p className="rounded-2xl bg-[var(--success-soft)] px-4 py-3 text-sm text-[var(--success)]">
             {success}
           </p>
         ) : null}

@@ -8,7 +8,7 @@ import type { Session } from "next-auth";
 import { PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 
 import { SignOutButton } from "./sign-out-button";
-import { Badge } from "@/components/ui/badge";
+import { BrandLockup, BrandMark } from "@/components/brand/brand-mark";
 import { ROLE_LABELS } from "@/lib/constants";
 import { getNavForRole } from "@/lib/dashboard/navigation";
 import { cn } from "@/lib/utils";
@@ -55,14 +55,9 @@ function NavigationContent({
           )}
         >
           {collapsed ? (
-            <span
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-sm font-bold text-[var(--accent-ink)]"
-              aria-label="HLUSCA"
-            >
-              H
-            </span>
+            <BrandMark className="h-10 w-10 text-[var(--accent-ink)]" />
           ) : (
-            <Badge variant="default">HLUSCA</Badge>
+            <BrandLockup />
           )}
           {headerAction}
         </div>
@@ -128,7 +123,7 @@ export function Sidebar({ user, collapsed, onToggleCollapsed }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "hidden h-screen flex-col border-r border-[var(--surface-border)] bg-white/80 p-6 shadow-[12px_0_36px_rgba(15,23,42,0.04)] transition-[padding] duration-200 md:sticky md:top-0 md:flex",
+        "hidden h-screen flex-col border-r border-[var(--surface-border)] bg-[var(--surface-glass)] p-6 shadow-[12px_0_36px_var(--shadow-color)] transition-[padding] duration-200 md:sticky md:top-0 md:flex",
         collapsed && "items-center p-3",
       )}
     >
@@ -156,7 +151,7 @@ export function MobileSidebarSheet({ user, open, onClose }: MobileSidebarSheetPr
     <div className={cn("fixed inset-0 z-50 md:hidden", open ? "pointer-events-auto" : "pointer-events-none")}>
       <button
         type="button"
-        className={cn("absolute inset-0 bg-slate-950/30 transition-opacity", open ? "opacity-100" : "opacity-0")}
+        className={cn("absolute inset-0 bg-[var(--overlay)] transition-opacity", open ? "opacity-100" : "opacity-0")}
         aria-label="Close navigation"
         tabIndex={open ? 0 : -1}
         onClick={onClose}
@@ -165,7 +160,7 @@ export function MobileSidebarSheet({ user, open, onClose }: MobileSidebarSheetPr
         role="dialog"
         aria-modal="true"
         aria-label="Dashboard navigation"
-        className={cn("absolute inset-y-0 left-0 flex w-[min(var(--sidebar-width),calc(100vw-3rem))] flex-col bg-white p-6 shadow-[24px_0_64px_rgba(15,23,42,0.18)] transition-transform", open ? "translate-x-0" : "-translate-x-full")}
+        className={cn("absolute inset-y-0 left-0 flex w-[min(var(--sidebar-width),calc(100vw-3rem))] flex-col bg-[var(--surface-solid)] p-6 shadow-[24px_0_64px_var(--shadow-color-strong)] transition-transform", open ? "translate-x-0" : "-translate-x-full")}
       >
         <NavigationContent
           user={user}

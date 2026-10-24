@@ -76,7 +76,7 @@ export function ResponsiveDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-slate-950/30 md:items-center md:justify-center md:p-6">
+    <div className="fixed inset-0 z-50 flex items-end bg-[var(--overlay)] md:items-center md:justify-center md:p-6">
       <section
         ref={dialog}
         tabIndex={-1}
@@ -84,7 +84,7 @@ export function ResponsiveDialog({
         aria-modal="true"
         aria-label={title}
         className={cn(
-          "max-h-[92dvh] w-full overflow-y-auto rounded-t-[32px] bg-white p-6 shadow-[0_-20px_60px_rgba(15,23,42,0.2)] md:max-w-xl md:rounded-[32px] md:shadow-[0_24px_80px_rgba(15,23,42,0.2)]",
+          "max-h-[92dvh] w-full overflow-y-auto rounded-t-[32px] bg-[var(--surface-solid)] p-6 shadow-[0_-20px_60px_var(--shadow-color-strong)] md:max-w-xl md:rounded-[32px] md:shadow-[0_24px_80px_var(--shadow-color-strong)]",
           className,
         )}
       >

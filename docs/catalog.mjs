@@ -186,6 +186,7 @@ add("GET /api/earnings-history", "View credited loan earnings", "Earnings", { po
 add("GET /api/earnings-settings", "Read the member earnings share", "Earnings", { output: "200 { memberSharePercent: decimal string }.", conditions: "All authenticated roles may read this API; the setting is edited on Member Earnings by an Administrator.", screens: [earningsScreen] });
 add("PATCH /api/earnings-settings", "Set the member earnings share", "Earnings", { input: "JSON: memberSharePercent (0–100, up to 2 decimals).", output: "200 { memberSharePercent }.", conditions: "Administrator. Applies to runs calculated afterwards; existing proposals keep their frozen share.", effects: "Saves SystemSetting MEMBER_EARNINGS_SHARE_PERCENT; UPDATE audit.", screens: [earningsScreen], body: { memberSharePercent: "70" } });
 
+add("GET /handbook", "Open the application handbook", "Operations", { policy: publicAccess, output: "200 text/html: the built docs/index.html served as a standalone document (no app layout or styles); Cache-Control: no-cache. 404 text/plain when the handbook has not been built.", conditions: "No session required: the path is outside the session proxy. The handbook follows the shared light/dark theme preference.", effects: readOnly, errors: "404 handbook not built." });
 add("GET /api/handbook", "Download the built application handbook", "Operations", { output: "200 text/html (docs/index.html) with Cache-Control: no-cache; 404 text/plain when the handbook has not been built.", conditions: "Any signed-in user; the proxy rejects requests without a session. The handler itself performs no role check.", effects: readOnly, errors: "401 unauthenticated (proxy); 404 handbook not built." });
 
 export { operations };
@@ -194,7 +195,6 @@ export { operations };
 // sidebar. The build rejects missing/new pages and broken operation-screen links.
 export const pages = {
   "/": ["Entry point", "everyone", "Redirects to sign-in or the role dashboard.", "access"],
-  "/handbook": ["Application handbook", "everyone", "Renders the built docs/index.html. Outside the session proxy, so it opens without signing in.", "technical"],
   "/sign-in": ["Sign in", "everyone", "Enter member number, username, phone or email and password. Signed-in users are redirected.", "access"],
   "/forgot-password": ["Password recovery", "everyone", "Request and enter a reset code/token; pilot preview is shown here.", "access"],
   "/change-password": ["Change password", "everyone", "Signed-in users only; required on first sign-in with temporary credentials.", "access"],

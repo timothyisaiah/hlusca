@@ -86,13 +86,13 @@ export function TreasurerMemberLedger({ ledger }: TreasurerMemberLedgerProps) {
       </div>
 
       {flashMessage ? (
-        <div className="rounded-[28px] border border-[rgba(89,102,255,0.16)] bg-[linear-gradient(135deg,rgba(89,102,255,0.12),rgba(244,114,182,0.08))] px-5 py-4">
+        <div className="rounded-[28px] border border-[var(--surface-border)] bg-[var(--accent-soft)] px-5 py-4">
           <p className="text-sm font-medium text-[var(--foreground)]">{flashMessage}</p>
         </div>
       ) : null}
 
       <div className="grid grid-cols-1 gap-6 @5xl/main:grid-cols-[2fr_1fr]">
-        <Card className="flex flex-col overflow-hidden border-0 bg-[linear-gradient(135deg,#ffffff,#f1efff_55%,#dce7ff)] shadow-[0_30px_90px_rgba(89,102,255,0.14)]">
+        <Card className="flex flex-col overflow-hidden border-0 bg-[image:var(--hero-soft)] shadow-[0_30px_90px_var(--accent-shadow)]">
           <CardContent className="@container flex flex-1 flex-col justify-between gap-6 p-6 md:p-8">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
@@ -105,7 +105,7 @@ export function TreasurerMemberLedger({ ledger }: TreasurerMemberLedgerProps) {
             </div>
 
             <div className="grid gap-4 @lg:grid-cols-2">
-              <div className="rounded-3xl border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+              <div className="rounded-3xl border border-[var(--surface-glass-border)] bg-[var(--surface-glass)] px-4 py-4 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                   Transactions logged
                 </p>
@@ -113,7 +113,7 @@ export function TreasurerMemberLedger({ ledger }: TreasurerMemberLedgerProps) {
                   {summary.transactionCount}
                 </p>
               </div>
-              <div className="rounded-3xl border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+              <div className="rounded-3xl border border-[var(--surface-glass-border)] bg-[var(--surface-glass)] px-4 py-4 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                   Last activity
                 </p>
@@ -163,7 +163,7 @@ export function TreasurerMemberLedger({ ledger }: TreasurerMemberLedgerProps) {
       </Card>
 
       <div className="fixed inset-x-0 bottom-4 z-40 px-4 md:hidden">
-        <div className="mx-auto flex max-w-md items-center gap-3 rounded-full border border-white/60 bg-white/95 p-3 shadow-[0_18px_40px_rgba(15,23,42,0.16)] backdrop-blur">
+        <div className="mx-auto flex max-w-md items-center gap-3 rounded-full border border-[var(--surface-glass-border)] bg-[var(--surface-solid)] p-3 shadow-[0_18px_40px_var(--shadow-color-strong)] backdrop-blur">
           <Button className="flex-1" onClick={() => setDialogMode("deposit")}>
             Deposit
           </Button>

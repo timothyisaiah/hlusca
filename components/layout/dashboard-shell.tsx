@@ -5,6 +5,8 @@ import type { Session } from "next-auth";
 import { Menu, X } from "lucide-react";
 
 import { MobileSidebarSheet, Sidebar } from "./sidebar";
+import { ThemeToggle } from "./theme-toggle";
+import { BrandMark } from "@/components/brand/brand-mark";
 import { Badge } from "@/components/ui/badge";
 import { ROLE_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -65,7 +67,7 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
         onClose={() => setMobileSidebarOpen(false)}
       />
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-10 flex min-h-16 w-full items-center justify-between border-b border-[var(--surface-border)] bg-white/85 px-4 backdrop-blur md:min-h-20 md:px-8 lg:px-10">
+        <header className="sticky top-0 z-10 flex min-h-16 w-full items-center justify-between border-b border-[var(--surface-border)] bg-[var(--surface-glass)] px-4 backdrop-blur md:min-h-20 md:px-8 lg:px-10">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -76,6 +78,7 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
             >
               {mobileSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
+            <BrandMark className="h-9 w-9 text-[var(--accent-ink)] md:hidden" />
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                 {ROLE_LABELS[user.role]}
@@ -85,9 +88,12 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
               </p>
             </div>
           </div>
-          <Badge variant="muted" className="hidden sm:inline-flex">
-            {user.name ?? "Platform User"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="muted" className="hidden sm:inline-flex">
+              {user.name ?? "Platform User"}
+            </Badge>
+            <ThemeToggle />
+          </div>
         </header>
         {/* Named container: page grids respond to the space left beside the
             sidebar (expanded or collapsed), not to the viewport width. */}

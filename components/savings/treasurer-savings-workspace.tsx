@@ -78,7 +78,7 @@ export function TreasurerSavingsWorkspace({
       </div>
 
       <div className="grid grid-cols-1 gap-6 @5xl/main:grid-cols-[2fr_1fr]">
-        <Card className="flex flex-col overflow-hidden border-0 bg-[linear-gradient(135deg,#5d6bff,#8fb9ff)] text-white shadow-[0_30px_90px_rgba(93,107,255,0.28)]">
+        <Card className="flex flex-col overflow-hidden border-0 bg-[image:var(--hero-accent)] text-white shadow-[0_30px_90px_var(--hero-accent-shadow)]">
           {/* Balance on top, monthly tiles anchored to the bottom so the card
               fills its row without an empty band. */}
           <CardContent className="@container relative flex flex-1 flex-col justify-between gap-8 p-6 md:p-8">
@@ -143,7 +143,7 @@ export function TreasurerSavingsWorkspace({
                   hint: "Awaiting first deposit",
                   value: workspace.summary.pendingActivations,
                   icon: BellRing,
-                  tone: "bg-[#efeafe] text-[#6e62dd]",
+                  tone: "bg-[var(--category-violet-soft)] text-[var(--category-violet)]",
                 },
               ].map(({ label, hint, value, icon: Icon, tone }) => (
                 <div
@@ -203,7 +203,7 @@ export function TreasurerSavingsWorkspace({
                   <Link
                     key={member.id}
                     href={`/dashboard/treasurer/members/${member.id}` as Route}
-                    className="block rounded-[28px] border border-[var(--surface-border)] bg-white px-4 py-4 transition hover:border-[rgba(89,102,255,0.18)] hover:bg-[var(--surface-muted)]"
+                    className="block rounded-[28px] border border-[var(--surface-border)] bg-[var(--surface-solid)] px-4 py-4 transition hover:border-[var(--surface-border-strong)] hover:bg-[var(--surface-muted)]"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">

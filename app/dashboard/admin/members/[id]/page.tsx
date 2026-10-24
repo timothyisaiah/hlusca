@@ -124,7 +124,7 @@ export default async function AdminMemberDetailPage({
                   {formatDate(entry.createdAt)}
                 </p>
                 {entry.failureReason ? (
-                  <p className="mt-2 text-sm text-[#8a1f1f]">{entry.failureReason}</p>
+                  <p className="mt-2 text-sm text-[var(--danger)]">{entry.failureReason}</p>
                 ) : null}
               </div>
             ))}

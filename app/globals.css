@@ -1,62 +1,185 @@
 @import "tailwindcss";
 
+/* Theme follows a `dark` class on <html>, set before paint by the script in
+   app/layout.tsx (stored choice, else the device preference). Components use
+   these tokens instead of literal colours so both themes stay in sync. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
+  color-scheme: light;
+
   --background: #eef1ff;
   --background-deep: #d8e1ff;
+  --background-glow: rgba(255, 255, 255, 0.88);
+  --background-glow-accent: rgba(93, 107, 255, 0.16);
+  --grid-line: rgba(255, 255, 255, 0.25);
   --foreground: #1a2140;
+  --muted-foreground: #5f6b8c;
+
+  /* Surfaces: translucent cards, opaque fields/tables/dialogs, frosted chrome. */
   --surface: rgba(255, 255, 255, 0.92);
+  --surface-solid: #ffffff;
   --surface-muted: #f5f4ff;
   --surface-border: rgba(26, 33, 64, 0.12);
-  --muted-foreground: #677394;
+  --surface-border-strong: rgba(26, 33, 64, 0.28);
+  --surface-glass: rgba(255, 255, 255, 0.8);
+  --surface-glass-border: rgba(255, 255, 255, 0.8);
+  --overlay: rgba(2, 6, 23, 0.3);
+  --shadow-color: rgba(15, 23, 42, 0.08);
+  --shadow-color-strong: rgba(15, 23, 42, 0.2);
+
   --accent: #5d6bff;
   --accent-strong: #4d58e1;
   --accent-soft: rgba(93, 107, 255, 0.12);
   --accent-ink: #4250d1;
+  --accent-contrast: #ffffff;
+  /* Filled buttons: darker than --accent so white labels pass WCAG AA. */
+  --accent-solid: #535fe8;
+  --accent-solid-hover: #4552d8;
   --accent-highlight: #ef75bf;
+  --accent-shadow: rgba(89, 102, 255, 0.14);
+
+  /* Hero cards: soft (member) and accent (treasurer). */
+  --hero-soft: linear-gradient(135deg, #ffffff, #f1efff 55%, #dce7ff);
+  --hero-accent: linear-gradient(135deg, #5d6bff, #8fb9ff);
+  --hero-accent-shadow: rgba(93, 107, 255, 0.28);
+
+  /* Status colours: ink for text, soft for backgrounds. */
+  --danger: #8a1f1f;
+  --danger-soft: #fff2f2;
+  --danger-solid: #8f2323;
+  --danger-solid-hover: #741919;
+  --success: #1d6d42;
+  --success-soft: #ddf4e7;
+  --warning: #9b5f00;
+  --warning-ink: #5f4a11;
+  --warning-soft: #fff1d8;
+  --warning-border: #f2d38a;
+
+  /* Ledger category accents. */
+  --category-pink-soft: #ffe7ef;
+  --category-pink: #b14a72;
+  --category-pink-strong: #9f2f59;
+  --category-blue-soft: #eef6ff;
+  --category-blue: #4d78d5;
+  --category-blue-strong: #355fb8;
+  --category-green-soft: #effaf2;
+  --category-green: #2c8f58;
+  --category-green-strong: #1f7a48;
+  --category-violet-soft: #efeafe;
+  --category-violet: #6e62dd;
+
   --radius-card: 1.75rem;
   --sidebar-width: 280px;
   --touch-target: 2.75rem;
 }
 
+.dark {
+  color-scheme: dark;
+
+  --background: #0b1020;
+  --background-deep: #0f1733;
+  --background-glow: rgba(111, 123, 255, 0.1);
+  --background-glow-accent: rgba(239, 117, 191, 0.07);
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --foreground: #e6e9f6;
+  --muted-foreground: #9ba5c8;
+
+  --surface: rgba(22, 28, 52, 0.92);
+  --surface-solid: #161c34;
+  --surface-muted: #1e2545;
+  --surface-border: rgba(200, 210, 255, 0.12);
+  --surface-border-strong: rgba(200, 210, 255, 0.3);
+  --surface-glass: rgba(22, 28, 52, 0.78);
+  --surface-glass-border: rgba(255, 255, 255, 0.08);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --shadow-color: rgba(0, 0, 0, 0.32);
+  --shadow-color-strong: rgba(0, 0, 0, 0.5);
+
+  --accent: #6f7bff;
+  --accent-strong: #8591ff;
+  --accent-soft: rgba(111, 123, 255, 0.18);
+  --accent-ink: #b0b8ff;
+  --accent-contrast: #ffffff;
+  --accent-solid: #535fe8;
+  --accent-solid-hover: #5b67f0;
+  --accent-highlight: #f08ac8;
+  --accent-shadow: rgba(0, 0, 0, 0.35);
+
+  --hero-soft: linear-gradient(135deg, #171d38, #1d2152 55%, #1a2b57);
+  --hero-accent: linear-gradient(135deg, #3f4bd6, #4870c4);
+  --hero-accent-shadow: rgba(0, 0, 0, 0.45);
+
+  --danger: #ffa3a3;
+  --danger-soft: rgba(239, 68, 68, 0.14);
+  --danger-solid: #b83232;
+  --danger-solid-hover: #cc4343;
+  --success: #86e4ae;
+  --success-soft: rgba(34, 197, 94, 0.15);
+  --warning: #f6c46b;
+  --warning-ink: #f8d898;
+  --warning-soft: rgba(245, 158, 11, 0.14);
+  --warning-border: rgba(245, 158, 11, 0.35);
+
+  --category-pink-soft: rgba(244, 114, 182, 0.16);
+  --category-pink: #f59ac7;
+  --category-pink-strong: #f7aed3;
+  --category-blue-soft: rgba(96, 165, 250, 0.16);
+  --category-blue: #8cb8ff;
+  --category-blue-strong: #a3c6ff;
+  --category-green-soft: rgba(74, 222, 128, 0.14);
+  --category-green: #7ee2a8;
+  --category-green-strong: #95e9b8;
+  --category-violet-soft: rgba(167, 139, 250, 0.18);
+  --category-violet: #c4b5fd;
+}
+
 @theme inline {
-  --color-background: #edf4f4;
-  --color-foreground: #12232d;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
   --font-sans: "Aptos", "Segoe UI Variable", "Segoe UI", sans-serif;
   --font-mono: "Cascadia Mono", "IBM Plex Mono", "Consolas", monospace;
   --breakpoint-md: 48rem;
   --breakpoint-lg: 64rem;
 }
 
-* {
-  box-sizing: border-box;
+/* Base styles live in a layer: unlayered rules would beat Tailwind utilities
+   (e.g. `a { color: inherit }` overriding text-white on button-styled links). */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at top left, var(--background-glow), transparent 32%),
+      radial-gradient(circle at bottom right, var(--background-glow-accent), transparent 28%),
+      linear-gradient(180deg, var(--background), var(--background-deep));
+    background-attachment: fixed;
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.88), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(93, 107, 255, 0.16), transparent 28%),
-    linear-gradient(180deg, var(--background), var(--background-deep));
-  color: var(--foreground);
-  font-family: var(--font-sans);
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-::selection {
-  background: rgba(93, 107, 255, 0.18);
-}
-
-.app-grid {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
-  background-position: center;
-  background-size: 48px 48px;
+@layer components {
+  .app-grid {
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-position: center;
+    background-size: 48px 48px;
+  }
 }

@@ -1,9 +1,9 @@
 {
   "version": 1,
   "counts": {
-    "routeFiles": 47,
-    "operations": 59,
-    "pages": 22
+    "routeFiles": 48,
+    "operations": 60,
+    "pages": 21
   },
   "navigation": [
     {
@@ -225,12 +225,6 @@
       "source": "app/dashboard/treasurer/page.tsx",
       "title": "Treasurer Desk",
       "audience": "TREASURER"
-    },
-    {
-      "path": "/handbook",
-      "source": "app/handbook/page.tsx",
-      "title": "Application handbook",
-      "audience": "everyone"
     },
     {
       "path": "/",
@@ -1097,6 +1091,33 @@
         "TREASURER": "Allowed",
         "BOARD": "Allowed",
         "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /handbook",
+      "method": "GET",
+      "path": "/handbook",
+      "source": "app/handbook/route.ts",
+      "guard": "custom",
+      "roles": null,
+      "schemas": [],
+      "title": "Open the application handbook",
+      "group": "Operations",
+      "policy": {
+        "kind": "public"
+      },
+      "input": "No request body.",
+      "output": "200 text/html: the built docs/index.html served as a standalone document (no app layout or styles); Cache-Control: no-cache. 404 text/plain when the handbook has not been built.",
+      "conditions": "No session required: the path is outside the session proxy. The handbook follows the shared light/dark theme preference.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [],
+      "errors": "404 handbook not built.",
+      "allowed": [],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
       }
     },
     {

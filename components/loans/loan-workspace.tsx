@@ -80,7 +80,7 @@ export function LoanWorkspace({
       </div>
       <form
         onSubmit={filter}
-        className="grid items-end gap-4 rounded-3xl bg-white p-5 sm:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_auto]"
+        className="grid items-end gap-4 rounded-3xl bg-[var(--surface-solid)] p-5 sm:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_auto]"
       >
         <Field label="Search applications">
           <Input
@@ -213,7 +213,7 @@ export function LoanWorkspace({
                   <p className="text-sm">Awaiting member signature</p>
                 )}
                 {row.rejectionReason && (
-                  <p className="max-w-sm break-words text-sm text-red-800">
+                  <p className="max-w-sm break-words text-sm text-[var(--danger)]">
                     {row.rejectionReason}
                   </p>
                 )}
