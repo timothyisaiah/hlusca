@@ -87,6 +87,29 @@ Posting commits allocations, positive dividend credits, savings balances, posted
 
 Open **Dashboard** for posted dividends alongside savings, or **Investments** for the history shown there. Proposed and approved-but-unposted runs do not appear in member history. Each posted entry identifies the financial year, amount and average savings used.
 
+## Member earnings from loan interest
+
+Each month, interest **collected** from borrowers is shared with savers through **Member Earnings**. Members receive the configured share (default 70%); the rest is retained by the SACCO. Dividend pools should therefore be funded from non-interest surplus only.
+
+How a member's share is worked out:
+
+1. Each installment's interest is spread evenly over the days it accrues, from the previous due date (or disbursement) to its due date.
+2. Interest a borrower has paid funds the earliest days not yet shared. Prepaid interest waits until its days have passed; unpaid interest is never shared.
+3. Each day's interest is split by every member's **lowest balance during that Kampala day**. A deposit earns from the next day; money withdrawn during a day earns nothing that day.
+4. Posting credits each share to savings as an INTEREST entry, so it earns in later months.
+
+## Treasurer: calculate and post member earnings
+
+1. Choose **Member Earnings**, pick a completed month and select **Calculate earnings**.
+2. Review the interest collected, the member and retained amounts, and each member's earnings and earning days.
+3. Select **Post earnings to savings**, confirm your password, tick the confirmation and select **Confirm posting**. Or select **Cancel proposal** to discard it and calculate again.
+
+Only one proposal can be open, and months must be posted in order. A month with no newly collected interest cannot be calculated. Shares for savings accounts that are no longer active at posting are retained (shown as **Inactive · retained**). Board and Administrator users can review runs; an Administrator sets the member share on the same page, and it applies to runs calculated afterwards.
+
+## Member: see your loan earnings
+
+**Dashboard** shows **Loan earnings this year**, an estimate of earnings accruing since the last posted month, and **Loan earnings history** with each credited month. The estimate is not final until the Treasurer posts the month.
+
 ## Common problems
 
 | Problem | Next step |
@@ -98,6 +121,8 @@ Open **Dashboard** for posted dividends alongside savings, or **Investments** fo
 | Approver cannot post | A different Treasurer must post the approved run |
 | Recipient inactive at posting | Review the member/account state with an authorized operator; the run remains unposted |
 | Holding cannot mature | Check its maturity date and whether it was already closed |
+| Earnings proposal still open | Post or cancel it before calculating another month |
+| No newly collected loan interest | Nothing has been paid since the last posted month, or payments only covered future days |
 
-Source references: [investment/dividend service](../lib/investments/service.ts), [calculation](../lib/investments/calculation.ts), [dividend workspace](../components/investments/dividend-workspace.tsx), [investment workspace](../components/investments/investment-workspace.tsx).
+Source references: [investment/dividend service](../lib/investments/service.ts), [calculation](../lib/investments/calculation.ts), [dividend workspace](../components/investments/dividend-workspace.tsx), [investment workspace](../components/investments/investment-workspace.tsx), [earnings service](../lib/earnings/service.ts), [earnings calculation](../lib/earnings/calculation.ts).
 

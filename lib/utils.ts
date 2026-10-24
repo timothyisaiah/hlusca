@@ -23,6 +23,31 @@ export function formatCurrency(
   }).format(Number.isFinite(amount) ? amount : 0);
 }
 
+// Splits a formatted amount so the currency code can be styled apart from the
+// figure, e.g. { code: "UGX", amount: "-13,000.00" }.
+export function formatCurrencyParts(
+  value: number | string,
+  currency = DEFAULT_CURRENCY,
+) {
+  const amount =
+    typeof value === "number" ? value : Number.parseFloat(value ?? "0");
+  const parts = new Intl.NumberFormat("en-UG", {
+    style: "currency",
+    currency,
+    currencyDisplay: "code",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).formatToParts(Number.isFinite(amount) ? amount : 0);
+
+  return {
+    code: parts.find((part) => part.type === "currency")?.value ?? currency,
+    amount: parts
+      .filter((part) => part.type !== "currency" && part.type !== "literal")
+      .map((part) => part.value)
+      .join(""),
+  };
+}
+
 export function formatDate(value: Date | string | null | undefined) {
   if (!value) {
     return "Not provided";
@@ -53,6 +78,15 @@ export function formatDateTime(value: Date | string | null | undefined) {
     timeStyle: "short",
     timeZone: "Africa/Kampala",
   }).format(date);
+}
+
+/** "2026-03" → "March 2026". */
+export function formatMonth(month: string) {
+  return new Intl.DateTimeFormat("en-UG", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${month}-01T00:00:00Z`));
 }
 
 export function titleCase(value: string) {

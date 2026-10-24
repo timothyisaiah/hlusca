@@ -3,12 +3,32 @@
 ## Member: view your savings
 
 1. Choose **Dashboard**.
-2. Review the primary savings balance, member number and account status.
+2. Review the primary savings balance, member number and account status. **Available to withdraw** shows your balance minus any withdrawal requests still open.
 3. Scroll to **Transaction log** for individual entries. The dashboard also shows savings activity summaries and posted dividend history.
 4. Use the transaction search, type and date filters to narrow the log. Search can match references, notes or the recorded-by information exposed by the ledger.
 5. Use the page controls to move through results, or **Export CSV** / **Export PDF** for a download of matching entries.
 
 The current balance is the account balance, not a total of only the rows visible on the current page. Deposits, loan disbursements and posted dividends can increase savings. The separate loan-payment receipt workflow does not reduce savings.
+
+## Member: request a withdrawal
+
+1. Choose **Dashboard** and find **Withdrawal requests**.
+2. Select **Request withdrawal**. The form shows the amount available to withdraw: your balance minus any of your requests still awaiting review or payout.
+3. Enter the amount and choose how you want to be paid: **Mobile Money**, **Bank Transfer** or **Cash**. For mobile money or bank transfer, enter the number or account to pay into.
+4. Optionally add a reason, then select **Send request**.
+5. Follow the request's status in the list: **Awaiting review**, **Approved, awaiting payout**, **Paid out**, **Rejected** (with the Treasurer's reason) or **Cancelled**.
+
+Your balance does not change when you send a request. It only goes down when the Treasurer pays you out, and a WITHDRAWAL entry then appears in your transaction log. You can **Cancel request** while it is awaiting review or payout. You need an active membership and savings account to request a withdrawal.
+
+## Treasurer: review and pay out withdrawal requests
+
+1. Choose **Treasurer Desk**. **Member withdrawal requests** lists open requests, oldest first, with each member's current balance and payout details.
+2. For a request awaiting review, select **Approve** (comment optional) or **Reject** (reason required; the member sees it).
+3. Make the payment to the member outside HLUSCA using the requested method.
+4. Select **Pay out** on the approved request. Enter the payout reference (for example the mobile money transaction ID), confirm your password, tick the confirmation and select **Confirm payout**.
+5. Verify the success message. The member's savings are debited and a WITHDRAWAL ledger entry is created with your reference (or `WDR-` plus the request ID if you leave it blank).
+
+Approval and payout each re-check that the balance still covers the amount; if it no longer does, reject the request with a reason. A Treasurer cannot approve, reject or pay out a request from their own membership. **Recently closed** shows the latest paid, rejected and cancelled requests.
 
 ## Treasurer: locate a member ledger
 
@@ -44,7 +64,7 @@ Withdrawals cannot exceed the available balance. The current savings handlers re
 | Type | Effect / current workflow |
 | --- | --- |
 | DEPOSIT | Recorded by Treasurer; increases savings |
-| WITHDRAWAL | Recorded by Treasurer; reduces savings |
+| WITHDRAWAL | Recorded by Treasurer directly, or created when the Treasurer pays out an approved member withdrawal request; reduces savings |
 | LOAN_DISBURSEMENT | Created by approved loan disbursement; credits the amount after fee |
 | DIVIDEND | Created when Treasurer posts a Board-approved run |
 | INTEREST | Recognized ledger type; no general manual interest-posting screen is implemented |
@@ -68,5 +88,5 @@ Savings filter date boundaries use the server's local date operations. Repayment
 
 Savings references are descriptive and are not enforced as unique idempotency keys. Repeating a deposit or withdrawal request can create another entry. This differs from loan receipts, whose reference is unique within the loan.
 
-Source references: [savings service](../lib/savings/service.ts), [ledger route](../app/api/members/%5Bid%5D/transactions/route.ts), [entry form](../components/forms/savings-transaction-form.tsx).
+Source references: [savings service](../lib/savings/service.ts), [withdrawal requests](../lib/savings/withdrawals.ts), [ledger route](../app/api/members/%5Bid%5D/transactions/route.ts), [entry form](../components/forms/savings-transaction-form.tsx).
 

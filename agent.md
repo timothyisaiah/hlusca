@@ -7,6 +7,14 @@
 > operational and administrative overhead low — this is a **pilot deployment**.
 
 ---
+# Global Rules
+
+## Environment files and secrets
+
+- Never read `.env` files directly, including with shell commands, file-reading tools, searches, scripts, or editor integrations.
+- When environment values are required, use only the specific values supplied to the process through its environment or piped into the command at execution time.
+- Never print, log, echo, persist, or otherwise expose environment-variable values or secrets.
+- Use `.env.example` only to discover variable names and expected configuration shape; it must not contain real secrets.
 
 ## 1. Product Summary
 
@@ -400,6 +408,12 @@ GET    /api/members/:id/transactions
 GET    /api/members/:id/savings
 POST   /api/savings/:accountId/deposit
 POST   /api/savings/:accountId/withdraw
+GET    /api/withdrawal-requests?status=&memberId=
+POST   /api/withdrawal-requests                  (member submits)
+POST   /api/withdrawal-requests/:id/cancel
+POST   /api/withdrawal-requests/:id/approve
+POST   /api/withdrawal-requests/:id/reject
+POST   /api/withdrawal-requests/:id/disburse     (password step-up)
 
 GET    /api/loan-types
 POST   /api/loan-applications
@@ -416,6 +430,14 @@ POST   /api/loans/:id/payments
 POST   /api/dividend-runs
 POST   /api/dividend-runs/:id/approve
 POST   /api/dividend-runs/:id/post
+
+GET    /api/earnings-runs
+POST   /api/earnings-runs                (body: { month: "YYYY-MM" })
+POST   /api/earnings-runs/:id/post       (password step-up)
+POST   /api/earnings-runs/:id/cancel
+GET    /api/earnings-history?memberId=
+GET    /api/earnings-settings
+PATCH  /api/earnings-settings            (Admin; { memberSharePercent })
 
 GET    /api/audit-logs?entityType=&actorId=&from=&to=
 ```
@@ -714,6 +736,8 @@ These were open questions and are now settled — implement to these rules direc
 | 3 | E-signature legal validity | **Simple canvas signature + audit trail is sufficient for pilot.** | No third-party e-sign provider needed. `LoanContract` capture = canvas-drawn signature image (PNG), typed full name confirmation, timestamp, IP address, user agent — all persisted and also written to `AuditLog` (action=SIGN) as the audit trail. Revisit if regulator/legal requires certified e-sign post-pilot. |
 | 4 | Savings withdrawal limits/notice | **No withdrawal limit and no notice period.** | Remove any minimum-notice or max-per-transaction validation from the withdrawal endpoint. The only hard check remaining is: withdrawal amount ≤ current available `SavingsAccount.balance` (minus any amount held as loan collateral, if that rule applies — confirm separately if loans require a savings-based collateral hold). |
 | 5 | Member enrollment path | **Admin-only enrollment.** No member self-enrollment/self-service sign-up. | Do not build a public registration page. The only enrollment entry point is the Administrator's "Enroll Member" screen (§7.1). `Member.status` still starts `PENDING` until first deposit, per existing rule. |
+| 6 | Member-initiated withdrawals | **Members may request a withdrawal from their portal; a Treasurer approves/rejects it and then pays it out.** Treasurer direct withdrawals (§7.3) remain available. | `WithdrawalRequest` (`PENDING → APPROVED → DISBURSED`, or `REJECTED` with a required reason / `CANCELLED` by the member while open). Savings are only debited at payout, which requires Treasurer password step-up (§13) and creates the `WITHDRAWAL` `Transaction` atomically. Open requests reserve balance: a new request may not exceed balance minus the member's other open requests. Decision #4 still applies (no limit or notice period). A Treasurer may not act on a request from their own membership; approve and payout may be done by the same Treasurer. |
+| 7 | Member earnings from loan interest | **Collected loan interest is shared with savers monthly, by each member's lowest balance during each day. Dividends (#1) continue, funded from non-interest surplus only.** | `EarningsRun` (`PROPOSED → POSTED`, or `CANCELLED`); Treasurer calculates a completed month and posts it with password step-up — no Board step. Only collected interest is shared, capped at interest accrued by month end (prepaid interest waits for its days). Each installment's interest is spread evenly over its accrual days (previous due date → due date); newly collected interest funds the earliest unfunded days, and `EarningsRunLoan` tracks what was already shared per loan so nothing is shared twice. Daily weight = lowest balance during the Kampala day (deposits earn from the next day). Members receive `MEMBER_EARNINGS_SHARE_PERCENT` (`SystemSetting`, default 70, Admin-editable); the rest is retained. Posting credits `INTEREST` transactions (so earnings compound) to ACTIVE savings accounts only; shares for inactive accounts are retained (`forfeitedAmount`). |
 
 ---
 
@@ -769,6 +793,8 @@ keep it in sync with the phases in §15.
 - [x] `Transaction` ledger writes on every deposit/withdrawal, atomic with balance update
 - [x] Member-facing transaction log (filter by date/type, paginate, CSV/PDF export)
 - [x] Audit log entries verified for all savings mutations
+- [x] Member withdrawal requests (decision #6): client request/cancel, Treasurer
+      approve/reject queue and password-confirmed payout, audited and unit-tested
 
 ### Phase 3 — Loan Application & Approval
 - [x] `LoanType` config screen (Admin) — interest method, rate, max term, max
@@ -812,6 +838,9 @@ keep it in sync with the phases in §15.
 - [x] Posting a dividend run creates `DividendAllocation` rows + `Transaction`
       (DIVIDEND) per member + balance updates, all atomic
 - [x] Member dashboard shows dividend history
+- [x] Monthly member earnings from collected loan interest (decision #7): daily
+      minimum-balance attribution, Treasurer calculate/post, Admin share setting,
+      member earnings history and accruing estimate; calculation unit-tested
 
 ### Phase 7 — Reporting & Audit UI
 - [ ] Admin/Board audit log viewer: filter by actor, entity type, date range, action, status

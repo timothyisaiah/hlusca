@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/card";
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import type { SavingsLedgerPage } from "@/lib/savings/types";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { Money } from "@/components/ui/money";
+import { formatDateTime } from "@/lib/utils";
 
 type TreasurerMemberLedgerProps = {
   ledger: SavingsLedgerPage;
@@ -90,22 +91,20 @@ export function TreasurerMemberLedger({ ledger }: TreasurerMemberLedgerProps) {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
-        <Card className="overflow-hidden border-0 bg-[linear-gradient(135deg,#ffffff,#f1efff_55%,#dce7ff)] shadow-[0_30px_90px_rgba(89,102,255,0.14)]">
-          <CardContent className="space-y-6 p-6 md:p-8">
+      <div className="grid grid-cols-1 gap-6 @5xl/main:grid-cols-[2fr_1fr]">
+        <Card className="flex flex-col overflow-hidden border-0 bg-[linear-gradient(135deg,#ffffff,#f1efff_55%,#dce7ff)] shadow-[0_30px_90px_rgba(89,102,255,0.14)]">
+          <CardContent className="@container flex flex-1 flex-col justify-between gap-6 p-6 md:p-8">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                   Available savings
                 </p>
-                <p className="mt-3 text-3xl font-bold tracking-tight tabular-nums text-[var(--foreground)] md:text-4xl">
-                  {formatCurrency(member.account.balance)}
-                </p>
+                <Money value={member.account.balance} size="xl" className="mt-3 text-[var(--foreground)]" />
               </div>
               <Badge variant={statusVariant(member.status)}>{member.status}</Badge>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 @lg:grid-cols-2">
               <div className="rounded-3xl border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
                   Transactions logged
@@ -135,14 +134,12 @@ export function TreasurerMemberLedger({ ledger }: TreasurerMemberLedgerProps) {
           </CardHeader>
           <CardContent>
             <ActivityDonut
-              title="Savings activity mix"
-              description="Deposits vs withdrawals across this member&apos;s lifetime ledger."
               centerValue={`${summary.depositShare}%`}
               centerLabel="Deposit share"
               primaryLabel="Deposited"
-              primaryValue={formatCurrency(summary.totalDeposited)}
+              primaryValue={summary.totalDeposited}
               secondaryLabel="Withdrawn"
-              secondaryValue={formatCurrency(summary.totalWithdrawn)}
+              secondaryValue={summary.totalWithdrawn}
               percent={summary.depositShare}
             />
           </CardContent>

@@ -73,6 +73,12 @@ Enum values: `DEPOSIT`, `WITHDRAWAL`, `INTEREST`, `DIVIDEND`, `LOAN_DISBURSEMENT
 | dividendRunsCreated | `DividendRun[]` | @relation("DividendCreator") |
 | dividendRunsDecided | `DividendRun[]` | @relation("DividendDecider") |
 | dividendRunsPosted | `DividendRun[]` | @relation("DividendPoster") |
+| withdrawalsRequested | `WithdrawalRequest[]` | @relation("WithdrawalRequester") |
+| withdrawalsReviewed | `WithdrawalRequest[]` | @relation("WithdrawalReviewer") |
+| withdrawalsDisbursed | `WithdrawalRequest[]` | @relation("WithdrawalDisburser") |
+| earningsProposed | `EarningsRun[]` | @relation("EarningsProposer") |
+| earningsPosted | `EarningsRun[]` | @relation("EarningsPoster") |
+| earningsCancelled | `EarningsRun[]` | @relation("EarningsCanceller") |
 
 `@@index([role])` · `@@index([status])`
 
@@ -102,6 +108,8 @@ Enum values: `DEPOSIT`, `WITHDRAWAL`, `INTEREST`, `DIVIDEND`, `LOAN_DISBURSEMENT
 | loans | `Loan[]` | — |
 | investments | `MemberInvestment[]` | — |
 | dividendAllocations | `DividendAllocation[]` | — |
+| withdrawalRequests | `WithdrawalRequest[]` | — |
+| earningsAllocations | `EarningsAllocation[]` | — |
 
 `@@index([status])` · `@@index([createdAt])`
 
@@ -118,6 +126,8 @@ Enum values: `DEPOSIT`, `WITHDRAWAL`, `INTEREST`, `DIVIDEND`, `LOAN_DISBURSEMENT
 | member | `Member` | @relation(fields: [memberId], references: [id], onDelete: Restrict) |
 | transactions | `Transaction[]` | — |
 | dividendAllocations | `DividendAllocation[]` | — |
+| withdrawalRequests | `WithdrawalRequest[]` | — |
+| earningsAllocations | `EarningsAllocation[]` | — |
 
 `@@unique([id, memberId])` · `@@index([status])`
 
@@ -138,8 +148,112 @@ Enum values: `DEPOSIT`, `WITHDRAWAL`, `INTEREST`, `DIVIDEND`, `LOAN_DISBURSEMENT
 | performedBy | `User` | @relation("TransactionPerformer", fields: [performedById], references: [id], onDelete: Restrict) |
 | disbursedLoan | `Loan?` | — |
 | dividendAllocation | `DividendAllocation?` | — |
+| withdrawalRequest | `WithdrawalRequest?` | — |
+| earningsAllocation | `EarningsAllocation?` | — |
 
 `@@index([savingsAccountId, createdAt(sort: Desc)])` · `@@index([performedById, createdAt(sort: Desc)])` · `@@index([type, createdAt(sort: Desc)])`
+
+## WithdrawalRequestStatus
+
+Enum values: `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED`, `DISBURSED`.
+
+## WithdrawalPayoutMethod
+
+Enum values: `CASH`, `BANK_TRANSFER`, `MOBILE_MONEY`.
+
+## WithdrawalRequest
+
+| Field | Type (? optional; [] relation list) | Constraints / relation |
+| --- | --- | --- |
+| id | `String` | @id @default(cuid()) |
+| memberId | `String` | — |
+| savingsAccountId | `String` | — |
+| amount | `Decimal` | @db.Decimal(18, 2) |
+| payoutMethod | `WithdrawalPayoutMethod` | — |
+| payoutDetails | `String?` | @db.VarChar(120) |
+| reason | `String?` | @db.VarChar(240) |
+| status | `WithdrawalRequestStatus` | @default(PENDING) |
+| requestedById | `String` | — |
+| requestedAt | `DateTime` | @default(now()) @db.Timestamptz(3) |
+| reviewedById | `String?` | — |
+| reviewedAt | `DateTime?` | @db.Timestamptz(3) |
+| reviewComment | `String?` | @db.VarChar(500) |
+| disbursedById | `String?` | — |
+| disbursedAt | `DateTime?` | @db.Timestamptz(3) |
+| transactionId | `String?` | @unique |
+| cancelledAt | `DateTime?` | @db.Timestamptz(3) |
+| member | `Member` | @relation(fields: [memberId], references: [id], onDelete: Restrict) |
+| savingsAccount | `SavingsAccount` | @relation(fields: [savingsAccountId, memberId], references: [id, memberId], onDelete: Restrict) |
+| requestedBy | `User` | @relation("WithdrawalRequester", fields: [requestedById], references: [id], onDelete: Restrict) |
+| reviewedBy | `User?` | @relation("WithdrawalReviewer", fields: [reviewedById], references: [id], onDelete: Restrict) |
+| disbursedBy | `User?` | @relation("WithdrawalDisburser", fields: [disbursedById], references: [id], onDelete: Restrict) |
+| transaction | `Transaction?` | @relation(fields: [transactionId], references: [id], onDelete: Restrict) |
+
+`@@index([memberId, requestedAt(sort: Desc)])` · `@@index([savingsAccountId, status])` · `@@index([status, requestedAt])` · `@@index([requestedById])` · `@@index([reviewedById])` · `@@index([disbursedById])`
+
+## EarningsRunStatus
+
+Enum values: `PROPOSED`, `POSTED`, `CANCELLED`.
+
+## EarningsRun
+
+| Field | Type (? optional; [] relation list) | Constraints / relation |
+| --- | --- | --- |
+| id | `String` | @id @default(cuid()) |
+| month | `String` | @db.Char(7) // YYYY-MM |
+| periodEnd | `DateTime` | @db.Date |
+| interestCollected | `Decimal` | @db.Decimal(18, 2) |
+| memberSharePercent | `Decimal` | @db.Decimal(5, 2) |
+| memberPool | `Decimal` | @db.Decimal(18, 2) |
+| reserveAmount | `Decimal` | @db.Decimal(18, 2) |
+| forfeitedAmount | `Decimal` | @default(0) @db.Decimal(18, 2) |
+| calculationMethod | `String` | @default("DAILY_MINIMUM_BALANCE_INTEREST_ATTRIBUTION") |
+| calculationSnapshot | `Json` | — |
+| status | `EarningsRunStatus` | @default(PROPOSED) |
+| proposedById | `String` | — |
+| proposedAt | `DateTime` | @default(now()) @db.Timestamptz(3) |
+| postedById | `String?` | — |
+| postedAt | `DateTime?` | @db.Timestamptz(3) |
+| cancelledById | `String?` | — |
+| cancelledAt | `DateTime?` | @db.Timestamptz(3) |
+| proposedBy | `User` | @relation("EarningsProposer", fields: [proposedById], references: [id], onDelete: Restrict) |
+| postedBy | `User?` | @relation("EarningsPoster", fields: [postedById], references: [id], onDelete: Restrict) |
+| cancelledBy | `User?` | @relation("EarningsCanceller", fields: [cancelledById], references: [id], onDelete: Restrict) |
+| loans | `EarningsRunLoan[]` | — |
+| allocations | `EarningsAllocation[]` | — |
+
+`@@index([status, month])` · `@@index([proposedById])` · `@@index([postedById])` · `@@index([cancelledById])`
+
+## EarningsRunLoan
+
+| Field | Type (? optional; [] relation list) | Constraints / relation |
+| --- | --- | --- |
+| runId | `String` | — |
+| loanId | `String` | — |
+| interestRecognized | `Decimal` | @db.Decimal(18, 2) |
+| run | `EarningsRun` | @relation(fields: [runId], references: [id], onDelete: Restrict) |
+| loan | `Loan` | @relation(fields: [loanId], references: [id], onDelete: Restrict) |
+
+`@@id([runId, loanId])` · `@@index([loanId])`
+
+## EarningsAllocation
+
+| Field | Type (? optional; [] relation list) | Constraints / relation |
+| --- | --- | --- |
+| id | `String` | @id @default(cuid()) |
+| runId | `String` | — |
+| memberId | `String` | — |
+| savingsAccountId | `String` | — |
+| amount | `Decimal` | @db.Decimal(18, 2) |
+| earningDays | `Int` | — |
+| forfeited | `Boolean` | @default(false) |
+| transactionId | `String?` | @unique |
+| run | `EarningsRun` | @relation(fields: [runId], references: [id], onDelete: Restrict) |
+| member | `Member` | @relation(fields: [memberId], references: [id], onDelete: Restrict) |
+| savingsAccount | `SavingsAccount` | @relation(fields: [savingsAccountId, memberId], references: [id, memberId], onDelete: Restrict) |
+| transaction | `Transaction?` | @relation(fields: [transactionId], references: [id], onDelete: Restrict) |
+
+`@@unique([runId, memberId])` · `@@index([memberId])` · `@@index([savingsAccountId, memberId])`
 
 ## AuditLog
 
@@ -439,6 +553,7 @@ Enum values: `CASH`, `BANK_TRANSFER`, `MOBILE_MONEY`.
 | disbursementTransaction | `Transaction` | @relation(fields: [disbursementTransactionId], references: [id], onDelete: Restrict) |
 | schedule | `LoanSchedule[]` | — |
 | payments | `LoanPayment[]` | — |
+| earningsRecognized | `EarningsRunLoan[]` | — |
 
 `@@index([memberId, disbursementDate(sort: Desc)])` · `@@index([status])` · `@@index([disbursedById])`
 

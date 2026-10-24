@@ -73,6 +73,28 @@ for (const kind of ["deposit", "withdraw"]) add(`POST /api/savings/{accountId}/$
   effects: kind === "deposit" ? "Locks account, adds balance and DEPOSIT transaction, activates a PENDING member on deposit; DEPOSIT audit in the same transaction." : "Locks account, subtracts balance and adds WITHDRAWAL transaction; WITHDRAW audit in the same transaction.",
   screens: ["/dashboard/treasurer", "/dashboard/treasurer/members/{memberId}"], body: { amount: "50000.00", reference: "DEMO-RECEIPT-123", narrative: "Example savings entry" }, errors: "400 validation failure; 404 NOT_FOUND; 409 ACCOUNT_INACTIVE or INSUFFICIENT_BALANCE for withdrawal; shared 401/403/500/503 errors.",
 });
+const withdrawalRecord = "WithdrawalRequestRecord: id, amount, payoutMethod, payoutDetails, reason, status (PENDING, APPROVED, REJECTED, CANCELLED, DISBURSED), requestedAt, reviewedAt/reviewedBy/reviewComment, disbursedAt/disbursedBy, transactionReference, cancelledAt and member { id, memberNumber, name, accountNumber, balance }. Decimal values are strings.";
+const withdrawalOwnRule = "Another Treasurer must handle a request from a Treasurer's own linked membership.";
+add("GET /api/withdrawal-requests", "List withdrawal requests", "Savings", { policy: owned, input: "Optional query: status (WithdrawalRequestStatus) and memberId. Members are always restricted to their own memberId; another ID is forbidden.", output: `200 array of up to 100 ${withdrawalRecord} Newest first.`, conditions: "Member: own requests. Treasurer, Board and Administrator: all requests.", screens: ["/dashboard/client", "/dashboard/treasurer"], request: "/api/withdrawal-requests?status=PENDING" });
+add("POST /api/withdrawal-requests", "Request a savings withdrawal", "Savings", {
+  input: "JSON: amount (positive decimal string, up to 2 decimals), payoutMethod (CASH, BANK_TRANSFER, MOBILE_MONEY), payoutDetails (up to 120 characters; required unless CASH, ignored for CASH), optional reason (up to 240 characters). Unknown keys rejected.", output: "200 { id, status: PENDING }.",
+  conditions: "Member; ACTIVE membership and savings account. Amount must not exceed the savings balance minus the member's other PENDING or APPROVED requests.",
+  effects: "Locks the member's account so concurrent requests cannot over-commit savings, then creates a PENDING request; CREATE WithdrawalRequest audit. The savings balance does not change until payout.",
+  screens: ["/dashboard/client"], body: { amount: "50000.00", payoutMethod: "MOBILE_MONEY", payoutDetails: "+256700000123", reason: "Example school fees" }, errors: "400 validation failure; 403 non-Member or missing membership; 404 missing savings account; 409 inactive membership/account or INSUFFICIENT_BALANCE; shared mutation errors.",
+});
+add("POST /api/withdrawal-requests/{id}/cancel", "Cancel your withdrawal request", "Savings", { input: "JSON object {} is required by the mutation wrapper.", output: "200 { id, status: CANCELLED }.", conditions: "Member; own request; status PENDING or APPROVED.", effects: "Marks CANCELLED and releases the reserved amount; UPDATE WithdrawalRequest audit.", screens: ["/dashboard/client"], body: {}, errors: "404 missing or another member's request; 409 already closed; shared mutation errors." });
+for (const decision of ["approve", "reject"]) add(`POST /api/withdrawal-requests/{id}/${decision}`, `${decision === "approve" ? "Approve" : "Reject"} a withdrawal request`, "Savings", {
+  input: decision === "approve" ? "JSON: optional comment (up to 500 characters)." : "JSON: comment (required reason, 3–500 characters).", output: `200 { id, status: ${decision === "approve" ? "APPROVED" : "REJECTED"} }.`,
+  conditions: `Treasurer; request must be PENDING. ${decision === "approve" ? "The member's savings account must be ACTIVE and its balance must still cover the amount. " : ""}${withdrawalOwnRule}`,
+  effects: `Stores reviewer, timestamp and comment; member notification; ${decision === "approve" ? "APPROVE" : "REJECT"} WithdrawalRequest audit. ${decision === "approve" ? "Savings are not debited until payout." : "Releases the reserved amount."}`,
+  screens: ["/dashboard/treasurer"], body: { comment: decision === "approve" ? "Example review completed" : "Example: please visit the office to confirm" }, errors: `400 invalid comment; 403 own request; 404 missing request; 409 already reviewed${decision === "approve" ? ", inactive account or INSUFFICIENT_BALANCE" : ""}; shared mutation errors.`,
+});
+add("POST /api/withdrawal-requests/{id}/disburse", "Pay out an approved withdrawal request", "Savings", {
+  input: "JSON: password (Treasurer's current password, 1–200 characters), optional reference (payout transaction ID, up to 80 characters; defaults to WDR-{id}), confirm: true. Unknown keys rejected.", output: "200 { id, status: DISBURSED, balance: decimal string }.",
+  conditions: `Treasurer; valid password; request must be APPROVED; savings account ACTIVE with enough balance at payout. ${withdrawalOwnRule} Eight failed payout attempts in ten minutes pause further attempts.`,
+  effects: "Locks request and account, subtracts balance, creates a WITHDRAWAL transaction, marks DISBURSED with a link to that transaction, stores member notification and WITHDRAW WithdrawalRequest audit atomically. Repeat/concurrent calls cannot pay twice.",
+  screens: ["/dashboard/treasurer"], body: { password: "<treasurer-password>", reference: "DEMO-MM-123", confirm: true }, errors: "403 incorrect password or own request; 404 missing request; 409 not approved, inactive account or INSUFFICIENT_BALANCE; 429 too many failed attempts; shared mutation errors.",
+});
 
 add("GET /api/loan-types", "List loan products", "Loans", { output: "200 array of loan types with rates, term limits, savings multiple, fee and active flag.", conditions: "All signed-in roles. Administrator sees inactive products; other roles see active products only.", screens: ["/dashboard/loans/apply", "/dashboard/admin/loan-types"] });
 for (const method of ["POST", "PATCH"]) add(`${method} /api/loan-types${method === "PATCH" ? "/{id}" : ""}`, `${method === "POST" ? "Create" : "Edit or deactivate"} a loan product`, "Loans", {
@@ -144,19 +166,43 @@ add("POST /api/dividend-runs/{id}/post", "Post approved dividends to savings", "
 });
 add("GET /api/dividend-history", "View posted dividend history", "Dividends", { policy: owned, input: memberFilter, output: "200 DividendHistoryRecord[]: id, amount, averageBalance and run { financialYear, periodStart, periodEnd, postedAt }.", conditions: "Member: own history; staff: any member. Only POSTED runs appear.", screens: ["/dashboard/client", investmentScreen] });
 
+const earningsScreen = "/dashboard/earnings";
+const earningsRule = "Interest collected (LoanSchedule.interestPaid) not yet shared by a POSTED run, capped at interest accrued through the month end. Each installment's interest is spread evenly from the previous due date to its due date; new interest funds the earliest unfunded days. Each day's slice is split by every savings account's lowest balance during that Kampala day.";
+add("GET /api/earnings-runs", "Review member earnings runs", "Earnings", { policy: { ...session, only: ["TREASURER", "BOARD", "ADMIN"] }, output: "200 EarningsRunRecord[] (latest 60): month, periodEnd, interestCollected, memberSharePercent, memberPool, reserveAmount, forfeitedAmount, status, frozen calculationSnapshot { method, firstDay, lastDay, shares[], loans[] }, proposer/poster names and timestamps.", conditions: "Staff roles only. Member history is served by /api/earnings-history.", screens: [earningsScreen] });
+add("POST /api/earnings-runs", "Calculate a month's member earnings", "Earnings", {
+  input: "JSON: month (YYYY-MM). Unknown keys rejected.", output: "200 PROPOSED earnings run with frozen member shares.",
+  conditions: `Treasurer; month must have ended (Kampala); no other PROPOSED run; month later than the latest POSTED month; at least some newly collected interest. ${earningsRule}`,
+  effects: "Freezes the member share setting, per-member amounts (largest-remainder cents) and per-loan recognized interest; CREATE EarningsRun audit. Does not credit savings yet.",
+  screens: [earningsScreen], body: { month: "2026-03" }, errors: "400 invalid month or month not completed; 409 open proposal, later month already posted, nothing newly collected or invalid share setting; shared mutation errors.",
+});
+add("POST /api/earnings-runs/{id}/post", "Post member earnings to savings", "Earnings", {
+  input: "JSON: password (Treasurer's current password, 1–200 characters), confirm: true. Unknown keys rejected.", output: "200 posted earnings run.",
+  conditions: "Treasurer; valid password (five failures in ten minutes pause attempts); run PROPOSED and no later month posted; frozen shares must still total the member pool.",
+  effects: "Credits INTEREST transactions (reference ERN-YYYY-MM) to ACTIVE savings accounts, records EarningsAllocation rows, retains shares of inactive accounts as forfeitedAmount, notifies credited members and marks POSTED with DISBURSE EarningsRun audit atomically. Repeat/concurrent calls cannot pay twice.",
+  screens: [earningsScreen], body: { password: "<treasurer-password>", confirm: true }, errors: "403 incorrect password; 404 missing run; 409 already posted/cancelled, later month posted or inconsistent proposal; 429 too many failed attempts; shared mutation errors.",
+});
+add("POST /api/earnings-runs/{id}/cancel", "Cancel an earnings proposal", "Earnings", { input: "JSON object {} is required by the mutation wrapper.", output: "200 cancelled earnings run.", conditions: "Treasurer; run must be PROPOSED.", effects: "Marks CANCELLED; its recognized interest is released for a new calculation. UPDATE EarningsRun audit.", screens: [earningsScreen], body: {}, errors: "404 missing run; 409 not an open proposal; shared mutation errors." });
+add("GET /api/earnings-history", "View credited loan earnings", "Earnings", { policy: owned, input: memberFilter, output: "200 EarningsHistoryRecord[]: id, amount, earningDays and run { month, periodEnd, postedAt }.", conditions: "Member: own history; staff: any member. Only credited (non-retained) shares of POSTED runs appear.", screens: ["/dashboard/client"] });
+add("GET /api/earnings-settings", "Read the member earnings share", "Earnings", { output: "200 { memberSharePercent: decimal string }.", conditions: "All authenticated roles may read this API; the setting is edited on Member Earnings by an Administrator.", screens: [earningsScreen] });
+add("PATCH /api/earnings-settings", "Set the member earnings share", "Earnings", { input: "JSON: memberSharePercent (0–100, up to 2 decimals).", output: "200 { memberSharePercent }.", conditions: "Administrator. Applies to runs calculated afterwards; existing proposals keep their frozen share.", effects: "Saves SystemSetting MEMBER_EARNINGS_SHARE_PERCENT; UPDATE audit.", screens: [earningsScreen], body: { memberSharePercent: "70" } });
+
+add("GET /api/handbook", "Download the built application handbook", "Operations", { output: "200 text/html (docs/index.html) with Cache-Control: no-cache; 404 text/plain when the handbook has not been built.", conditions: "Any signed-in user; the proxy rejects requests without a session. The handler itself performs no role check.", effects: readOnly, errors: "401 unauthenticated (proxy); 404 handbook not built." });
+
 export { operations };
 
 // These entries describe screen access, including detail pages absent from the
 // sidebar. The build rejects missing/new pages and broken operation-screen links.
 export const pages = {
   "/": ["Entry point", "everyone", "Redirects to sign-in or the role dashboard.", "access"],
+  "/handbook": ["Application handbook", "everyone", "Renders the built docs/index.html. Outside the session proxy, so it opens without signing in.", "technical"],
   "/sign-in": ["Sign in", "everyone", "Enter member number, username, phone or email and password. Signed-in users are redirected.", "access"],
   "/forgot-password": ["Password recovery", "everyone", "Request and enter a reset code/token; pilot preview is shown here.", "access"],
   "/change-password": ["Change password", "everyone", "Signed-in users only; required on first sign-in with temporary credentials.", "access"],
   "/dashboard": ["Dashboard redirect", "everyone", "Routes an authenticated user to their role's landing page.", "access"],
-  "/dashboard/client": ["Member dashboard", "CLIENT", "Savings summary, own transaction log and posted dividends.", "savings"],
+  "/dashboard/client": ["Member dashboard", "CLIENT", "Savings summary, withdrawal requests, loan earnings, own transaction log and posted dividends.", "savings"],
+  "/dashboard/earnings": ["Member Earnings", "TREASURER BOARD ADMIN", "Calculate, review and post monthly shares of collected loan interest; Administrators set the member share.", "investments"],
   "/dashboard/client/profile": ["Your profile", "CLIENT", "Update your contact and next-of-kin details.", "members"],
-  "/dashboard/treasurer": ["Treasurer Desk", "TREASURER", "Savings summaries, member ledgers and deposit/withdrawal entry.", "savings"],
+  "/dashboard/treasurer": ["Treasurer Desk", "TREASURER", "Savings summaries, member withdrawal-request queue, member ledgers and deposit/withdrawal entry.", "savings"],
   "/dashboard/treasurer/members/{memberId}": ["Member savings ledger", "TREASURER", "Open from Treasurer Desk; inspect history and record savings entries.", "savings"],
   "/dashboard/board": ["Board Desk", "BOARD", "Member-count oversight snapshot; use Loans and Dividends for decisions.", "investments"],
   "/dashboard/admin": ["Admin Overview", "ADMIN", "Member counts and Board threshold summary.", "members"],

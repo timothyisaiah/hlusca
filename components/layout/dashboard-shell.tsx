@@ -89,7 +89,9 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
             {user.name ?? "Platform User"}
           </Badge>
         </header>
-        <main className="w-full flex-1 px-4 py-6 md:px-8 md:py-8 lg:px-10">
+        {/* Named container: page grids respond to the space left beside the
+            sidebar (expanded or collapsed), not to the viewport width. */}
+        <main className="@container/main w-full min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 lg:px-10">
           {children}
         </main>
       </div>

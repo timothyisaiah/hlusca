@@ -190,6 +190,11 @@ export function DividendWorkspace({
                   identifies the run. Creating a proposal calculates each
                   member’s share for Board review.
                 </p>
+                <p className="text-base leading-7 text-[var(--muted-foreground)] sm:col-span-2">
+                  Fund the pool from non-interest surplus (fees, investment
+                  returns). Loan interest is already shared with members
+                  monthly under Member Earnings.
+                </p>
                 <div className="sm:col-span-2">
                   <Button type="submit" disabled={busy}>
                     {busy ? "Calculating…" : "Calculate and propose"}

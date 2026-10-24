@@ -1,15 +1,26 @@
 import { notFound } from "next/navigation";
 import { DividendHistory } from "@/components/investments/member-history";
+import { EarningsHistory } from "@/components/earnings/earnings-history";
+import { memberEarningsSummary } from "@/lib/earnings/service";
 import { dividendHistory } from "@/lib/investments/service";
 import { getLoanActor } from "@/lib/loans/service";
 
 import { ActivityDonut } from "@/components/savings/activity-donut";
 import { MemberTransactionLog } from "@/components/savings/member-transaction-log";
+import { ClientWithdrawalRequests } from "@/components/savings/withdrawal-requests";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResponsiveStatCards } from "@/components/layout/responsive-stat-cards";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ResponsiveStatCards, StatCard } from "@/components/layout/responsive-stat-cards";
+import { Money } from "@/components/ui/money";
 import { requireRole } from "@/lib/auth/server";
 import { getClientSavingsDashboard } from "@/lib/savings/service";
+import { getMemberWithdrawalOverview } from "@/lib/savings/withdrawals";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
 
 export default async function ClientDashboardPage() {
@@ -20,11 +31,17 @@ export default async function ClientDashboardPage() {
   }
 
   const actor = await getLoanActor(user.id);
-  const [dashboard, dividends] = await Promise.all([
+  const [dashboard, dividends, withdrawals, earnings] = await Promise.all([
     getClientSavingsDashboard(user.memberId),
     dividendHistory(actor),
+    getMemberWithdrawalOverview(user.memberId),
+    memberEarningsSummary(actor),
   ]);
   const { member, ledger } = dashboard;
+  const availableToWithdraw = Math.max(
+    0,
+    Number(member.account.balance) - Number(withdrawals.openTotal),
+  );
 
   return (
     <section className="space-y-6 md:space-y-8">
@@ -43,9 +60,11 @@ export default async function ClientDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
-        <Card className="overflow-hidden border-0 bg-[linear-gradient(135deg,#ffffff,#f1efff_55%,#dce7ff)] shadow-[0_30px_90px_rgba(89,102,255,0.14)]">
-          <CardContent className="relative p-6 md:p-8">
+      <div className="grid grid-cols-1 gap-6 @5xl/main:grid-cols-[2fr_1fr]">
+        <Card className="flex flex-col overflow-hidden border-0 bg-[linear-gradient(135deg,#ffffff,#f1efff_55%,#dce7ff)] shadow-[0_30px_90px_rgba(89,102,255,0.14)]">
+          {/* Fills the row height set by the snapshot card: balance on top,
+              detail tiles anchored to the bottom instead of leaving a gap. */}
+          <CardContent className="@container relative flex flex-1 flex-col justify-between gap-8 p-6 md:p-8">
             <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[rgba(89,102,255,0.12)]" />
             <div className="absolute bottom-0 right-6 h-28 w-28 rounded-full bg-[rgba(244,114,182,0.08)] blur-2xl" />
             <div className="relative space-y-6">
@@ -58,38 +77,42 @@ export default async function ClientDashboardPage() {
                 <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
                   Total balance
                 </p>
-                <p className="mt-3 text-3xl font-bold tracking-tight tabular-nums text-[var(--foreground)] md:text-4xl">
-                  {formatCurrency(member.account.balance)}
+                <Money
+                  value={member.account.balance}
+                  size="xl"
+                  className="mt-3 text-[var(--foreground)]"
+                />
+              </div>
+            </div>
+
+            <div className="relative grid gap-4 @xl:grid-cols-3">
+              <div className="min-w-0 rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                  Net flow
+                </p>
+                <Money
+                  value={ledger.summary.netFlow}
+                  size="md"
+                  className="mt-2 text-[var(--foreground)]"
+                />
+              </div>
+              <div className="min-w-0 rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                  Last activity
+                </p>
+                <p className="mt-2 text-base font-semibold text-[var(--foreground)]">
+                  {ledger.summary.lastTransactionAt
+                    ? formatDateTime(ledger.summary.lastTransactionAt)
+                    : "No savings activity yet"}
                 </p>
               </div>
-
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-                    Net flow
-                  </p>
-                  <p className="mt-2 text-lg font-semibold tabular-nums text-[var(--foreground)]">
-                    {formatCurrency(ledger.summary.netFlow)}
-                  </p>
-                </div>
-                <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-                    Last activity
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
-                    {ledger.summary.lastTransactionAt
-                      ? formatDateTime(ledger.summary.lastTransactionAt)
-                      : "No savings activity yet"}
-                  </p>
-                </div>
-                <div className="rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-                    Account opened
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
-                    {formatDate(member.account.openedAt)}
-                  </p>
-                </div>
+              <div className="min-w-0 rounded-[24px] border border-white/80 bg-white/80 px-4 py-4 shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                  Account opened
+                </p>
+                <p className="mt-2 text-base font-semibold text-[var(--foreground)]">
+                  {formatDate(member.account.openedAt)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -98,17 +121,18 @@ export default async function ClientDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Activity snapshot</CardTitle>
+            <CardDescription>
+              How your savings have moved between deposits and withdrawals.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ActivityDonut
-              title="Savings mix"
-              description="A quick look at how your ledger has moved between deposits and withdrawals."
               centerValue={`${ledger.summary.depositShare}%`}
               centerLabel="Deposit share"
               primaryLabel="Deposited"
-              primaryValue={formatCurrency(ledger.summary.totalDeposited)}
+              primaryValue={ledger.summary.totalDeposited}
               secondaryLabel="Withdrawn"
-              secondaryValue={formatCurrency(ledger.summary.totalWithdrawn)}
+              secondaryValue={ledger.summary.totalWithdrawn}
               percent={ledger.summary.depositShare}
             />
           </CardContent>
@@ -116,49 +140,45 @@ export default async function ClientDashboardPage() {
       </div>
 
       <ResponsiveStatCards>
-        <Card>
-          <CardHeader>
-            <CardTitle>Savings balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold tabular-nums md:text-4xl">
-              {formatCurrency(member.account.balance)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total deposited</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold tabular-nums md:text-4xl">
-              {formatCurrency(ledger.summary.totalDeposited)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total withdrawn</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold tabular-nums md:text-4xl">
-              {formatCurrency(ledger.summary.totalWithdrawn)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Transactions logged</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold tabular-nums md:text-4xl">
-              {ledger.summary.transactionCount}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          label="Available to withdraw"
+          value={<Money value={availableToWithdraw} />}
+          hint={
+            Number(withdrawals.openTotal) > 0
+              ? `${formatCurrency(withdrawals.openTotal)} reserved by open requests`
+              : "Your full savings balance"
+          }
+        />
+        <StatCard
+          label="Total deposited"
+          value={<Money value={ledger.summary.totalDeposited} />}
+        />
+        <StatCard
+          label="Total withdrawn"
+          value={<Money value={ledger.summary.totalWithdrawn} />}
+        />
+        <StatCard
+          label="Loan earnings this year"
+          value={<Money value={earnings.yearToDate} />}
+          hint={
+            earnings.accruing && Number(earnings.accruing) > 0
+              ? `≈ ${formatCurrency(earnings.accruing)} accruing, credited monthly`
+              : "Your share of interest paid by borrowers"
+          }
+        />
       </ResponsiveStatCards>
 
-      <DividendHistory rows={dividends} />
+      <ClientWithdrawalRequests
+        requests={withdrawals.requests}
+        balance={member.account.balance}
+        openTotal={withdrawals.openTotal}
+        canRequest={member.status === "ACTIVE" && member.account.status === "ACTIVE"}
+      />
+
+      <div className="grid min-w-0 grid-cols-1 gap-6 @5xl/main:grid-cols-2">
+        <EarningsHistory rows={earnings.history} />
+        <DividendHistory rows={dividends} />
+      </div>
 
       <Card>
         <CardHeader>

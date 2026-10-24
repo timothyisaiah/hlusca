@@ -31,14 +31,14 @@ A reset token expires after 15 minutes and can be consumed once. Email is prefer
 
 ## Find your way around
 
-On a computer, use the left sidebar. It can be collapsed into icons; expand it to see menu names. On a phone, select **Open navigation** in the top bar, choose a destination, then close the drawer if needed. The application remembers the desktop sidebar preference on that browser.
+On a computer, use the left sidebar. It can be collapsed into icons; expand it to see menu names, and hover a menu item for a short description. If the window is short, the menu scrolls on its own while **Sign out** stays visible at the bottom. On a phone, select **Open navigation** in the top bar, choose a destination, then close the drawer if needed. The application remembers the desktop sidebar preference on that browser. Page layouts adapt to the space left beside the sidebar, so expanding or collapsing it re-flows cards without hiding figures.
 
 | Your role | Sidebar destinations |
 | --- | --- |
 | Member | Dashboard, Profile, Loans, Investments |
-| Treasurer | Treasurer Desk, Loans, Investments, Dividends |
-| Board | Board Desk, Loans, Investments, Dividends |
-| Administrator | Admin Overview, Members, Loans, Investments, Dividends, Loan Configuration |
+| Treasurer | Treasurer Desk, Loans, Investments, Dividends, Member Earnings |
+| Board | Board Desk, Loans, Investments, Dividends, Member Earnings |
+| Administrator | Admin Overview, Members, Loans, Investments, Dividends, Member Earnings, Loan Configuration |
 
 The [generated screen directory](generated/navigation.md) is the definitive menu inventory. Detail pages open from lists. For example, a Treasurer opens a member ledger from Treasurer Desk; a loan record opens from Loans. Use the page's back link to return to the relevant list.
 

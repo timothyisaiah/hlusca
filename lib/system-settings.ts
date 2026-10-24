@@ -1,7 +1,10 @@
 import type { PrismaClient, Prisma, SystemSetting } from "@prisma/client";
 
 import { prisma } from "./db";
-import { SYSTEM_SETTING_KEYS } from "./constants";
+import {
+  DEFAULT_MEMBER_EARNINGS_SHARE_PERCENT,
+  SYSTEM_SETTING_KEYS,
+} from "./constants";
 
 type DbLike = PrismaClient | Prisma.TransactionClient;
 
@@ -21,6 +24,15 @@ export async function ensureCoreSystemSettings(client: DbLike = prisma) {
     create: {
       key: SYSTEM_SETTING_KEYS.MEMBER_NUMBER_SEQUENCE,
       value: "0",
+    },
+  });
+
+  await client.systemSetting.upsert({
+    where: { key: SYSTEM_SETTING_KEYS.MEMBER_EARNINGS_SHARE_PERCENT },
+    update: {},
+    create: {
+      key: SYSTEM_SETTING_KEYS.MEMBER_EARNINGS_SHARE_PERCENT,
+      value: DEFAULT_MEMBER_EARNINGS_SHARE_PERCENT,
     },
   });
 }

@@ -1,4 +1,12 @@
 <!-- BEGIN:nextjs-agent-rules -->
+# Global Rules
+
+## Environment files and secrets
+
+- Never read `.env` files directly, including with shell commands, file-reading tools, searches, scripts, or editor integrations.
+- When environment values are required, use only the specific values supplied to the process through its environment or piped into the command at execution time.
+- Never print, log, echo, persist, or otherwise expose environment-variable values or secrets.
+- Use `.env.example` only to discover variable names and expected configuration shape; it must not contain real secrets.
 
 # This is NOT the Next.js you know
 

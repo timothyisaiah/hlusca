@@ -181,6 +181,37 @@ export const savingsLedgerQuerySchema = z
     message: "The start date must be before the end date.",
     path: ["to"],
   });
+
+export const withdrawalRequestSchema = z
+  .object({
+    amount: moneySchema,
+    payoutMethod: z.enum(["CASH", "BANK_TRANSFER", "MOBILE_MONEY"]),
+    payoutDetails: optionalTextField(120),
+    reason: optionalTextField(240),
+  })
+  .strict()
+  .refine((value) => value.payoutMethod === "CASH" || value.payoutDetails, {
+    message: "Enter the mobile money number or bank account to pay into.",
+    path: ["payoutDetails"],
+  });
+
+export const withdrawalApproveSchema = z
+  .object({ comment: optionalTextField(500) })
+  .strict();
+
+export const withdrawalRejectSchema = z
+  .object({ comment: z.string().trim().min(3).max(500) })
+  .strict();
+
+export const withdrawalDisburseSchema = z
+  .object({
+    password: z.string().min(1).max(200),
+    reference: optionalTextField(80),
+    confirm: z.literal(true),
+  })
+  .strict();
+
+export const withdrawalCancelSchema = z.object({}).strict();
 ```
 
 ## lib/loans/schemas.ts

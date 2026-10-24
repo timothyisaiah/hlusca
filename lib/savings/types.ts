@@ -3,6 +3,8 @@ import type {
   SavingsAccountStatus,
   TransactionType,
   UserRole,
+  WithdrawalPayoutMethod,
+  WithdrawalRequestStatus,
 } from "@prisma/client";
 
 export interface SavingsMemberListItem {
@@ -86,4 +88,38 @@ export interface TreasurerSavingsWorkspace {
 export interface ClientSavingsDashboard {
   member: SavingsMemberListItem;
   ledger: SavingsLedgerPage;
+}
+
+export interface WithdrawalRequestRecord {
+  id: string;
+  amount: string;
+  payoutMethod: WithdrawalPayoutMethod;
+  payoutDetails: string | null;
+  reason: string | null;
+  status: WithdrawalRequestStatus;
+  requestedAt: string;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  reviewComment: string | null;
+  disbursedAt: string | null;
+  disbursedBy: string | null;
+  transactionReference: string | null;
+  cancelledAt: string | null;
+  member: {
+    id: string;
+    memberNumber: string;
+    name: string;
+    accountNumber: string;
+    balance: string;
+  };
+}
+
+export interface MemberWithdrawalOverview {
+  requests: WithdrawalRequestRecord[];
+  openTotal: string;
+}
+
+export interface TreasurerWithdrawalQueue {
+  open: WithdrawalRequestRecord[];
+  recent: WithdrawalRequestRecord[];
 }

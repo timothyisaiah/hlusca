@@ -36,6 +36,7 @@ Allowed means the role may attempt the action; the conditions on its endpoint en
 
 | Action / API | Member | Treasurer | Board | Administrator | Scope and prerequisites |
 | --- | --- | --- | --- | --- | --- |
+| [Download the built application handbook](endpoints.md#get-api-handbook) | Allowed | Allowed | Allowed | Allowed | Any signed-in user; the proxy rejects requests without a session. The handler itself performs no role check. |
 
 ## Dividends
 
@@ -47,6 +48,18 @@ Allowed means the role may attempt the action; the conditions on its endpoint en
 | [Approve a dividend proposal](endpoints.md#post-api-dividend-runs-id-approve) | — | — | Allowed | — | Board; run must be PROPOSED. Its creator cannot review it, even after a role change. |
 | [Post approved dividends to savings](endpoints.md#post-api-dividend-runs-id-post) | — | Allowed | — | — | Treasurer; valid password; APPROVED and not yet posted; approver cannot post the same run. Rechecks every recipient's member/account status and saved allocation integrity. |
 | [Reject a dividend proposal](endpoints.md#post-api-dividend-runs-id-reject) | — | — | Allowed | — | Board; run must be PROPOSED. Its creator cannot review it, even after a role change. |
+
+## Earnings
+
+| Action / API | Member | Treasurer | Board | Administrator | Scope and prerequisites |
+| --- | --- | --- | --- | --- | --- |
+| [View credited loan earnings](endpoints.md#get-api-earnings-history) | Own records | Allowed | Allowed | Allowed | Member: own history; staff: any member. Only credited (non-retained) shares of POSTED runs appear. |
+| [Review member earnings runs](endpoints.md#get-api-earnings-runs) | — | Allowed | Allowed | Allowed | Staff roles only. Member history is served by /api/earnings-history. |
+| [Read the member earnings share](endpoints.md#get-api-earnings-settings) | Allowed | Allowed | Allowed | Allowed | All authenticated roles may read this API; the setting is edited on Member Earnings by an Administrator. |
+| [Set the member earnings share](endpoints.md#patch-api-earnings-settings) | — | — | — | Allowed | Administrator. Applies to runs calculated afterwards; existing proposals keep their frozen share. |
+| [Calculate a month's member earnings](endpoints.md#post-api-earnings-runs) | — | Allowed | — | — | Treasurer; month must have ended (Kampala); no other PROPOSED run; month later than the latest POSTED month; at least some newly collected interest. Interest collected (LoanSchedule.interestPaid) not yet shared by a POSTED run, capped at interest accrued through the month end. Each installment's interest is spread evenly from the previous due date to its due date; new interest funds the earliest unfunded days. Each day's slice is split by every savings account's lowest balance during that Kampala day. |
+| [Cancel an earnings proposal](endpoints.md#post-api-earnings-runs-id-cancel) | — | Allowed | — | — | Treasurer; run must be PROPOSED. |
+| [Post member earnings to savings](endpoints.md#post-api-earnings-runs-id-post) | — | Allowed | — | — | Treasurer; valid password (five failures in ten minutes pause attempts); run PROPOSED and no later month posted; frozen shares must still total the member pool. |
 
 ## Investments
 
@@ -81,8 +94,14 @@ Allowed means the role may attempt the action; the conditions on its endpoint en
 | Action / API | Member | Treasurer | Board | Administrator | Scope and prerequisites |
 | --- | --- | --- | --- | --- | --- |
 | [View or export a savings ledger](endpoints.md#get-api-members-id-transactions) | Own records | Allowed | Allowed | Allowed | Member: own ledger. Treasurer, Board, Administrator: any member ledger. |
+| [List withdrawal requests](endpoints.md#get-api-withdrawal-requests) | Own records | Allowed | Allowed | Allowed | Member: own requests. Treasurer, Board and Administrator: all requests. |
 | [Record a savings deposit](endpoints.md#post-api-savings-accountid-deposit) | — | Allowed | — | — | Treasurer; savings account must be ACTIVE. The handler does not forbid the Treasurer's own savings account. |
 | [Record a savings withdrawal](endpoints.md#post-api-savings-accountid-withdraw) | — | Allowed | — | — | Treasurer; ACTIVE savings account and enough available balance. The handler does not forbid the Treasurer's own savings account. |
+| [Request a savings withdrawal](endpoints.md#post-api-withdrawal-requests) | Allowed | — | — | — | Member; ACTIVE membership and savings account. Amount must not exceed the savings balance minus the member's other PENDING or APPROVED requests. |
+| [Approve a withdrawal request](endpoints.md#post-api-withdrawal-requests-id-approve) | — | Allowed | — | — | Treasurer; request must be PENDING. The member's savings account must be ACTIVE and its balance must still cover the amount. Another Treasurer must handle a request from a Treasurer's own linked membership. |
+| [Cancel your withdrawal request](endpoints.md#post-api-withdrawal-requests-id-cancel) | Allowed | — | — | — | Member; own request; status PENDING or APPROVED. |
+| [Pay out an approved withdrawal request](endpoints.md#post-api-withdrawal-requests-id-disburse) | — | Allowed | — | — | Treasurer; valid password; request must be APPROVED; savings account ACTIVE with enough balance at payout. Another Treasurer must handle a request from a Treasurer's own linked membership. Eight failed payout attempts in ten minutes pause further attempts. |
+| [Reject a withdrawal request](endpoints.md#post-api-withdrawal-requests-id-reject) | — | Allowed | — | — | Treasurer; request must be PENDING. Another Treasurer must handle a request from a Treasurer's own linked membership. |
 
 ## Public and service operations
 

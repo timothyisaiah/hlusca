@@ -1,9 +1,9 @@
 {
   "version": 1,
   "counts": {
-    "routeFiles": 36,
-    "operations": 45,
-    "pages": 20
+    "routeFiles": 47,
+    "operations": 59,
+    "pages": 22
   },
   "navigation": [
     {
@@ -88,6 +88,16 @@
     },
     {
       "roles": [
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "href": "/dashboard/earnings",
+      "label": "Member Earnings",
+      "description": "Monthly share of collected loan interest by daily balances."
+    },
+    {
+      "roles": [
         "ADMIN"
       ],
       "href": "/dashboard/admin/loan-types",
@@ -169,6 +179,12 @@
       "audience": "TREASURER BOARD ADMIN"
     },
     {
+      "path": "/dashboard/earnings",
+      "source": "app/dashboard/earnings/page.tsx",
+      "title": "Member Earnings",
+      "audience": "TREASURER BOARD ADMIN"
+    },
+    {
       "path": "/dashboard/investments",
       "source": "app/dashboard/investments/page.tsx",
       "title": "Investments",
@@ -209,6 +225,12 @@
       "source": "app/dashboard/treasurer/page.tsx",
       "title": "Treasurer Desk",
       "audience": "TREASURER"
+    },
+    {
+      "path": "/handbook",
+      "source": "app/handbook/page.tsx",
+      "title": "Application handbook",
+      "audience": "everyone"
     },
     {
       "path": "/",
@@ -416,6 +438,147 @@
       ],
       "access": {
         "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/earnings-history",
+      "method": "GET",
+      "path": "/api/earnings-history",
+      "source": "app/api/earnings-history/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [
+        "memberFilterSchema"
+      ],
+      "title": "View credited loan earnings",
+      "group": "Earnings",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "Optional query memberId. Members are always restricted to their linked memberId; another ID is forbidden. Staff may omit memberId to list all members' records.",
+      "output": "200 EarningsHistoryRecord[]: id, amount, earningDays and run { month, periodEnd, postedAt }.",
+      "conditions": "Member: own history; staff: any member. Only credited (non-retained) shares of POSTED runs appear.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/client"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/earnings-runs",
+      "method": "GET",
+      "path": "/api/earnings-runs",
+      "source": "app/api/earnings-runs/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "Review member earnings runs",
+      "group": "Earnings",
+      "policy": {
+        "kind": "session",
+        "only": [
+          "TREASURER",
+          "BOARD",
+          "ADMIN"
+        ]
+      },
+      "input": "No request body.",
+      "output": "200 EarningsRunRecord[] (latest 60): month, periodEnd, interestCollected, memberSharePercent, memberPool, reserveAmount, forfeitedAmount, status, frozen calculationSnapshot { method, firstDay, lastDay, shares[], loans[] }, proposer/poster names and timestamps.",
+      "conditions": "Staff roles only. Member history is served by /api/earnings-history.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/earnings"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/earnings-settings",
+      "method": "GET",
+      "path": "/api/earnings-settings",
+      "source": "app/api/earnings-settings/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [],
+      "title": "Read the member earnings share",
+      "group": "Earnings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "No request body.",
+      "output": "200 { memberSharePercent: decimal string }.",
+      "conditions": "All authenticated roles may read this API; the setting is edited on Member Earnings by an Administrator.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/earnings"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/handbook",
+      "method": "GET",
+      "path": "/api/handbook",
+      "source": "app/api/handbook/route.ts",
+      "guard": "custom",
+      "roles": null,
+      "schemas": [],
+      "title": "Download the built application handbook",
+      "group": "Operations",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "No request body.",
+      "output": "200 text/html (docs/index.html) with Cache-Control: no-cache; 404 text/plain when the handbook has not been built.",
+      "conditions": "Any signed-in user; the proxy rejects requests without a session. The handler itself performs no role check.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [],
+      "errors": "401 unauthenticated (proxy); 404 handbook not built.",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
         "TREASURER": "Allowed",
         "BOARD": "Allowed",
         "ADMIN": "Allowed"
@@ -894,6 +1057,84 @@
         "CLIENT": "Own records",
         "TREASURER": "Allowed",
         "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "GET /api/withdrawal-requests",
+      "method": "GET",
+      "path": "/api/withdrawal-requests",
+      "source": "app/api/withdrawal-requests/route.ts",
+      "guard": "loanRead",
+      "roles": null,
+      "schemas": [
+        "querySchema"
+      ],
+      "title": "List withdrawal requests",
+      "group": "Savings",
+      "policy": {
+        "kind": "session",
+        "own": true
+      },
+      "input": "Optional query: status (WithdrawalRequestStatus) and memberId. Members are always restricted to their own memberId; another ID is forbidden.",
+      "output": "200 array of up to 100 WithdrawalRequestRecord: id, amount, payoutMethod, payoutDetails, reason, status (PENDING, APPROVED, REJECTED, CANCELLED, DISBURSED), requestedAt, reviewedAt/reviewedBy/reviewComment, disbursedAt/disbursedBy, transactionReference, cancelledAt and member { id, memberNumber, name, accountNumber, balance }. Decimal values are strings. Newest first.",
+      "conditions": "Member: own requests. Treasurer, Board and Administrator: all requests.",
+      "effects": "Reads records; no business mutation or read audit is performed by this handler.",
+      "screens": [
+        "/dashboard/client",
+        "/dashboard/treasurer"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "request": "/api/withdrawal-requests?status=PENDING",
+      "allowed": [
+        "CLIENT",
+        "TREASURER",
+        "BOARD",
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "Own records",
+        "TREASURER": "Allowed",
+        "BOARD": "Allowed",
+        "ADMIN": "Allowed"
+      }
+    },
+    {
+      "key": "PATCH /api/earnings-settings",
+      "method": "PATCH",
+      "path": "/api/earnings-settings",
+      "source": "app/api/earnings-settings/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "ADMIN"
+      ],
+      "schemas": [
+        "earningsSettingsSchema"
+      ],
+      "auditAction": "UPDATE",
+      "title": "Set the member earnings share",
+      "group": "Earnings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: memberSharePercent (0–100, up to 2 decimals).",
+      "output": "200 { memberSharePercent }.",
+      "conditions": "Administrator. Applies to runs calculated afterwards; existing proposals keep their frozen share.",
+      "effects": "Saves SystemSetting MEMBER_EARNINGS_SHARE_PERCENT; UPDATE audit.",
+      "screens": [
+        "/dashboard/earnings"
+      ],
+      "errors": "401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler.",
+      "body": {
+        "memberSharePercent": "70"
+      },
+      "allowed": [
+        "ADMIN"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "—",
+        "BOARD": "—",
         "ADMIN": "Allowed"
       }
     },
@@ -1451,6 +1692,122 @@
       }
     },
     {
+      "key": "POST /api/earnings-runs",
+      "method": "POST",
+      "path": "/api/earnings-runs",
+      "source": "app/api/earnings-runs/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "earningsRunSchema"
+      ],
+      "auditAction": "CREATE",
+      "title": "Calculate a month's member earnings",
+      "group": "Earnings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: month (YYYY-MM). Unknown keys rejected.",
+      "output": "200 PROPOSED earnings run with frozen member shares.",
+      "conditions": "Treasurer; month must have ended (Kampala); no other PROPOSED run; month later than the latest POSTED month; at least some newly collected interest. Interest collected (LoanSchedule.interestPaid) not yet shared by a POSTED run, capped at interest accrued through the month end. Each installment's interest is spread evenly from the previous due date to its due date; new interest funds the earliest unfunded days. Each day's slice is split by every savings account's lowest balance during that Kampala day.",
+      "effects": "Freezes the member share setting, per-member amounts (largest-remainder cents) and per-loan recognized interest; CREATE EarningsRun audit. Does not credit savings yet.",
+      "screens": [
+        "/dashboard/earnings"
+      ],
+      "errors": "400 invalid month or month not completed; 409 open proposal, later month already posted, nothing newly collected or invalid share setting; shared mutation errors.",
+      "body": {
+        "month": "2026-03"
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/earnings-runs/{id}/cancel",
+      "method": "POST",
+      "path": "/api/earnings-runs/{id}/cancel",
+      "source": "app/api/earnings-runs/[id]/cancel/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "earningsCancelSchema"
+      ],
+      "auditAction": "UPDATE",
+      "title": "Cancel an earnings proposal",
+      "group": "Earnings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON object {} is required by the mutation wrapper.",
+      "output": "200 cancelled earnings run.",
+      "conditions": "Treasurer; run must be PROPOSED.",
+      "effects": "Marks CANCELLED; its recognized interest is released for a new calculation. UPDATE EarningsRun audit.",
+      "screens": [
+        "/dashboard/earnings"
+      ],
+      "errors": "404 missing run; 409 not an open proposal; shared mutation errors.",
+      "body": {},
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/earnings-runs/{id}/post",
+      "method": "POST",
+      "path": "/api/earnings-runs/{id}/post",
+      "source": "app/api/earnings-runs/[id]/post/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "earningsPostSchema"
+      ],
+      "auditAction": "DISBURSE",
+      "title": "Post member earnings to savings",
+      "group": "Earnings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: password (Treasurer's current password, 1–200 characters), confirm: true. Unknown keys rejected.",
+      "output": "200 posted earnings run.",
+      "conditions": "Treasurer; valid password (five failures in ten minutes pause attempts); run PROPOSED and no later month posted; frozen shares must still total the member pool.",
+      "effects": "Credits INTEREST transactions (reference ERN-YYYY-MM) to ACTIVE savings accounts, records EarningsAllocation rows, retains shares of inactive accounts as forfeitedAmount, notifies credited members and marks POSTED with DISBURSE EarningsRun audit atomically. Repeat/concurrent calls cannot pay twice.",
+      "screens": [
+        "/dashboard/earnings"
+      ],
+      "errors": "403 incorrect password; 404 missing run; 409 already posted/cancelled, later month posted or inconsistent proposal; 429 too many failed attempts; shared mutation errors.",
+      "body": {
+        "password": "<treasurer-password>",
+        "confirm": true
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
       "key": "POST /api/investment-products",
       "method": "POST",
       "path": "/api/investment-products",
@@ -1941,6 +2298,204 @@
         "amount": "50000.00",
         "reference": "DEMO-RECEIPT-123",
         "narrative": "Example savings entry"
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/withdrawal-requests",
+      "method": "POST",
+      "path": "/api/withdrawal-requests",
+      "source": "app/api/withdrawal-requests/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "CLIENT"
+      ],
+      "schemas": [
+        "withdrawalRequestSchema"
+      ],
+      "auditAction": "CREATE",
+      "title": "Request a savings withdrawal",
+      "group": "Savings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: amount (positive decimal string, up to 2 decimals), payoutMethod (CASH, BANK_TRANSFER, MOBILE_MONEY), payoutDetails (up to 120 characters; required unless CASH, ignored for CASH), optional reason (up to 240 characters). Unknown keys rejected.",
+      "output": "200 { id, status: PENDING }.",
+      "conditions": "Member; ACTIVE membership and savings account. Amount must not exceed the savings balance minus the member's other PENDING or APPROVED requests.",
+      "effects": "Locks the member's account so concurrent requests cannot over-commit savings, then creates a PENDING request; CREATE WithdrawalRequest audit. The savings balance does not change until payout.",
+      "screens": [
+        "/dashboard/client"
+      ],
+      "errors": "400 validation failure; 403 non-Member or missing membership; 404 missing savings account; 409 inactive membership/account or INSUFFICIENT_BALANCE; shared mutation errors.",
+      "body": {
+        "amount": "50000.00",
+        "payoutMethod": "MOBILE_MONEY",
+        "payoutDetails": "+256700000123",
+        "reason": "Example school fees"
+      },
+      "allowed": [
+        "CLIENT"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/withdrawal-requests/{id}/approve",
+      "method": "POST",
+      "path": "/api/withdrawal-requests/{id}/approve",
+      "source": "app/api/withdrawal-requests/[id]/approve/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "withdrawalApproveSchema"
+      ],
+      "auditAction": "APPROVE",
+      "title": "Approve a withdrawal request",
+      "group": "Savings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: optional comment (up to 500 characters).",
+      "output": "200 { id, status: APPROVED }.",
+      "conditions": "Treasurer; request must be PENDING. The member's savings account must be ACTIVE and its balance must still cover the amount. Another Treasurer must handle a request from a Treasurer's own linked membership.",
+      "effects": "Stores reviewer, timestamp and comment; member notification; APPROVE WithdrawalRequest audit. Savings are not debited until payout.",
+      "screens": [
+        "/dashboard/treasurer"
+      ],
+      "errors": "400 invalid comment; 403 own request; 404 missing request; 409 already reviewed, inactive account or INSUFFICIENT_BALANCE; shared mutation errors.",
+      "body": {
+        "comment": "Example review completed"
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/withdrawal-requests/{id}/cancel",
+      "method": "POST",
+      "path": "/api/withdrawal-requests/{id}/cancel",
+      "source": "app/api/withdrawal-requests/[id]/cancel/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "CLIENT"
+      ],
+      "schemas": [
+        "withdrawalCancelSchema"
+      ],
+      "auditAction": "UPDATE",
+      "title": "Cancel your withdrawal request",
+      "group": "Savings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON object {} is required by the mutation wrapper.",
+      "output": "200 { id, status: CANCELLED }.",
+      "conditions": "Member; own request; status PENDING or APPROVED.",
+      "effects": "Marks CANCELLED and releases the reserved amount; UPDATE WithdrawalRequest audit.",
+      "screens": [
+        "/dashboard/client"
+      ],
+      "errors": "404 missing or another member's request; 409 already closed; shared mutation errors.",
+      "body": {},
+      "allowed": [
+        "CLIENT"
+      ],
+      "access": {
+        "CLIENT": "Allowed",
+        "TREASURER": "—",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/withdrawal-requests/{id}/disburse",
+      "method": "POST",
+      "path": "/api/withdrawal-requests/{id}/disburse",
+      "source": "app/api/withdrawal-requests/[id]/disburse/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "withdrawalDisburseSchema"
+      ],
+      "auditAction": "WITHDRAW",
+      "title": "Pay out an approved withdrawal request",
+      "group": "Savings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: password (Treasurer's current password, 1–200 characters), optional reference (payout transaction ID, up to 80 characters; defaults to WDR-{id}), confirm: true. Unknown keys rejected.",
+      "output": "200 { id, status: DISBURSED, balance: decimal string }.",
+      "conditions": "Treasurer; valid password; request must be APPROVED; savings account ACTIVE with enough balance at payout. Another Treasurer must handle a request from a Treasurer's own linked membership. Eight failed payout attempts in ten minutes pause further attempts.",
+      "effects": "Locks request and account, subtracts balance, creates a WITHDRAWAL transaction, marks DISBURSED with a link to that transaction, stores member notification and WITHDRAW WithdrawalRequest audit atomically. Repeat/concurrent calls cannot pay twice.",
+      "screens": [
+        "/dashboard/treasurer"
+      ],
+      "errors": "403 incorrect password or own request; 404 missing request; 409 not approved, inactive account or INSUFFICIENT_BALANCE; 429 too many failed attempts; shared mutation errors.",
+      "body": {
+        "password": "<treasurer-password>",
+        "reference": "DEMO-MM-123",
+        "confirm": true
+      },
+      "allowed": [
+        "TREASURER"
+      ],
+      "access": {
+        "CLIENT": "—",
+        "TREASURER": "Allowed",
+        "BOARD": "—",
+        "ADMIN": "—"
+      }
+    },
+    {
+      "key": "POST /api/withdrawal-requests/{id}/reject",
+      "method": "POST",
+      "path": "/api/withdrawal-requests/{id}/reject",
+      "source": "app/api/withdrawal-requests/[id]/reject/route.ts",
+      "guard": "loanMutation",
+      "roles": [
+        "TREASURER"
+      ],
+      "schemas": [
+        "withdrawalRejectSchema"
+      ],
+      "auditAction": "REJECT",
+      "title": "Reject a withdrawal request",
+      "group": "Savings",
+      "policy": {
+        "kind": "session"
+      },
+      "input": "JSON: comment (required reason, 3–500 characters).",
+      "output": "200 { id, status: REJECTED }.",
+      "conditions": "Treasurer; request must be PENDING. Another Treasurer must handle a request from a Treasurer's own linked membership.",
+      "effects": "Stores reviewer, timestamp and comment; member notification; REJECT WithdrawalRequest audit. Releases the reserved amount.",
+      "screens": [
+        "/dashboard/treasurer"
+      ],
+      "errors": "400 invalid comment; 403 own request; 404 missing request; 409 already reviewed; shared mutation errors.",
+      "body": {
+        "comment": "Example: please visit the office to confirm"
       },
       "allowed": [
         "TREASURER"

@@ -13,7 +13,7 @@ export async function GET() {
         "Cache-Control": "no-cache",
       },
     });
-  } catch (error) {
+  } catch {
     return new Response("Handbook not found. Run `npm run docs:build` first.", {
       status: 404,
       headers: { "Content-Type": "text/plain" },

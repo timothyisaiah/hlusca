@@ -143,6 +143,102 @@ Host: localhost:3000
 Cookie: <session-cookie-from-sign-in>
 ```
 
+## GET /api/earnings-history
+
+**View credited loan earnings** · Earnings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Member, Treasurer, Board, Administrator |
+| Request | Optional query memberId. Members are always restricted to their linked memberId; another ID is forbidden. Staff may omit memberId to list all members' records. |
+| Success response | 200 EarningsHistoryRecord[]: id, amount, earningDays and run { month, periodEnd, postedAt }. |
+| Conditions | Member: own history; staff: any member. Only credited (non-retained) shares of POSTED runs appear. |
+| Effects and audit | Reads records; no business mutation or read audit is performed by this handler. |
+| Errors | 401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler. |
+| Screen | `/dashboard/client` |
+| Source | [`app/api/earnings-history/route.ts`](../../app/api/earnings-history/route.ts) |
+| Extracted guard | `loanRead`; effective conditions reviewed from handler/service |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+memberFilterSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+GET /api/earnings-history HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+```
+
+## GET /api/earnings-runs
+
+**Review member earnings runs** · Earnings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Treasurer, Board, Administrator |
+| Request | No request body. |
+| Success response | 200 EarningsRunRecord[] (latest 60): month, periodEnd, interestCollected, memberSharePercent, memberPool, reserveAmount, forfeitedAmount, status, frozen calculationSnapshot { method, firstDay, lastDay, shares[], loans[] }, proposer/poster names and timestamps. |
+| Conditions | Staff roles only. Member history is served by /api/earnings-history. |
+| Effects and audit | Reads records; no business mutation or read audit is performed by this handler. |
+| Errors | 401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler. |
+| Screen | `/dashboard/earnings` |
+| Source | [`app/api/earnings-runs/route.ts`](../../app/api/earnings-runs/route.ts) |
+| Extracted guard | `loanRead`; effective conditions reviewed from handler/service |
+
+```http
+GET /api/earnings-runs HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+```
+
+## GET /api/earnings-settings
+
+**Read the member earnings share** · Earnings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Member, Treasurer, Board, Administrator |
+| Request | No request body. |
+| Success response | 200 { memberSharePercent: decimal string }. |
+| Conditions | All authenticated roles may read this API; the setting is edited on Member Earnings by an Administrator. |
+| Effects and audit | Reads records; no business mutation or read audit is performed by this handler. |
+| Errors | 401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler. |
+| Screen | `/dashboard/earnings` |
+| Source | [`app/api/earnings-settings/route.ts`](../../app/api/earnings-settings/route.ts) |
+| Extracted guard | `loanRead`; effective conditions reviewed from handler/service |
+
+```http
+GET /api/earnings-settings HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+```
+
+## GET /api/handbook
+
+**Download the built application handbook** · Operations
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Member, Treasurer, Board, Administrator |
+| Request | No request body. |
+| Success response | 200 text/html (docs/index.html) with Cache-Control: no-cache; 404 text/plain when the handbook has not been built. |
+| Conditions | Any signed-in user; the proxy rejects requests without a session. The handler itself performs no role check. |
+| Effects and audit | Reads records; no business mutation or read audit is performed by this handler. |
+| Errors | 401 unauthenticated (proxy); 404 handbook not built. |
+| Screen | API/framework operation; no dedicated application action button |
+| Source | [`app/api/handbook/route.ts`](../../app/api/handbook/route.ts) |
+| Extracted guard | `custom`; effective conditions reviewed from handler/service |
+
+```http
+GET /api/handbook HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+```
+
 ## GET /api/investment-products
 
 **List investment products** · Investments
@@ -480,6 +576,71 @@ See [validation reference](validation.md) for schema definitions and helper rule
 GET /api/members/member-demo/transactions?format=json&page=1&pageSize=8 HTTP/1.1
 Host: localhost:3000
 Cookie: <session-cookie-from-sign-in>
+```
+
+## GET /api/withdrawal-requests
+
+**List withdrawal requests** · Savings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Member, Treasurer, Board, Administrator |
+| Request | Optional query: status (WithdrawalRequestStatus) and memberId. Members are always restricted to their own memberId; another ID is forbidden. |
+| Success response | 200 array of up to 100 WithdrawalRequestRecord: id, amount, payoutMethod, payoutDetails, reason, status (PENDING, APPROVED, REJECTED, CANCELLED, DISBURSED), requestedAt, reviewedAt/reviewedBy/reviewComment, disbursedAt/disbursedBy, transactionReference, cancelledAt and member { id, memberNumber, name, accountNumber, balance }. Decimal values are strings. Newest first. |
+| Conditions | Member: own requests. Treasurer, Board and Administrator: all requests. |
+| Effects and audit | Reads records; no business mutation or read audit is performed by this handler. |
+| Errors | 401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler. |
+| Screen | `/dashboard/client`, `/dashboard/treasurer` |
+| Source | [`app/api/withdrawal-requests/route.ts`](../../app/api/withdrawal-requests/route.ts) |
+| Extracted guard | `loanRead`; effective conditions reviewed from handler/service |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+querySchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+GET /api/withdrawal-requests?status=PENDING HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+```
+
+## PATCH /api/earnings-settings
+
+**Set the member earnings share** · Earnings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Administrator |
+| Request | JSON: memberSharePercent (0–100, up to 2 decimals). |
+| Success response | 200 { memberSharePercent }. |
+| Conditions | Administrator. Applies to runs calculated afterwards; existing proposals keep their frozen share. |
+| Effects and audit | Saves SystemSetting MEMBER_EARNINGS_SHARE_PERCENT; UPDATE audit. |
+| Errors | 401 unauthenticated; 403 access denied or password change required; 500 unexpected error; 503 database busy where reported by the common handler. |
+| Screen | `/dashboard/earnings` |
+| Source | [`app/api/earnings-settings/route.ts`](../../app/api/earnings-settings/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: ADMIN |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+earningsSettingsSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+PATCH /api/earnings-settings HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{
+  "memberSharePercent": "70"
+}
 ```
 
 ## PATCH /api/investment-products/{id}
@@ -980,6 +1141,110 @@ Content-Type: application/json
 }
 ```
 
+## POST /api/earnings-runs
+
+**Calculate a month's member earnings** · Earnings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Treasurer |
+| Request | JSON: month (YYYY-MM). Unknown keys rejected. |
+| Success response | 200 PROPOSED earnings run with frozen member shares. |
+| Conditions | Treasurer; month must have ended (Kampala); no other PROPOSED run; month later than the latest POSTED month; at least some newly collected interest. Interest collected (LoanSchedule.interestPaid) not yet shared by a POSTED run, capped at interest accrued through the month end. Each installment's interest is spread evenly from the previous due date to its due date; new interest funds the earliest unfunded days. Each day's slice is split by every savings account's lowest balance during that Kampala day. |
+| Effects and audit | Freezes the member share setting, per-member amounts (largest-remainder cents) and per-loan recognized interest; CREATE EarningsRun audit. Does not credit savings yet. |
+| Errors | 400 invalid month or month not completed; 409 open proposal, later month already posted, nothing newly collected or invalid share setting; shared mutation errors. |
+| Screen | `/dashboard/earnings` |
+| Source | [`app/api/earnings-runs/route.ts`](../../app/api/earnings-runs/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: TREASURER |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+earningsRunSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+POST /api/earnings-runs HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{
+  "month": "2026-03"
+}
+```
+
+## POST /api/earnings-runs/{id}/cancel
+
+**Cancel an earnings proposal** · Earnings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Treasurer |
+| Request | JSON object {} is required by the mutation wrapper. |
+| Success response | 200 cancelled earnings run. |
+| Conditions | Treasurer; run must be PROPOSED. |
+| Effects and audit | Marks CANCELLED; its recognized interest is released for a new calculation. UPDATE EarningsRun audit. |
+| Errors | 404 missing run; 409 not an open proposal; shared mutation errors. |
+| Screen | `/dashboard/earnings` |
+| Source | [`app/api/earnings-runs/[id]/cancel/route.ts`](../../app/api/earnings-runs/%5Bid%5D/cancel/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: TREASURER |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+earningsCancelSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+POST /api/earnings-runs/id-demo/cancel HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{}
+```
+
+## POST /api/earnings-runs/{id}/post
+
+**Post member earnings to savings** · Earnings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Treasurer |
+| Request | JSON: password (Treasurer's current password, 1–200 characters), confirm: true. Unknown keys rejected. |
+| Success response | 200 posted earnings run. |
+| Conditions | Treasurer; valid password (five failures in ten minutes pause attempts); run PROPOSED and no later month posted; frozen shares must still total the member pool. |
+| Effects and audit | Credits INTEREST transactions (reference ERN-YYYY-MM) to ACTIVE savings accounts, records EarningsAllocation rows, retains shares of inactive accounts as forfeitedAmount, notifies credited members and marks POSTED with DISBURSE EarningsRun audit atomically. Repeat/concurrent calls cannot pay twice. |
+| Errors | 403 incorrect password; 404 missing run; 409 already posted/cancelled, later month posted or inconsistent proposal; 429 too many failed attempts; shared mutation errors. |
+| Screen | `/dashboard/earnings` |
+| Source | [`app/api/earnings-runs/[id]/post/route.ts`](../../app/api/earnings-runs/%5Bid%5D/post/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: TREASURER |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+earningsPostSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+POST /api/earnings-runs/id-demo/post HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{
+  "password": "<treasurer-password>",
+  "confirm": true
+}
+```
+
 ## POST /api/investment-products
 
 **Create an investment product** · Investments
@@ -1428,5 +1693,183 @@ Content-Type: application/json
   "amount": "50000.00",
   "reference": "DEMO-RECEIPT-123",
   "narrative": "Example savings entry"
+}
+```
+
+## POST /api/withdrawal-requests
+
+**Request a savings withdrawal** · Savings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Member |
+| Request | JSON: amount (positive decimal string, up to 2 decimals), payoutMethod (CASH, BANK_TRANSFER, MOBILE_MONEY), payoutDetails (up to 120 characters; required unless CASH, ignored for CASH), optional reason (up to 240 characters). Unknown keys rejected. |
+| Success response | 200 { id, status: PENDING }. |
+| Conditions | Member; ACTIVE membership and savings account. Amount must not exceed the savings balance minus the member's other PENDING or APPROVED requests. |
+| Effects and audit | Locks the member's account so concurrent requests cannot over-commit savings, then creates a PENDING request; CREATE WithdrawalRequest audit. The savings balance does not change until payout. |
+| Errors | 400 validation failure; 403 non-Member or missing membership; 404 missing savings account; 409 inactive membership/account or INSUFFICIENT_BALANCE; shared mutation errors. |
+| Screen | `/dashboard/client` |
+| Source | [`app/api/withdrawal-requests/route.ts`](../../app/api/withdrawal-requests/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: CLIENT |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+withdrawalRequestSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+POST /api/withdrawal-requests HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{
+  "amount": "50000.00",
+  "payoutMethod": "MOBILE_MONEY",
+  "payoutDetails": "+256700000123",
+  "reason": "Example school fees"
+}
+```
+
+## POST /api/withdrawal-requests/{id}/approve
+
+**Approve a withdrawal request** · Savings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Treasurer |
+| Request | JSON: optional comment (up to 500 characters). |
+| Success response | 200 { id, status: APPROVED }. |
+| Conditions | Treasurer; request must be PENDING. The member's savings account must be ACTIVE and its balance must still cover the amount. Another Treasurer must handle a request from a Treasurer's own linked membership. |
+| Effects and audit | Stores reviewer, timestamp and comment; member notification; APPROVE WithdrawalRequest audit. Savings are not debited until payout. |
+| Errors | 400 invalid comment; 403 own request; 404 missing request; 409 already reviewed, inactive account or INSUFFICIENT_BALANCE; shared mutation errors. |
+| Screen | `/dashboard/treasurer` |
+| Source | [`app/api/withdrawal-requests/[id]/approve/route.ts`](../../app/api/withdrawal-requests/%5Bid%5D/approve/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: TREASURER |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+withdrawalApproveSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+POST /api/withdrawal-requests/id-demo/approve HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{
+  "comment": "Example review completed"
+}
+```
+
+## POST /api/withdrawal-requests/{id}/cancel
+
+**Cancel your withdrawal request** · Savings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Member |
+| Request | JSON object {} is required by the mutation wrapper. |
+| Success response | 200 { id, status: CANCELLED }. |
+| Conditions | Member; own request; status PENDING or APPROVED. |
+| Effects and audit | Marks CANCELLED and releases the reserved amount; UPDATE WithdrawalRequest audit. |
+| Errors | 404 missing or another member's request; 409 already closed; shared mutation errors. |
+| Screen | `/dashboard/client` |
+| Source | [`app/api/withdrawal-requests/[id]/cancel/route.ts`](../../app/api/withdrawal-requests/%5Bid%5D/cancel/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: CLIENT |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+withdrawalCancelSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+POST /api/withdrawal-requests/id-demo/cancel HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{}
+```
+
+## POST /api/withdrawal-requests/{id}/disburse
+
+**Pay out an approved withdrawal request** · Savings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Treasurer |
+| Request | JSON: password (Treasurer's current password, 1–200 characters), optional reference (payout transaction ID, up to 80 characters; defaults to WDR-{id}), confirm: true. Unknown keys rejected. |
+| Success response | 200 { id, status: DISBURSED, balance: decimal string }. |
+| Conditions | Treasurer; valid password; request must be APPROVED; savings account ACTIVE with enough balance at payout. Another Treasurer must handle a request from a Treasurer's own linked membership. Eight failed payout attempts in ten minutes pause further attempts. |
+| Effects and audit | Locks request and account, subtracts balance, creates a WITHDRAWAL transaction, marks DISBURSED with a link to that transaction, stores member notification and WITHDRAW WithdrawalRequest audit atomically. Repeat/concurrent calls cannot pay twice. |
+| Errors | 403 incorrect password or own request; 404 missing request; 409 not approved, inactive account or INSUFFICIENT_BALANCE; 429 too many failed attempts; shared mutation errors. |
+| Screen | `/dashboard/treasurer` |
+| Source | [`app/api/withdrawal-requests/[id]/disburse/route.ts`](../../app/api/withdrawal-requests/%5Bid%5D/disburse/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: TREASURER |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+withdrawalDisburseSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+POST /api/withdrawal-requests/id-demo/disburse HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{
+  "password": "<treasurer-password>",
+  "reference": "DEMO-MM-123",
+  "confirm": true
+}
+```
+
+## POST /api/withdrawal-requests/{id}/reject
+
+**Reject a withdrawal request** · Savings
+
+| Contract | Details |
+| --- | --- |
+| Authentication | Session · Treasurer |
+| Request | JSON: comment (required reason, 3–500 characters). |
+| Success response | 200 { id, status: REJECTED }. |
+| Conditions | Treasurer; request must be PENDING. Another Treasurer must handle a request from a Treasurer's own linked membership. |
+| Effects and audit | Stores reviewer, timestamp and comment; member notification; REJECT WithdrawalRequest audit. Releases the reserved amount. |
+| Errors | 400 invalid comment; 403 own request; 404 missing request; 409 already reviewed; shared mutation errors. |
+| Screen | `/dashboard/treasurer` |
+| Source | [`app/api/withdrawal-requests/[id]/reject/route.ts`](../../app/api/withdrawal-requests/%5Bid%5D/reject/route.ts) |
+| Extracted guard | `loanMutation`; literal roles: TREASURER |
+
+**Validation expression(s), extracted from the handler:**
+
+```ts
+withdrawalRejectSchema
+```
+
+See [validation reference](validation.md) for schema definitions and helper rules.
+
+```http
+POST /api/withdrawal-requests/id-demo/reject HTTP/1.1
+Host: localhost:3000
+Cookie: <session-cookie-from-sign-in>
+Content-Type: application/json
+
+{
+  "comment": "Example: please visit the office to confirm"
 }
 ```

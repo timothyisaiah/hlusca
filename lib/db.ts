@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 
 import { DATABASE_SCHEMA } from "./constants";
+import { serializeClientQueries } from "./db-serialize";
 import { env } from "./env";
 
 declare global {
@@ -11,15 +12,20 @@ declare global {
   var prismaPool: Pool | undefined;
 }
 
-// Keep each application process below the Neon pooler's connection allowance.
-const pool =
-  globalThis.prismaPool ??
-  new Pool({
+function createPool() {
+  // Keep each application process below the Neon pooler's connection allowance.
+  const created = new Pool({
     connectionString: env.DATABASE_URL,
     max: 5,
     idleTimeoutMillis: 10_000,
     connectionTimeoutMillis: 10_000,
   });
+  // Fires once per new connection, before it is handed out; see db-serialize.
+  created.on("connect", (client) => serializeClientQueries(client));
+  return created;
+}
+
+const pool = globalThis.prismaPool ?? createPool();
 
 const adapter =
   globalThis.prismaAdapter ??

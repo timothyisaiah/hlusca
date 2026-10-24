@@ -11,6 +11,7 @@ import {
   Settings2,
   TrendingUp,
   Coins,
+  HandCoins,
 } from "lucide-react";
 
 export interface NavItem {
@@ -84,6 +85,13 @@ export const navItems: NavItem[] = [
     description: "Financial-year proposals, approvals, and posting.",
     roles: ["TREASURER", "BOARD", "ADMIN"],
     icon: Coins,
+  },
+  {
+    href: "/dashboard/earnings",
+    label: "Member Earnings",
+    description: "Monthly share of collected loan interest by daily balances.",
+    roles: ["TREASURER", "BOARD", "ADMIN"],
+    icon: HandCoins,
   },
   {
     href: "/dashboard/admin/loan-types",

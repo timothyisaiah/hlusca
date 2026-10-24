@@ -1,5 +1,6 @@
 "use client";
 
+import type * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
@@ -32,42 +33,57 @@ function NavigationContent({
   user,
   onNavigate,
   collapsed = false,
+  headerAction,
 }: {
   user: Session["user"];
   onNavigate?: () => void;
   collapsed?: boolean;
+  headerAction?: React.ReactNode;
 }) {
   const pathname = usePathname();
   const links = getNavForRole(user.role);
 
   return (
-    <>
-      <div className={cn("space-y-3", collapsed && "flex flex-col items-center")}>
-        {collapsed ? (
-          <span
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-sm font-bold text-[var(--accent-ink)]"
-            aria-label="HLUSCA"
-          >
-            H
-          </span>
-        ) : (
-          <Badge variant="default">HLUSCA</Badge>
-        )}
+    // Header and footer keep their height; only the menu scrolls, so Sign out
+    // stays reachable however many items a role has or how short the window is.
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className={cn("shrink-0 space-y-4", collapsed && "flex flex-col items-center")}>
+        <div
+          className={cn(
+            "flex items-center justify-between gap-3",
+            collapsed && "flex-col-reverse",
+          )}
+        >
+          {collapsed ? (
+            <span
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-sm font-bold text-[var(--accent-ink)]"
+              aria-label="HLUSCA"
+            >
+              H
+            </span>
+          ) : (
+            <Badge variant="default">HLUSCA</Badge>
+          )}
+          {headerAction}
+        </div>
         <div className={cn(collapsed && "sr-only")}>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
             {ROLE_LABELS[user.role]}
           </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)]">
+          <h2 className="mt-1 truncate text-lg font-semibold tracking-tight text-[var(--foreground)]">
             {user.name ?? "Platform User"}
           </h2>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+          <p className="truncate text-sm text-[var(--muted-foreground)]">
             {user.memberNumber ?? user.email ?? user.id}
           </p>
         </div>
       </div>
 
       <nav
-        className={cn("mt-8 flex-1 space-y-2", collapsed && "flex flex-col items-center")}
+        className={cn(
+          "-mx-2 mt-6 min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-2",
+          collapsed && "flex flex-col items-center",
+        )}
         aria-label="Dashboard navigation"
       >
         {links.map((item) => {
@@ -79,42 +95,32 @@ function NavigationContent({
               key={item.href}
               href={item.href as Route}
               aria-current={current ? "page" : undefined}
-              title={item.label}
+              title={collapsed ? item.label : item.description}
               onClick={onNavigate}
               className={cn(
-                "group flex min-h-[44px] items-start gap-3 rounded-3xl border border-transparent px-3 py-3 transition hover:border-[var(--surface-border)] hover:bg-[var(--surface-muted)] lg:px-4 lg:py-4",
-                collapsed && "w-11 justify-center px-0 py-2",
-                current && "border-[var(--surface-border)] bg-[var(--accent-soft)]",
+                "flex min-h-[44px] items-center gap-3 rounded-2xl border border-transparent px-3 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--surface-border)] hover:bg-[var(--surface-muted)]",
+                collapsed && "w-11 justify-center px-0",
+                current && "border-[var(--surface-border)] bg-[var(--accent-soft)] text-[var(--accent-ink)]",
               )}
             >
-              <span className="rounded-2xl bg-[var(--accent-soft)] p-2 text-[var(--accent-ink)]">
+              <span className="shrink-0 rounded-xl bg-[var(--accent-soft)] p-2 text-[var(--accent-ink)]">
                 <Icon className="h-4 w-4" />
               </span>
-              <span className={cn("space-y-1", collapsed && "sr-only")}>
-                <span className="block text-sm font-semibold text-[var(--foreground)]">
-                  {item.label}
-                </span>
-                <span className="block text-xs leading-5 text-[var(--muted-foreground)]">
-                  {item.description}
-                </span>
-              </span>
+              <span className={cn("truncate", collapsed && "sr-only")}>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className={cn("mt-6 rounded-3xl border border-[var(--surface-border)] bg-[var(--surface-muted)] p-4", collapsed && "p-2")}>
-        <div className={cn(collapsed && "sr-only")}>
-          <p className="text-sm font-semibold text-[var(--foreground)]">Security mode</p>
-          <p className="mt-2 text-xs leading-5 text-[var(--muted-foreground)]">
-            Every write action routes through the audit wrapper and server-side role checks.
-          </p>
-        </div>
-        <div className={cn("mt-4", collapsed && "mt-0")}>
-          <SignOutButton compact={collapsed} />
-        </div>
+      <div
+        className={cn(
+          "mt-4 shrink-0 border-t border-[var(--surface-border)] pt-4",
+          collapsed && "flex justify-center",
+        )}
+      >
+        <SignOutButton compact={collapsed} />
       </div>
-    </>
+    </div>
   );
 }
 
@@ -126,16 +132,21 @@ export function Sidebar({ user, collapsed, onToggleCollapsed }: SidebarProps) {
         collapsed && "items-center p-3",
       )}
     >
-      <button
-        type="button"
-        onClick={onToggleCollapsed}
-        className="mb-4 flex min-h-[44px] min-w-[44px] items-center justify-center self-end rounded-2xl text-[var(--accent-ink)] hover:bg-[var(--accent-soft)]"
-        aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
-        title={collapsed ? "Expand navigation" : "Collapse navigation"}
-      >
-        {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
-      </button>
-      <NavigationContent user={user} collapsed={collapsed} />
+      <NavigationContent
+        user={user}
+        collapsed={collapsed}
+        headerAction={
+          <button
+            type="button"
+            onClick={onToggleCollapsed}
+            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-2xl text-[var(--accent-ink)] hover:bg-[var(--accent-soft)]"
+            aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+            title={collapsed ? "Expand navigation" : "Collapse navigation"}
+          >
+            {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+          </button>
+        }
+      />
     </aside>
   );
 }
@@ -156,10 +167,15 @@ export function MobileSidebarSheet({ user, open, onClose }: MobileSidebarSheetPr
         aria-label="Dashboard navigation"
         className={cn("absolute inset-y-0 left-0 flex w-[min(var(--sidebar-width),calc(100vw-3rem))] flex-col bg-white p-6 shadow-[24px_0_64px_rgba(15,23,42,0.18)] transition-transform", open ? "translate-x-0" : "-translate-x-full")}
       >
-        <button type="button" onClick={onClose} className="absolute right-4 top-4 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl text-[var(--muted-foreground)] hover:bg-[var(--surface-muted)]" aria-label="Close navigation">
-          <X className="h-5 w-5" />
-        </button>
-        <NavigationContent user={user} onNavigate={onClose} />
+        <NavigationContent
+          user={user}
+          onNavigate={onClose}
+          headerAction={
+            <button type="button" onClick={onClose} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-2xl text-[var(--muted-foreground)] hover:bg-[var(--surface-muted)]" aria-label="Close navigation">
+              <X className="h-5 w-5" />
+            </button>
+          }
+        />
       </aside>
     </div>
   );

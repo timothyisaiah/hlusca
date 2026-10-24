@@ -10,7 +10,11 @@ export const DEFAULT_ADMIN_PASSWORD = "ChangeMe123!";
 export const SYSTEM_SETTING_KEYS = {
   LOAN_BOARD_APPROVAL_THRESHOLD: "LOAN_BOARD_APPROVAL_THRESHOLD",
   MEMBER_NUMBER_SEQUENCE: "MEMBER_NUMBER_SEQUENCE",
+  MEMBER_EARNINGS_SHARE_PERCENT: "MEMBER_EARNINGS_SHARE_PERCENT",
 } as const;
+
+// Share of collected loan interest credited to members; the rest is retained.
+export const DEFAULT_MEMBER_EARNINGS_SHARE_PERCENT = "70";
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   ADMIN: "Administrator",
